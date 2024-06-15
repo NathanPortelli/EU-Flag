@@ -48,7 +48,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .Slider-content {
@@ -87,8 +88,9 @@ input[type="range"] {
   flex: 1;
   display: flex;
   justify-content: center;
+  max-width: 100%;
+  overflow: hidden;
 }
-
 .new-format .Slider-content {
   margin-top: 10%;
   flex: 1;

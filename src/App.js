@@ -6,7 +6,7 @@ import CircleCountSlider from './CircleCountSlider';
 import DownloadButton from './DownloadButton';
 import Switch from 'react-switch';
 import './App.css';
-import '@fortawesome/fontawesome-free/css/all.min.css'; // Import FontAwesome CSS
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const App = () => {
   const [starCount, setStarCount] = useState(12);
@@ -17,7 +17,13 @@ const App = () => {
 
   useEffect(() => {
     setStarRadius(isNewFormat ? 90 : 80);
-  }, [isNewFormat]);
+
+    if (window.innerWidth < 600) {
+      setIsNewFormat(true);
+    }
+
+    return () => { };
+  }, []);
 
   const handleToggle = () => {
     setIsNewFormat(!isNewFormat);
