@@ -14,6 +14,8 @@ const App = () => {
   const [starSize, setStarSize] = useState(45);
   const [isNewFormat, setIsNewFormat] = useState(false);
   const [starRadius, setStarRadius] = useState(100);
+  const [backColour, setBackColour] = useState('#003399');
+  const [starColour, setStarColour] = useState('#FFDD00');
 
   useEffect(() => {
     setStarRadius(isNewFormat ? 90 : 80);
@@ -27,6 +29,16 @@ const App = () => {
 
   const handleToggle = () => {
     setIsNewFormat(!isNewFormat);
+  };
+
+  const handleBackColourChange = (colour) => {
+    setBackColour(colour);
+    document.documentElement.style.setProperty('--back-color', colour);
+  };
+
+  const handleStarColourChange = (colour) => {
+    setStarColour(colour);
+    document.documentElement.style.setProperty('--star-color', colour);
   };
 
   return (
@@ -56,14 +68,39 @@ const App = () => {
       <main className="App-main">
         <div className="App-content">
           <div className="Stars-content">
-            <StarsDisplay count={starCount} size={starSize} radius={starRadius} circleCount={circleCount} />
+            <StarsDisplay
+              count={starCount} 
+              size={starSize} 
+              radius={starRadius} 
+              circleCount={circleCount} 
+              backColour={backColour}
+              starColour={starColour}
+            />
           </div>
           <div className="Slider-content">
             <Slider value={starCount} onChange={setStarCount} />
             <CircleCountSlider value={circleCount} onChange={setCircleCount} />
             <StarSizeSlider value={starSize} onChange={setStarSize} />
+            <div className="Colour-inputs">
+              <input
+                type="color"
+                id="backColourPicker"
+                value={backColour}
+                onChange={(e) => handleBackColourChange(e.target.value)}
+              />
+              <label htmlFor="backColourPicker" className="colour-label"><b>Background</b> Colour</label>
+            </div>
+            <div className="Colour-inputs">
+              <input
+                type="color"
+                id="starColourPicker"
+                value={starColour}
+                onChange={(e) => handleStarColourChange(e.target.value)}
+              />
+              <label htmlFor="starColourPicker" className="colour-label"><b>Stars</b> Colour</label>
+            </div>
             <div className="Download-btn">
-              <DownloadButton />
+              <DownloadButton backColour={backColour}/>
             </div>
           </div>
         </div>

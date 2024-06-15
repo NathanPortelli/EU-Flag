@@ -2,7 +2,7 @@ import React from 'react';
 import { MdOutlineStar } from 'react-icons/md';
 import './StarsDisplay.css';
 
-const StarsDisplay = ({ count, size, radius, circleCount }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour }) => {
   const renderStars = (count, size, radius, keyPrefix) => {
     const stars = [];
     for (let i = 0; i < count; i++) {
@@ -18,6 +18,7 @@ const StarsDisplay = ({ count, size, radius, circleCount }) => {
             left: `${x}%`,
             top: `${y}%`,
             fontSize: `${size}px`,
+            color: starColour,
           }}
         >
           <MdOutlineStar />
@@ -46,7 +47,7 @@ const StarsDisplay = ({ count, size, radius, circleCount }) => {
           width: `${currentRadius * 2}%`,
           height: `${currentRadius * 2}%`,
           top: `calc(50% - ${currentRadius}%)`,
-          left: `calc(50% - ${currentRadius}%)`,
+          left: `calc(50% - ${currentRadius}%)`
         }}
       >
         {renderStars(newCount, size, currentRadius, `circle-${config.circleIndex}`)}
@@ -55,7 +56,7 @@ const StarsDisplay = ({ count, size, radius, circleCount }) => {
   });
 
   return (
-    <div id="stars-container" className="stars-container">
+    <div id="stars-container" className="stars-container" style={{ backgroundColor: backColour }}>
       {circles}
     </div>
   );

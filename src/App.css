@@ -1,8 +1,13 @@
+:root {
+  --back-colour: #003399;
+  --star-colour: #FFDD00;
+}
+
 body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-  background-color: #003399; 
+  background-color: var(--back-colour); 
   color: white;
   height: 100vh;
   display: flex;
@@ -127,4 +132,25 @@ input[type="range"] {
 
 .github-icon:hover {
   color: #d3d3d3;
+}
+
+/* Colour Inputter */
+
+.Colour-inputs {
+  margin-bottom: 10px;
+}
+
+.colour-label {
+  display: block;
+  margin-top: 10px;
+}
+
+input[type='color'] {
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-left: 10px;
 }

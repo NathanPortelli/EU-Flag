@@ -5,13 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import './DownloadButton.css';
 
-const DownloadButton = () => {
+const DownloadButton = ({ backColour }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   const handleDownload = () => {
     const starsContainer = document.getElementById('stars-container');
     if (!starsContainer) {
-      console.error('Stars container not found');
+      console.error('Stars container not found.');
       return;
     }
 
@@ -42,7 +42,7 @@ const DownloadButton = () => {
     canvas.height = canvasHeight;
 
     // Blue background
-    ctx.fillStyle = '#003399';
+    ctx.fillStyle = backColour;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     // Converting stars container to image and draw on canvas
