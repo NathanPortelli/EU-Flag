@@ -6,6 +6,7 @@ import CircleCountSlider from './CircleCountSlider';
 import DownloadButton from './DownloadButton';
 import Switch from 'react-switch';
 import './App.css';
+import '@fortawesome/fontawesome-free/css/all.min.css'; // Import FontAwesome CSS
 
 const App = () => {
   const [starCount, setStarCount] = useState(12);
@@ -60,6 +61,9 @@ const App = () => {
             </div>
           </div>
         </div>
+        <a href="https://github.com/NathanPortelli/EU-Flag" className="github-icon" target="_blank" rel="noopener noreferrer">
+          <i className="fab fa-github"></i>
+        </a>
       </main>
     </div>
   );

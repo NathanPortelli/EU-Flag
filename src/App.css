@@ -111,3 +111,18 @@ input[type="range"] {
 .react-switch {
   vertical-align: middle;
 }
+
+/* GitHub Icon */
+
+.github-icon {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 2rem;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.github-icon:hover {
+  color: #d3d3d3;
+}
