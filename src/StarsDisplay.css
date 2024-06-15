@@ -1,0 +1,14 @@
+.stars-container {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  background-color: #003399;
+  border-radius: 100%;
+}
+
+.star {
+  display: inline-block;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  color: #FFDD00;
+}

@@ -1,0 +1,32 @@
+.download-button {
+    background-color: #003399;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+  }
+  
+  .download-button:hover {
+    background-color: #FFDD00;
+    color: #003399;
+  }
+  
+  .download-icon {
+    margin-right: 10px;
+  }
+
+  .flag-text p {
+    color: #FFDD00;
+    text-decoration: none;
+  }
+  
+  .flag-text a {
+    text-decoration: none;
+    color: #FFDD00;
+  }
