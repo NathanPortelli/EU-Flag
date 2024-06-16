@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Slider from './Slider';
 import StarsDisplay from './StarsDisplay';
-import StarSizeSlider from './StarSizeSlider';
-import CircleCountSlider from './CircleCountSlider';
-import StarRotatorSlider from './StarRotatorSlider';
 import DownloadButton from './DownloadButton';
 import Switch from 'react-switch';
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+
+const shapeOptions = [
+  'Star', 'Circle', 'Square', 'Hexagon', 'Pentagon', 'Octagon', 'Heart', 'Diamond', 'Crescent'
+];
 
 const App = () => {
   const [starCount, setStarCount] = useState(12);
@@ -18,6 +19,7 @@ const App = () => {
   const [backColour, setBackColour] = useState('#003399');
   const [starColour, setStarColour] = useState('#FFDD00');
   const [rotationAngle, setRotationAngle] = useState(0);
+  const [selectedShape, setSelectedShape] = useState('Star');
 
   useEffect(() => {
     setStarRadius(isNewFormat ? 90 : 80);
@@ -41,6 +43,10 @@ const App = () => {
   const handleStarColourChange = (colour) => {
     setStarColour(colour);
     document.documentElement.style.setProperty('--star-color', colour);
+  };
+
+  const handleShapeChange = (event) => {
+    setSelectedShape(event.target.value);
   };
 
   return (
@@ -78,13 +84,52 @@ const App = () => {
               backColour={backColour}
               starColour={starColour}
               rotationAngle={rotationAngle}
+              shape={selectedShape}
             />
           </div>
           <div className="Slider-content">
-            <Slider value={starCount} onChange={setStarCount} />
-            <CircleCountSlider value={circleCount} onChange={setCircleCount} />
-            <StarSizeSlider value={starSize} onChange={setStarSize} />
-            <StarRotatorSlider value={rotationAngle} onChange={setRotationAngle} />
+            <Slider 
+              value={starCount} 
+              onChange={setStarCount} 
+              min={1} 
+              max={50} 
+              unit="stars" 
+              label="Star Count" 
+            />
+            <Slider 
+              value={circleCount} 
+              onChange={setCircleCount} 
+              min={1} 
+              max={3} 
+              unit="circles" 
+              label="Circle Count" 
+            />
+            <Slider 
+              value={starSize} 
+              onChange={setStarSize} 
+              min={10} 
+              max={65} 
+              unit="px" 
+              label="Star Size" 
+            />
+            <Slider 
+              value={rotationAngle} 
+              onChange={setRotationAngle} 
+              min={0} 
+              max={360} 
+              unit="°" 
+              label="Rotation Angle" 
+            />
+            <div className="Shape-selector">
+              <label htmlFor="shapeSelector" className="shape-label"><b>Select Shape</b></label>
+              <select id="shapeSelector" value={selectedShape} onChange={handleShapeChange} className="shape-dropdown">
+                {shapeOptions.map((shape) => (
+                  <option key={shape} value={shape}>
+                    {shape}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="Colour-inputs">
               <input
                 type="color"

@@ -154,3 +154,24 @@ input[type='color'] {
   vertical-align: middle;
   margin-left: 10px;
 }
+
+/* Shape Selector */
+
+.Shape-selector {
+  margin-bottom: 20px;
+}
+
+.shape-label {
+  margin-left: 10px;
+  color: white;
+  margin-right: 10px;
+}
+
+.shape-dropdown {
+  padding: 5px;
+  border: none;
+  border-radius: 5px;
+  background-color: #FFDD00;
+  color: #003399;
+  font-size: 16px;
+}

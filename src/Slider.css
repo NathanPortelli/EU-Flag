@@ -49,3 +49,21 @@
     width: 100%;
     margin-bottom: 20px;
   }
+
+  input[type=number]  {
+    width: 48px;
+    height: 30px;
+    border: none;
+    margin-right: 0;
+    text-align: right;
+    font-size: 20px;
+    color: white;
+    background-color: var(--back-colour);
+  }
+
+  .unit-text {
+    color: white;
+    padding-left: 2px;
+    font-size: 20px;
+    margin-left: 0;
+  }

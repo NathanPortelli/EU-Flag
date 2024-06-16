@@ -1,31 +1,95 @@
 import React from 'react';
-import { MdOutlineStar } from 'react-icons/md';
 import './StarsDisplay.css';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour, rotationAngle }) => {
-  const renderStars = (count, size, radius, keyPrefix) => {
-    const stars = [];
+const shapeIcons = {
+  Star: (
+    <div style={{
+      width: '100%',
+      height: '100%',
+      background: 'currentColor',
+      clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)'
+    }} />
+  ),
+  Circle: <div style={{ width: '100%', height: '100%', borderRadius: '50%', backgroundColor: 'currentColor' }} />,
+  Square: <div style={{ width: '100%', height: '100%', backgroundColor: 'currentColor' }} />,
+  Hexagon: (
+    <div style={{ 
+      width: '100%', 
+      height: '100%', 
+      background: 'currentColor', 
+      clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)' 
+    }} />
+  ),
+  Pentagon: (
+    <div style={{ 
+      width: '100%', 
+      height: '100%', 
+      background: 'currentColor', 
+      clipPath: 'polygon(50% 0%, 100% 38%, 81% 100%, 19% 100%, 0% 38%)' 
+    }} />
+  ),
+  Octagon: (
+    <div style={{ 
+      width: '100%', 
+      height: '100%', 
+      background: 'currentColor', 
+      clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' 
+    }} />
+  ),
+  Heart: (
+    <div style={{ 
+      width: '100%', 
+      height: '100%', 
+      background: 'currentColor', 
+      clipPath: 'polygon(50% 15%, 61% 3%, 75% 0, 100% 25%, 100% 60%, 50% 100%, 0 60%, 0 25%, 25% 0, 39% 3%)' 
+    }} />
+  ),
+  Diamond: (
+    <div style={{ 
+      width: '100%', 
+      height: '100%', 
+      background: 'currentColor', 
+      clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' 
+    }} />
+  ),
+  Crescent: (
+    <div style={{ 
+      width: '100%', 
+      height: '100%', 
+      background: 'currentColor', 
+      clipPath: 'polygon(50% 0%, 100% 25%, 75% 75%, 50% 100%, 25% 75%, 0% 25%)' 
+    }} />
+  ),
+};
+
+const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour, rotationAngle, shape }) => {
+  const renderShapes = (count, size, radius, keyPrefix) => {
+    const shapes = [];
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * 2 * Math.PI - Math.PI / 2 + (rotationAngle * Math.PI / 180);
       const x = 50 + radius * Math.cos(angle);
       const y = 50 + radius * Math.sin(angle);
-      stars.push(
+      shapes.push(
         <div
           key={`${keyPrefix}-${i}`}
-          className="star"
+          className="shape"
           style={{
             position: 'absolute',
-            left: `${x}%`,
-            top: `${y}%`,
-            fontSize: `${size}px`,
+            left: `calc(${x}% - ${size / 2}px)`,
+            top: `calc(${y}% - ${size / 2}px)`,
+            width: `${size}px`,
+            height: `${size}px`,
             color: starColour,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <MdOutlineStar />
+          {shapeIcons[shape]}
         </div>
       );
     }
-    return stars;
+    return shapes;
   };
 
   const circleConfigurations = [
@@ -50,7 +114,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour
           left: `calc(50% - ${currentRadius}%)`
         }}
       >
-        {renderStars(newCount, size, currentRadius, `circle-${config.circleIndex}`)}
+        {renderShapes(newCount, size, currentRadius, `circle-${config.circleIndex}`)}
       </div>
     );
   });
