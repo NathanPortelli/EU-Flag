@@ -2,11 +2,11 @@ import React from 'react';
 import { MdOutlineStar } from 'react-icons/md';
 import './StarsDisplay.css';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour, rotationAngle }) => {
   const renderStars = (count, size, radius, keyPrefix) => {
     const stars = [];
     for (let i = 0; i < count; i++) {
-      const angle = (i / count) * 2 * Math.PI - Math.PI / 2;
+      const angle = (i / count) * 2 * Math.PI - Math.PI / 2 + (rotationAngle * Math.PI / 180);
       const x = 50 + radius * Math.cos(angle);
       const y = 50 + radius * Math.sin(angle);
       stars.push(

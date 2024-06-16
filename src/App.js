@@ -3,6 +3,7 @@ import Slider from './Slider';
 import StarsDisplay from './StarsDisplay';
 import StarSizeSlider from './StarSizeSlider';
 import CircleCountSlider from './CircleCountSlider';
+import StarRotatorSlider from './StarRotatorSlider';
 import DownloadButton from './DownloadButton';
 import Switch from 'react-switch';
 import './App.css';
@@ -16,6 +17,7 @@ const App = () => {
   const [starRadius, setStarRadius] = useState(100);
   const [backColour, setBackColour] = useState('#003399');
   const [starColour, setStarColour] = useState('#FFDD00');
+  const [rotationAngle, setRotationAngle] = useState(0);
 
   useEffect(() => {
     setStarRadius(isNewFormat ? 90 : 80);
@@ -75,12 +77,14 @@ const App = () => {
               circleCount={circleCount} 
               backColour={backColour}
               starColour={starColour}
+              rotationAngle={rotationAngle}
             />
           </div>
           <div className="Slider-content">
             <Slider value={starCount} onChange={setStarCount} />
             <CircleCountSlider value={circleCount} onChange={setCircleCount} />
             <StarSizeSlider value={starSize} onChange={setStarSize} />
+            <StarRotatorSlider value={rotationAngle} onChange={setRotationAngle} />
             <div className="Colour-inputs">
               <input
                 type="color"
