@@ -6,7 +6,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour
   const renderStars = (count, size, radius, keyPrefix) => {
     const stars = [];
     for (let i = 0; i < count; i++) {
-      const angle = (i / count) * 2 * Math.PI;
+      const angle = (i / count) * 2 * Math.PI - Math.PI / 2;
       const x = 50 + radius * Math.cos(angle);
       const y = 50 + radius * Math.sin(angle);
       stars.push(
