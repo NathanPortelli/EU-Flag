@@ -41,7 +41,6 @@ body {
 
 .App-content {
   text-align: center;
-  /* padding: 20px; */
   border-radius: 10px;
   max-width: 600px;
   width: 100%;
@@ -62,7 +61,8 @@ body {
 }
 
 .Download-btn {
-  margin-top: 10%;
+  margin-top: 30px;
+  margin-bottom: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -136,42 +136,65 @@ input[type="range"] {
 
 /* Colour Inputter */
 
+.Colour-inputs-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+
+}
+
 .Colour-inputs {
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 10px;
 }
 
 .colour-label {
-  display: block;
-  margin-top: 10px;
+  margin-top: 5px;
+  font-weight: bold;
+  font-size: 1.1em;
+  text-align: center;
 }
 
 input[type='color'] {
   border: none;
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   cursor: pointer;
-  vertical-align: middle;
-  margin-left: 10px;
+  margin-top: 5px;
 }
 
 /* Shape Selector */
 
 .Shape-selector {
+  margin-bottom: 10px;
+}
+
+.Shape-container {
   margin-bottom: 20px;
 }
 
 .shape-label {
-  margin-left: 10px;
-  color: white;
   margin-right: 10px;
 }
 
 .shape-dropdown {
-  padding: 5px;
-  border: none;
+  padding: 10px;
+  border: 2px solid #003399;
   border-radius: 5px;
   background-color: #FFDD00;
   color: #003399;
   font-size: 16px;
+  cursor: pointer;
+}
+
+.Point-away-container {
+  margin-bottom: 25px;
+}
+
+.toggle-label-point {
+  margin-right: 50px;
 }

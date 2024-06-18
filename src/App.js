@@ -20,6 +20,7 @@ const App = () => {
   const [starColour, setStarColour] = useState('#FFDD00');
   const [rotationAngle, setRotationAngle] = useState(0);
   const [selectedShape, setSelectedShape] = useState('Star');
+  const [pointAway, setPointAway] = useState(false);
 
   useEffect(() => {
     setStarRadius(isNewFormat ? 90 : 80);
@@ -77,79 +78,103 @@ const App = () => {
         <div className="App-content">
           <div className="Stars-content">
             <StarsDisplay
-              count={starCount} 
-              size={starSize} 
-              radius={starRadius} 
-              circleCount={circleCount} 
+              count={starCount}
+              size={starSize}
+              radius={starRadius}
+              circleCount={circleCount}
               backColour={backColour}
               starColour={starColour}
               rotationAngle={rotationAngle}
               shape={selectedShape}
+              pointAway={pointAway}
             />
           </div>
           <div className="Slider-content">
-            <Slider 
-              value={starCount} 
-              onChange={setStarCount} 
-              min={1} 
-              max={50} 
-              unit="stars" 
-              label="Star Count" 
+            <Slider
+              value={starCount}
+              onChange={setStarCount}
+              min={1}
+              max={50}
+              unit="stars"
+              label="Star Count"
             />
-            <Slider 
-              value={circleCount} 
-              onChange={setCircleCount} 
-              min={1} 
-              max={3} 
-              unit="circles" 
-              label="Circle Count" 
+            <Slider
+              value={circleCount}
+              onChange={setCircleCount}
+              min={1}
+              max={3}
+              unit="circles"
+              label="Circle Count"
             />
-            <Slider 
-              value={starSize} 
-              onChange={setStarSize} 
-              min={10} 
-              max={65} 
-              unit="px" 
-              label="Star Size" 
+            <Slider
+              value={starSize}
+              onChange={setStarSize}
+              min={10}
+              max={85}
+              unit="px"
+              label="Star Size"
             />
-            <Slider 
-              value={rotationAngle} 
-              onChange={setRotationAngle} 
-              min={0} 
-              max={360} 
-              unit="°" 
-              label="Rotation Angle" 
+            <Slider
+              value={rotationAngle}
+              onChange={setRotationAngle}
+              min={0}
+              max={360}
+              unit="°"
+              label="Rotation Angle"
             />
             <div className="Shape-selector">
-              <label htmlFor="shapeSelector" className="shape-label"><b>Select Shape</b></label>
-              <select id="shapeSelector" value={selectedShape} onChange={handleShapeChange} className="shape-dropdown">
-                {shapeOptions.map((shape) => (
-                  <option key={shape} value={shape}>
-                    {shape}
-                  </option>
-                ))}
-              </select>
+              <div className="Shape-container">
+              <label htmlFor="shapeSelector" className="shape-label">Select <b>Shape</b></label>
+                <select id="shapeSelector" value={selectedShape} onChange={handleShapeChange} className="shape-dropdown">
+                  {shapeOptions.map((shape) => (
+                    <option key={shape} value={shape}>
+                      {shape}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="Colour-inputs">
-              <input
-                type="color"
-                id="backColourPicker"
-                value={backColour}
-                onChange={(e) => handleBackColourChange(e.target.value)}
+            <div className="Point-away-container">
+              <span className="toggle-text">{pointAway ? 'Pointing Outward' : 'Pointing Inward'}</span>
+              <label htmlFor="point-away-switch" className="toggle-label-point"></label>
+              <Switch
+                checked={pointAway}
+                onChange={() => setPointAway(!pointAway)}
+                onColor="#9b870c"
+                onHandleColor="#FFDD00"
+                handleDiameter={30}
+                uncheckedIcon={false}
+                checkedIcon={false}
+                boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                height={20}
+                width={48}
+                className="react-switch"
+                id="point-away-switch"
               />
-              <label htmlFor="backColourPicker" className="colour-label"><b>Background</b> Colour</label>
             </div>
-            <div className="Colour-inputs">
-              <input
-                type="color"
-                id="starColourPicker"
-                value={starColour}
-                onChange={(e) => handleStarColourChange(e.target.value)}
-              />
-              <label htmlFor="starColourPicker" className="colour-label"><b>Stars</b> Colour</label>
+            <div className="Colour-inputs-container">
+              <div className="Colour-inputs">
+                <input
+                  type="color"
+                  id="backColourPicker"
+                  value={backColour}
+                  onChange={(e) => handleBackColourChange(e.target.value)}
+                />
+                <label htmlFor="backColourPicker" className="colour-label"><b>Background</b> Colour</label>
+              </div>
+              <div className="Colour-inputs">
+                <input
+                  type="color"
+                  id="starColourPicker"
+                  value={starColour}
+                  onChange={(e) => handleStarColourChange(e.target.value)}
+                />
+                <label htmlFor="starColourPicker" className="colour-label"><b>Stars</b> Colour</label>
+              </div>
             </div>
             <div className="Download-btn">
-              <DownloadButton backColour={backColour}/>
+              <DownloadButton backColour={backColour} />
             </div>
           </div>
         </div>

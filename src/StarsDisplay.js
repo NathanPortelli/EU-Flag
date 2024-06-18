@@ -13,62 +13,63 @@ const shapeIcons = {
   Circle: <div style={{ width: '100%', height: '100%', borderRadius: '50%', backgroundColor: 'currentColor' }} />,
   Square: <div style={{ width: '100%', height: '100%', backgroundColor: 'currentColor' }} />,
   Hexagon: (
-    <div style={{ 
-      width: '100%', 
-      height: '100%', 
-      background: 'currentColor', 
-      clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)' 
+    <div style={{
+      width: '100%',
+      height: '100%',
+      background: 'currentColor',
+      clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)'
     }} />
   ),
   Pentagon: (
-    <div style={{ 
-      width: '100%', 
-      height: '100%', 
-      background: 'currentColor', 
-      clipPath: 'polygon(50% 0%, 100% 38%, 81% 100%, 19% 100%, 0% 38%)' 
+    <div style={{
+      width: '100%',
+      height: '100%',
+      background: 'currentColor',
+      clipPath: 'polygon(50% 0%, 100% 38%, 81% 100%, 19% 100%, 0% 38%)'
     }} />
   ),
   Octagon: (
-    <div style={{ 
-      width: '100%', 
-      height: '100%', 
-      background: 'currentColor', 
-      clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' 
+    <div style={{
+      width: '100%',
+      height: '100%',
+      background: 'currentColor',
+      clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)'
     }} />
   ),
   Heart: (
-    <div style={{ 
-      width: '100%', 
-      height: '100%', 
-      background: 'currentColor', 
-      clipPath: 'polygon(50% 15%, 61% 3%, 75% 0, 100% 25%, 100% 60%, 50% 100%, 0 60%, 0 25%, 25% 0, 39% 3%)' 
+    <div style={{
+      width: '100%',
+      height: '100%',
+      background: 'currentColor',
+      clipPath: 'polygon(50% 15%, 61% 3%, 75% 0, 100% 25%, 100% 60%, 50% 100%, 0 60%, 0 25%, 25% 0, 39% 3%)'
     }} />
   ),
   Diamond: (
-    <div style={{ 
-      width: '100%', 
-      height: '100%', 
-      background: 'currentColor', 
-      clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' 
+    <div style={{
+      width: '100%',
+      height: '100%',
+      background: 'currentColor',
+      clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
     }} />
   ),
   Crescent: (
-    <div style={{ 
-      width: '100%', 
-      height: '100%', 
-      background: 'currentColor', 
-      clipPath: 'polygon(50% 0%, 100% 25%, 75% 75%, 50% 100%, 25% 75%, 0% 25%)' 
+    <div style={{
+      width: '100%',
+      height: '100%',
+      background: 'currentColor',
+      clipPath: 'polygon(50% 0%, 100% 25%, 75% 75%, 50% 100%, 25% 75%, 0% 25%)'
     }} />
   ),
 };
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour, rotationAngle, shape }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour, rotationAngle, shape, pointAway }) => {
   const renderShapes = (count, size, radius, keyPrefix) => {
     const shapes = [];
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * 2 * Math.PI - Math.PI / 2 + (rotationAngle * Math.PI / 180);
       const x = 50 + radius * Math.cos(angle);
       const y = 50 + radius * Math.sin(angle);
+      const shapeRotation = pointAway ? angle : 0;
       shapes.push(
         <div
           key={`${keyPrefix}-${i}`}
@@ -83,6 +84,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            transform: `rotate(${shapeRotation}rad)`,
           }}
         >
           {shapeIcons[shape]}
@@ -91,6 +93,30 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour
     }
     return shapes;
   };
+
+  if (count === 1) {
+    return (
+      <div id="stars-container" className="stars-container" style={{ backgroundColor: backColour }}>
+        <div
+          className="shape"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: `${size}px`,
+            height: `${size}px`,
+            color: starColour,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {shapeIcons[shape]}
+        </div>
+      </div>
+    );
+  }
 
   const circleConfigurations = [
     { circleIndex: 1, countRatio: { 1: 1, 2: 2/3, 3: 4/9 }, radiusFactor: 2 },

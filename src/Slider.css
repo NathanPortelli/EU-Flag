@@ -58,7 +58,7 @@
     text-align: right;
     font-size: 20px;
     color: white;
-    background-color: var(--back-colour);
+    background-color: transparent;
   }
 
   .unit-text {
