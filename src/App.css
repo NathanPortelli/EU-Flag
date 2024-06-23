@@ -95,7 +95,7 @@ body {
 .toolbar-segment {
   margin-bottom: 30px;
   padding: 20px;
-  border: 1px solid #FFDD00;
+  border: 3px solid #FFDD00;
   border-radius: 10px;
   width: 100%;
 }

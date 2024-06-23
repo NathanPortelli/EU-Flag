@@ -7,9 +7,8 @@ import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const shapeOptions = [
-  'Star', 'Circle', 'Square', 'Hexagon', 'Pentagon', 'Octagon', 'Heart', 'Diamond', 'Crescent'
+  'Star', 'Circle', 'Square', 'Hexagon', 'Pentagon', 'Octagon', 'Diamond', 'Crescent', 'Triangle', 'Cross'
 ];
-
 const App = () => {
   const [starCount, setStarCount] = useState(12);
   const [circleCount, setCircleCount] = useState(1);
@@ -226,7 +225,7 @@ const App = () => {
                 </div>
               </div>
             )}
-            <DownloadButton />
+            <DownloadButton backColour={backColour} />
           </div>
         </div>
       </main>

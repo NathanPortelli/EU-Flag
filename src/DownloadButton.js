@@ -65,7 +65,7 @@ const DownloadButton = ({ backColour }) => {
       .catch(function (error) {
         console.error('Error generating flag: ', error);
       });
-    setButtonClicked(true); // Setting button as clicked for link
+    setButtonClicked(true);
   };
 
   return (
