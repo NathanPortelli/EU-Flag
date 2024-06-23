@@ -21,6 +21,9 @@ const App = () => {
   const [rotationAngle, setRotationAngle] = useState(0);
   const [selectedShape, setSelectedShape] = useState('Star');
   const [pointAway, setPointAway] = useState(false);
+  const [outlineOnly, setOutlineOnly] = useState(false); 
+  const [outlineWeight, setOutlineWeight] = useState(2); 
+  const [activeSection, setActiveSection] = useState('Format');
 
   useEffect(() => {
     setStarRadius(isNewFormat ? 90 : 80);
@@ -87,100 +90,145 @@ const App = () => {
               rotationAngle={rotationAngle}
               shape={selectedShape}
               pointAway={pointAway}
+              outlineOnly={outlineOnly}
+              outlineWeight={outlineWeight}
             />
           </div>
           <div className="Slider-content">
-            <Slider
-              value={starCount}
-              onChange={setStarCount}
-              min={1}
-              max={50}
-              unit="stars"
-              label="Star Count"
-            />
-            <Slider
-              value={circleCount}
-              onChange={setCircleCount}
-              min={1}
-              max={3}
-              unit="circles"
-              label="Circle Count"
-            />
-            <Slider
-              value={starSize}
-              onChange={setStarSize}
-              min={10}
-              max={85}
-              unit="px"
-              label="Star Size"
-            />
-            <Slider
-              value={rotationAngle}
-              onChange={setRotationAngle}
-              min={0}
-              max={360}
-              unit="°"
-              label="Rotation Angle"
-            />
-            <div className="Shape-selector">
-              <div className="Shape-container">
-              <label htmlFor="shapeSelector" className="shape-label">Select <b>Shape</b></label>
-                <select id="shapeSelector" value={selectedShape} onChange={handleShapeChange} className="shape-dropdown">
-                  {shapeOptions.map((shape) => (
-                    <option key={shape} value={shape}>
-                      {shape}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="Point-away-container">
-              <span className="toggle-text">{pointAway ? 'Pointing Outward' : 'Pointing Inward'}</span>
-              <label htmlFor="point-away-switch" className="toggle-label-point"></label>
-              <Switch
-                checked={pointAway}
-                onChange={() => setPointAway(!pointAway)}
-                onColor="#9b870c"
-                onHandleColor="#FFDD00"
-                handleDiameter={30}
-                uncheckedIcon={false}
-                checkedIcon={false}
-                boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                height={20}
-                width={48}
-                className="react-switch"
-                id="point-away-switch"
-              />
-            </div>
-            <div className="Colour-inputs-container">
-              <div className="Colour-inputs">
-                <input
-                  type="color"
-                  id="backColourPicker"
-                  value={backColour}
-                  onChange={(e) => handleBackColourChange(e.target.value)}
+            <nav className="App-nav">
+              <button onClick={() => setActiveSection('Format')} className={activeSection === 'Format' ? 'active' : ''}>Format</button>
+              <button onClick={() => setActiveSection('Shape')} className={activeSection === 'Shape' ? 'active' : ''}>Shape</button>
+              <button onClick={() => setActiveSection('Colours')} className={activeSection === 'Colours' ? 'active' : ''}>Colours</button>
+            </nav>
+            {activeSection === 'Format' && (
+              <div className="toolbar-segment">
+                <Slider
+                  value={starCount}
+                  onChange={setStarCount}
+                  min={1}
+                  max={50}
+                  unit="stars"
+                  label="Star Count"
                 />
-                <label htmlFor="backColourPicker" className="colour-label"><b>Background</b> Colour</label>
-              </div>
-              <div className="Colour-inputs">
-                <input
-                  type="color"
-                  id="starColourPicker"
-                  value={starColour}
-                  onChange={(e) => handleStarColourChange(e.target.value)}
+                <Slider
+                  value={circleCount}
+                  onChange={setCircleCount}
+                  min={1}
+                  max={3}
+                  unit="circles"
+                  label="Circle Count"
                 />
-                <label htmlFor="starColourPicker" className="colour-label"><b>Stars</b> Colour</label>
+                <Slider
+                  value={starSize}
+                  onChange={setStarSize}
+                  min={10}
+                  max={85}
+                  unit="px"
+                  label="Star Size"
+                />
+                <Slider
+                  value={rotationAngle}
+                  onChange={setRotationAngle}
+                  min={0}
+                  max={360}
+                  unit="°"
+                  label="Rotation Angle"
+                />
               </div>
-            </div>
-            <div className="Download-btn">
-              <DownloadButton backColour={backColour} />
-            </div>
+            )}
+            {activeSection === 'Shape' && (
+              <div className="toolbar-segment">
+                <div className="Shape-selector">
+                  <div className="Shape-container">
+                    <label htmlFor="shapeSelector" className="shape-label">Select Shape</label>
+                    <select id="shapeSelector" value={selectedShape} onChange={handleShapeChange} className="shape-dropdown">
+                      {shapeOptions.map((shape) => (
+                        <option key={shape} value={shape}>
+                          {shape}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="Point-away-container">
+                  <span className="toggle-text">{pointAway ? 'Pointing Outward' : 'Pointing Inward'}</span>
+                  <label htmlFor="point-away-switch" className="toggle-label-point"></label>
+                  <Switch
+                    checked={pointAway}
+                    onChange={() => setPointAway(!pointAway)}
+                    onColor="#9b870c"
+                    onHandleColor="#FFDD00"
+                    handleDiameter={30}
+                    uncheckedIcon={false}
+                    checkedIcon={false}
+                    boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                    activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                    height={20}
+                    width={48}
+                    className="react-switch"
+                    id="point-away-switch"
+                  />
+                </div>
+                <div className="Outline-only-container">
+                  <span className="toggle-text">{outlineOnly ? 'Outline Only' : 'Filled'}</span>
+                  <label htmlFor="outline-only-switch" className="toggle-label-outline"></label>
+                  <Switch
+                    checked={outlineOnly}
+                    onChange={() => setOutlineOnly(!outlineOnly)}
+                    onColor="#9b870c"
+                    onHandleColor="#FFDD00"
+                    handleDiameter={30}
+                    uncheckedIcon={false}
+                    checkedIcon={false}
+                    boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                    activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                    height={20}
+                    width={48}
+                    className="react-switch"
+                    id="outline-only-switch"
+                  />
+                </div>
+                {outlineOnly && (
+                  <div class="outline-weight">
+                    <Slider
+                      value={outlineWeight}
+                      onChange={setOutlineWeight}
+                      min={1}
+                      max={10}
+                      unit="px"
+                      label="Outline Weight"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+            {activeSection === 'Colours' && (
+              <div className="toolbar-segment">
+                <div className="Colour-inputs-container">
+                  <div className="Colour-inputs">
+                    <input
+                      type="color"
+                      id="backColourPicker"
+                      value={backColour}
+                      onChange={(e) => handleBackColourChange(e.target.value)}
+                    />
+                    <label htmlFor="backColourPicker" className="colour-label">Background Colour</label>
+                  </div>
+                  <div className="Colour-inputs">
+                    <input
+                      type="color"
+                      id="starColourPicker"
+                      value={starColour}
+                      onChange={(e) => handleStarColourChange(e.target.value)}
+                    />
+                    <label htmlFor="starColourPicker" className="colour-label">Stars Colour</label>
+                  </div>
+                </div>
+              </div>
+            )}
+            <DownloadButton />
           </div>
         </div>
-        <a href="https://github.com/NathanPortelli/EU-Flag" className="github-icon" target="_blank" rel="noopener noreferrer">
-          <i className="fab fa-github"></i>
-        </a>
       </main>
     </div>
   );

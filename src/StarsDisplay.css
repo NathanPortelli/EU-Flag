@@ -18,3 +18,10 @@
   position: absolute;
   color:  var(--star-colour);
 }
+
+.shape {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

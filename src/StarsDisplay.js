@@ -1,68 +1,19 @@
 import React from 'react';
 import './StarsDisplay.css';
 
-const shapeIcons = {
-  Star: (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      background: 'currentColor',
-      clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)'
-    }} />
-  ),
-  Circle: <div style={{ width: '100%', height: '100%', borderRadius: '50%', backgroundColor: 'currentColor' }} />,
-  Square: <div style={{ width: '100%', height: '100%', backgroundColor: 'currentColor' }} />,
-  Hexagon: (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      background: 'currentColor',
-      clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)'
-    }} />
-  ),
-  Pentagon: (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      background: 'currentColor',
-      clipPath: 'polygon(50% 0%, 100% 38%, 81% 100%, 19% 100%, 0% 38%)'
-    }} />
-  ),
-  Octagon: (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      background: 'currentColor',
-      clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)'
-    }} />
-  ),
-  Heart: (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      background: 'currentColor',
-      clipPath: 'polygon(50% 15%, 61% 3%, 75% 0, 100% 25%, 100% 60%, 50% 100%, 0 60%, 0 25%, 25% 0, 39% 3%)'
-    }} />
-  ),
-  Diamond: (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      background: 'currentColor',
-      clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
-    }} />
-  ),
-  Crescent: (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      background: 'currentColor',
-      clipPath: 'polygon(50% 0%, 100% 25%, 75% 75%, 50% 100%, 25% 75%, 0% 25%)'
-    }} />
-  ),
+const shapePaths = {
+  Star: "M50,0 L61,35 H98 L68,57 L79,91 L50,70 L21,91 L32,57 L2,35 H39 Z",
+  Circle: "M50,50m-50,0a50,50 0 1,0 100,0a50,50 0 1,0 -100,0",
+  Square: "M0,0 H100 V100 H0 Z",
+  Hexagon: "M25,0 L75,0 L100,50 L75,100 L25,100 L0,50 Z",
+  Pentagon: "M50,0 L100,38 L81,100 L19,100 L0,38 Z",
+  Octagon: "M30,0 H70 L100,30 V70 L70,100 H30 L0,70 V30 Z",
+  Heart: "M50,15 L61,3 C75,0 100,25 100,60 C100,60 50,100 0,60 C0,25 25,0 39,3 Z",
+  Diamond: "M50,0 L100,50 L50,100 L0,50 Z",
+  Crescent: "M50,0 A50,50 0 0,0 50,100 A25,50 0 1,1 50,0 Z"
 };
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour, rotationAngle, shape, pointAway }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight }) => {
   const renderShapes = (count, size, radius, keyPrefix) => {
     const shapes = [];
     for (let i = 0; i < count; i++) {
@@ -71,24 +22,24 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour
       const y = 50 + radius * Math.sin(angle);
       const shapeRotation = pointAway ? angle : 0;
       shapes.push(
-        <div
+        <svg
           key={`${keyPrefix}-${i}`}
           className="shape"
+          viewBox="0 0 100 100"
           style={{
             position: 'absolute',
             left: `calc(${x}% - ${size / 2}px)`,
             top: `calc(${y}% - ${size / 2}px)`,
             width: `${size}px`,
             height: `${size}px`,
-            color: starColour,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
             transform: `rotate(${shapeRotation}rad)`,
+            fill: outlineOnly ? 'none' : starColour,
+            stroke: starColour,
+            strokeWidth: outlineOnly ? outlineWeight : '0'
           }}
         >
-          {shapeIcons[shape]}
-        </div>
+          <path d={shapePaths[shape]} />
+        </svg>
       );
     }
     return shapes;
@@ -97,8 +48,9 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour
   if (count === 1) {
     return (
       <div id="stars-container" className="stars-container" style={{ backgroundColor: backColour }}>
-        <div
+        <svg
           className="shape"
+          viewBox="0 0 100 100"
           style={{
             position: 'absolute',
             left: '50%',
@@ -106,14 +58,13 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour
             transform: 'translate(-50%, -50%)',
             width: `${size}px`,
             height: `${size}px`,
-            color: starColour,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            fill: outlineOnly ? 'none' : starColour,
+            stroke: starColour,
+            strokeWidth: outlineOnly ? outlineWeight : '0' 
           }}
         >
-          {shapeIcons[shape]}
-        </div>
+          <path d={shapePaths[shape]} />
+        </svg>
       </div>
     );
   }
