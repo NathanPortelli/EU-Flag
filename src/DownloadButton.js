@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import './DownloadButton.css';
 
-const DownloadButton = ({ backColour }) => {
+const DownloadButton = ({ backColours, selectedPattern }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   const handleDownload = () => {
@@ -17,8 +17,8 @@ const DownloadButton = ({ backColour }) => {
 
     // Setting dimensions of stars container
     const computedStyle = window.getComputedStyle(starsContainer);
-    const starsWidth = parseInt(computedStyle.width, 10);
-    const starsHeight = parseInt(computedStyle.height, 10);
+    let starsWidth = parseInt(computedStyle.width, 10);
+    let starsHeight = parseInt(computedStyle.height, 10);
 
     // Canvas dimensions -- 2:3 aspect ratio
     const aspectRatio = 3 / 2;
@@ -34,6 +34,17 @@ const DownloadButton = ({ backColour }) => {
       canvasHeight = starsHeight;
     }
 
+    //todo: quickfix for verticals
+    // Adjust dimensions for specific patterns
+    if (selectedPattern === 'Vertical Thirds') {
+      starsWidth *= 1.2;
+      starsHeight *= 1.2;
+    }
+    if (selectedPattern === 'Vertical Quadrants') {
+      starsWidth *= 1.3;
+      starsHeight *= 1.3;
+    }
+
     // New canvas element
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -41,9 +52,36 @@ const DownloadButton = ({ backColour }) => {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    // Blue background
-    ctx.fillStyle = backColour;
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    if (selectedPattern.includes('Vertical')) {
+      // Vertical
+      const stripeWidth = canvasWidth / backColours.length;
+      //todo: quickfix for quadrants pattern
+      if (selectedPattern.includes('Quadrants')) {
+        // Reverse the order for quadrants pattern
+        for (let i = 0; i < backColours.length; i++) {
+          ctx.fillStyle = backColours[backColours.length - 1 - i];
+          ctx.fillRect(i * stripeWidth, 0, stripeWidth, canvasHeight);
+        }
+      } else {
+        // Normal vertical pattern
+        backColours.forEach((colour, index) => {
+          ctx.fillStyle = colour;
+          ctx.fillRect(index * stripeWidth, 0, stripeWidth, canvasHeight);
+        });
+      }
+    } else {
+      // Horizontal pattern (default behavior)
+      for (let i = 0; i < backColours.length; i++) {
+        //todo: quickfix for quadrants pattern
+        if (selectedPattern.includes('Quadrants')) {
+          // Reverse the order for quadrants pattern
+          ctx.fillStyle = backColours[backColours.length - 1 - i];
+        } else {
+          ctx.fillStyle = backColours[i];
+        }
+        ctx.fillRect(0, (canvasHeight / backColours.length) * i, canvasWidth, canvasHeight / backColours.length);
+      }
+    }
 
     // Converting stars container to image and draw on canvas
     htmlToImage.toPng(starsContainer)
@@ -51,7 +89,7 @@ const DownloadButton = ({ backColour }) => {
         const starsImg = new Image();
         starsImg.onload = function () {
           const offsetX = (canvasWidth - starsWidth) / 2;
-          const offsetY = (canvasHeight - starsHeight) / 2;
+          const offsetY = (canvasHeight - starsHeight) / 2 - (canvasHeight * 0.02);
 
           ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
 
@@ -65,6 +103,7 @@ const DownloadButton = ({ backColour }) => {
       .catch(function (error) {
         console.error('Error generating flag: ', error);
       });
+
     setButtonClicked(true);
   };
 

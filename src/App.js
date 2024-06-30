@@ -9,16 +9,22 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 const shapeOptions = [
   'Star', 'Circle', 'Square', 'Hexagon', 'Pentagon', 'Octagon', 'Diamond', 'Crescent', 'Triangle', 'Cross'
 ];
+
+const patternOptions = [
+  'Single', 'Vertical Bicolour', 'Horizontal Bicolour', 'Vertical Thirds', 'Horizontal Thirds', 'Vertical Quadrants', 'Horizontal Quadrants'
+];
+
 const App = () => {
   const [starCount, setStarCount] = useState(12);
   const [circleCount, setCircleCount] = useState(1);
   const [starSize, setStarSize] = useState(45);
   const [isNewFormat, setIsNewFormat] = useState(false);
   const [starRadius, setStarRadius] = useState(100);
-  const [backColour, setBackColour] = useState('#003399');
+  const [backColours, setBackColours] = useState(['#003399']);
   const [starColour, setStarColour] = useState('#FFDD00');
   const [rotationAngle, setRotationAngle] = useState(0);
   const [selectedShape, setSelectedShape] = useState('Star');
+  const [selectedPattern, setSelectedPattern] = useState('Single');
   const [pointAway, setPointAway] = useState(false);
   const [outlineOnly, setOutlineOnly] = useState(false); 
   const [outlineWeight, setOutlineWeight] = useState(2); 
@@ -27,7 +33,7 @@ const App = () => {
   useEffect(() => {
     setStarRadius(isNewFormat ? 90 : 80);
 
-    if (window.innerWidth < 600) {
+    if (window.innerWidth < 1000) {
       setIsNewFormat(true);
     }
 
@@ -38,9 +44,11 @@ const App = () => {
     setIsNewFormat(!isNewFormat);
   };
 
-  const handleBackColourChange = (colour) => {
-    setBackColour(colour);
-    document.documentElement.style.setProperty('--back-color', colour);
+  const handleBackColourChange = (colour, index) => {
+    const newColours = [...backColours];
+    newColours[index] = colour;
+    setBackColours(newColours);
+    document.documentElement.style.setProperty(`--back-color-${index}`, colour);
   };
 
   const handleStarColourChange = (colour) => {
@@ -50,6 +58,40 @@ const App = () => {
 
   const handleShapeChange = (event) => {
     setSelectedShape(event.target.value);
+  };
+
+  const handlePatternChange = (event) => {
+    const pattern = event.target.value;
+    setSelectedPattern(pattern);
+  
+    let coloursCount = 1;
+    let defaultColours = ['#003399'];
+  
+    switch (pattern) {
+      case 'Single':
+        coloursCount = 1;
+        break;
+      case 'Vertical Bicolour':
+      case 'Horizontal Bicolour':
+        coloursCount = 2;
+        defaultColours = ['#003399', 'white'];
+        break;
+      case 'Vertical Thirds':
+      case 'Horizontal Thirds':
+        coloursCount = 3;
+        defaultColours = ['#003399', 'white', 'black'];
+        break;
+      case 'Vertical Quadrants':
+      case 'Horizontal Quadrants':
+        coloursCount = 4;
+        defaultColours = ['#003399', 'white', 'black', 'green'];
+        break;
+      default:
+        coloursCount = 1;
+    }
+  
+    const newColours = Array.from({ length: coloursCount }, (_, index) => defaultColours[index] || '#003399');
+    setBackColours(newColours);
   };
 
   return (
@@ -84,13 +126,14 @@ const App = () => {
               size={starSize}
               radius={starRadius}
               circleCount={circleCount}
-              backColour={backColour}
+              backColours={backColours}
               starColour={starColour}
               rotationAngle={rotationAngle}
               shape={selectedShape}
               pointAway={pointAway}
               outlineOnly={outlineOnly}
               outlineWeight={outlineWeight}
+              pattern={selectedPattern}
             />
           </div>
           <div className="Slider-content">
@@ -104,7 +147,7 @@ const App = () => {
                 <Slider
                   value={starCount}
                   onChange={setStarCount}
-                  min={1}
+                  min={0}
                   max={50}
                   unit="stars"
                   label="Star Count"
@@ -121,7 +164,7 @@ const App = () => {
                   value={starSize}
                   onChange={setStarSize}
                   min={10}
-                  max={85}
+                  max={150}
                   unit="px"
                   label="Star Size"
                 />
@@ -188,12 +231,12 @@ const App = () => {
                   />
                 </div>
                 {outlineOnly && (
-                  <div class="outline-weight">
+                  <div className="outline-weight">
                     <Slider
                       value={outlineWeight}
                       onChange={setOutlineWeight}
                       min={1}
-                      max={10}
+                      max={15}
                       unit="px"
                       label="Outline Weight"
                     />
@@ -203,32 +246,46 @@ const App = () => {
             )}
             {activeSection === 'Colours' && (
               <div className="toolbar-segment">
-                <div className="Colour-inputs-container">
-                  <div className="Colour-inputs">
-                    <input
-                      type="color"
-                      id="backColourPicker"
-                      value={backColour}
-                      onChange={(e) => handleBackColourChange(e.target.value)}
-                    />
-                    <label htmlFor="backColourPicker" className="colour-label">Background Colour</label>
+                <div className="Colour-selector">
+                  <div className="Shape-container">
+                    <label htmlFor="patternSelector" className="shape-label">Select Pattern</label>
+                    <select id="patternSelector" value={selectedPattern} onChange={handlePatternChange} className="shape-dropdown">
+                      {patternOptions.map((pattern) => (
+                        <option key={pattern} value={pattern}>
+                          {pattern}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                  <div className="Colour-inputs">
+                  {backColours.map((colour, index) => (
+                    <div className="Colour-container" key={index}>
+                      <label htmlFor={`backColourPicker-${index}`} className="colour-label">Background Colour {index + 1} </label>
+                      <input
+                        type="color"
+                        id={`backColourPicker-${index}`}
+                        value={colour}
+                        onChange={(e) => handleBackColourChange(e.target.value, index)}
+                      />
+                    </div>
+                  ))}
+                  <div className="Colour-container" id="star-colour">
+                    <label htmlFor="starColourPicker" className="colour-label">Star Colour </label>
                     <input
                       type="color"
                       id="starColourPicker"
                       value={starColour}
                       onChange={(e) => handleStarColourChange(e.target.value)}
                     />
-                    <label htmlFor="starColourPicker" className="colour-label">Stars Colour</label>
                   </div>
                 </div>
               </div>
             )}
-            <DownloadButton backColour={backColour} />
+            <DownloadButton backColours={backColours} selectedPattern={selectedPattern} />
           </div>
         </div>
       </main>
+      <footer className="App-footer">
+      </footer>
     </div>
   );
 };

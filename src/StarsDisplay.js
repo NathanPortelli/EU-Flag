@@ -14,7 +14,8 @@ const shapePaths = {
   Cross: "M50,0 V30 H80 V50 H50 V80 H30 V50 H0 V30 H30 V0 Z",
 };
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern }) => {
+  
   const renderShapes = (count, size, radius, keyPrefix) => {
     const shapes = [];
     for (let i = 0; i < count; i++) {
@@ -46,9 +47,62 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour
     return shapes;
   };
 
+  const generateBackgroundStyle = () => {
+    let backgroundStyle = {};
+  
+    switch (pattern) {
+      case 'Single':
+        backgroundStyle = { background: backColours[0] };
+        break;
+      case 'Vertical Bicolour':
+        backgroundStyle = {
+          background: `linear-gradient(to right, ${backColours[0]} 50%, ${backColours[1]} 50%)`
+        };
+        break;
+      case 'Horizontal Bicolour':
+        backgroundStyle = {
+          background: `linear-gradient(to bottom, ${backColours[0]} 50%, ${backColours[1]} 50%)`
+        };
+        break;
+      case 'Vertical Thirds':
+        backgroundStyle = {
+          background: `linear-gradient(to right, ${backColours[0]} 33.33%, ${backColours[1]} 33.33%, ${backColours[1]} 66.66%, ${backColours[2]} 66.66%)`
+        };
+        break;
+      case 'Horizontal Thirds':
+        backgroundStyle = {
+          background: `linear-gradient(to bottom, ${backColours[0]} 33.33%, ${backColours[1]} 33.33%, ${backColours[1]} 66.66%, ${backColours[2]} 66.66%)`
+        };
+        break;
+        case 'Horizontal Quadrants':
+          backgroundStyle = {
+            background: `linear-gradient(to top, 
+                          ${backColours[0]} 0%, ${backColours[0]} 25%, 
+                          ${backColours[1]} 25%, ${backColours[1]} 50%, 
+                          ${backColours[2]} 50%, ${backColours[2]} 75%, 
+                          ${backColours[3]} 75%, ${backColours[3]} 100%)`
+          };
+          break;
+        case 'Vertical Quadrants':
+          backgroundStyle = {
+            background: `linear-gradient(to left, 
+                          ${backColours[0]} 0%, ${backColours[0]} 25%, 
+                          ${backColours[1]} 25%, ${backColours[1]} 50%, 
+                          ${backColours[2]} 50%, ${backColours[2]} 75%, 
+                          ${backColours[3]} 75%, ${backColours[3]} 100%)`
+          };
+          break;
+      default:
+        backgroundStyle = { background: backColours[0] };
+    }
+  
+    return backgroundStyle;
+  };
+  
+
   if (count === 1) {
     return (
-      <div id="stars-container" className="stars-container" style={{ backgroundColor: backColour }}>
+      <div id="stars-container" className="stars-container" >
         <svg
           className="shape"
           viewBox="0 0 100 100"
@@ -98,7 +152,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColour, starColour
   });
 
   return (
-    <div id="stars-container" className="stars-container" style={{ backgroundColor: backColour }}>
+    <div id="stars-container" className="stars-container" style={generateBackgroundStyle()}>
       {circles}
     </div>
   );
