@@ -1,27 +1,40 @@
 # EU Flag Editor
 
-EU Flag Editor is a (quickly-made) React application that allows you to create and customize an EU flag with a specified number of stars, shapes, sizes, circle counts, and colours.
-
-![eu-flag-app](https://github.com/NathanPortelli/EU-Flag/assets/61872215/e9d1bda1-4f3d-4cb9-87d4-8b6e7b4e29db)
+EU Flag Editor is a React application that allows you to create and customize an EU flag with a specified number of stars, shapes, sizes, formats, and more.
 
 ## Features
-- Adjust the number of stars.
-- Adjust the size of stars.
-- Adjust the number of circles.
-- Adjust colours of stars and background.
-- Adjust the shape of the stars.
-- Rotate the stars.
-- Toggle between horizontal and vertical formats.
-- Download the customised flag.
+- Modify star count
+- Adjust circle count
+- Resize stars
+- Rotate stars
+- Toggle between horizontal and vertical layouts
+
+![eu-flag-1](https://github.com/NathanPortelli/EU-Flag/assets/61872215/3825f415-3ec2-4feb-9e3a-87f9b99ac7a5)
+
+- Choose from various star shapes (e.g., circles, squares, hexagons)
+- Toggle star direction (inward/outward)
+- Outline stars with colour
+- Adjust outline size
+
+![eu-flag-2](https://github.com/NathanPortelli/EU-Flag/assets/61872215/9aaacfdf-df35-460d-929a-511a7f98d1bf)
+
+- Customise star and background colours
+- Select flag patterns (single, bi-colour, thirds, quadrants ; horizontal, vertical)
+- Download the customised flag
+
+![eu-flag-3](https://github.com/NathanPortelli/EU-Flag/assets/61872215/953925e5-2418-431d-ba37-2ca37d06d66c)
+
+
 
 #### To-dos:
 - Optimise for mobile usage
 - Additional customisability (feel free to contact me with any ideas)
+- _Fix: Issue with background when downloading flag with three/four colour pattern_
 
 ## Usage
-This application has been deployed online through Vercel via the link: **[euflag.vercel.app](https://euflag.vercel.app/)**.
+This application is deployed online through Vercel and accessible via: **[euflag.vercel.app](https://euflag.vercel.app/)**.
 
-### To run the application locally
+### Running Locally
 1. Clone the repository:
    ```bash
    git clone https://github.com/NathanPortelli/eu-flag.git
