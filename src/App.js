@@ -283,6 +283,9 @@ const App = () => {
             <DownloadButton backColours={backColours} selectedPattern={selectedPattern} />
           </div>
         </div>
+        <a href="https://github.com/NathanPortelli/EU-Flag" className="github-icon" target="_blank" rel="noopener noreferrer">
+          <i className="fab fa-github"></i>
+        </a>
       </main>
       <footer className="App-footer">
       </footer>
