@@ -22,7 +22,14 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
       const angle = (i / count) * 2 * Math.PI - Math.PI / 2 + (rotationAngle * Math.PI / 180);
       const x = 50 + radius * Math.cos(angle);
       const y = 50 + radius * Math.sin(angle);
-      const shapeRotation = pointAway ? angle : 0;
+    
+      let shapeRotation = pointAway ? angle : 0;
+      
+      // Quick fix for star/pentagon rotation (https://www.reddit.com/r/InternetIsBeautiful/comments/1dsubkb/comment/lb5n94u/)
+      if ((shape === 'Star' || shape === 'Pentagon') && pointAway) {
+        shapeRotation += (17 * Math.PI) / 180;
+      }
+  
       shapes.push(
         <svg
           key={`${keyPrefix}-${i}`}
