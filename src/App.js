@@ -29,6 +29,7 @@ const App = () => {
   const [outlineOnly, setOutlineOnly] = useState(false); 
   const [outlineWeight, setOutlineWeight] = useState(2); 
   const [activeSection, setActiveSection] = useState('Format');
+  const [starRotation, setStarRotation] = useState(0);
 
   useEffect(() => {
     setStarRadius(isNewFormat ? 90 : 80);
@@ -138,6 +139,7 @@ const App = () => {
               outlineOnly={outlineOnly}
               outlineWeight={outlineWeight}
               pattern={selectedPattern}
+              starRotation={starRotation}
             />
           </div>
           <div className="Slider-content">
@@ -215,6 +217,14 @@ const App = () => {
                     id="point-away-switch"
                   />
                 </div>
+                <Slider
+                  value={starRotation}
+                  onChange={setStarRotation}
+                  min={0}
+                  max={360}
+                  unit="°"
+                  label="Star Rotation"
+                />
                 <div className="Outline-only-container">
                   <span className="toggle-text">{outlineOnly ? 'Outline Only' : 'Filled'}</span>
                   <label htmlFor="outline-only-switch" className="toggle-label-outline"></label>

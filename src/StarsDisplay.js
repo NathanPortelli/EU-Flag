@@ -14,7 +14,7 @@ const shapePaths = {
   Cross: "M50,0 V30 H80 V50 H50 V80 H30 V50 H0 V30 H30 V0 Z",
 };
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, starRotation }) => {
   
   const renderShapes = (count, size, radius, keyPrefix) => {
     const shapes = [];
@@ -34,7 +34,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
             top: `calc(${y}% - ${size / 2}px)`,
             width: `${size}px`,
             height: `${size}px`,
-            transform: `rotate(${shapeRotation}rad)`,
+            transform: `rotate(${shapeRotation}rad) rotate(${starRotation}deg)`,
             fill: outlineOnly ? 'none' : starColour,
             stroke: starColour,
             strokeWidth: outlineOnly ? outlineWeight : '0'
@@ -154,7 +154,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
 
   if (count === 1) {
     return (
-      <div id="stars-container" className="stars-container" >
+      <div id="stars-container" className="stars-container"  style={generateBackgroundStyle()}>
         <svg
           className="shape"
           viewBox="0 0 100 100"
