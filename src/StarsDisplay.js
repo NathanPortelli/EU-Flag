@@ -11,7 +11,7 @@ const shapePaths = {
   Diamond: "M50,0 L100,50 L50,100 L0,50 Z",
   Crescent: "M50,0 A50,50 0 0,0 50,100 A25,50 0 1,1 50,0 Z",
   Triangle: "M50,0 L100,100 H0 Z",
-  Cross: "M50,0 V30 H80 V50 H50 V80 H30 V50 H0 V30 H30 V0 Z",
+  Cross: "M35,0 V35 H0 V65 H35 V100 H65 V65 H100 V35 H65 V0 Z",
 };
 
 const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, starRotation }) => {
@@ -37,7 +37,8 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
             transform: `rotate(${shapeRotation}rad) rotate(${starRotation}deg)`,
             fill: outlineOnly ? 'none' : starColour,
             stroke: starColour,
-            strokeWidth: outlineOnly ? outlineWeight : '0'
+            strokeWidth: outlineOnly ? outlineWeight : '0',
+            overflow: 'visible',
           }}
         >
           <path d={shapePaths[shape]} />
@@ -144,6 +145,17 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
               )`
             };
             break;
+            case 'Saltire':
+              const saltireWidth = '10.9%'; 
+              const saltireAngle = '33.8deg';
+              backgroundStyle = {
+                background: `
+                  linear-gradient(${saltireAngle}, transparent calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% + ${saltireWidth}/2), transparent calc(50% + ${saltireWidth}/2)),
+                  linear-gradient(-${saltireAngle}, transparent calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% + ${saltireWidth}/2), transparent calc(50% + ${saltireWidth}/2)),
+                  ${backColours[1]}
+                `
+              };
+              break;
       default:
         backgroundStyle = { background: backColours[0] };
     }
@@ -162,12 +174,13 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
             position: 'absolute',
             left: '50%',
             top: '50%',
-            transform: 'translate(-50%, -50%)',
+            transform: `translate(-50%, -50%) rotate(${starRotation}deg)`, 
             width: `${size}px`,
             height: `${size}px`,
             fill: outlineOnly ? 'none' : starColour,
             stroke: starColour,
-            strokeWidth: outlineOnly ? outlineWeight : '0' 
+            strokeWidth: outlineOnly ? outlineWeight : '0',
+            overflow: 'visible',
           }}
         >
           <path d={shapePaths[shape]} />

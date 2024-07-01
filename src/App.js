@@ -11,7 +11,7 @@ const shapeOptions = [
 ];
 
 const patternOptions = [
-  'Single', 'Vertical Bicolour', 'Horizontal Bicolour', 'Bends Forward', 'Bends Backward', 'Vertical Thirds', 'Horizontal Thirds', 'Vertical Quarters', 'Horizontal Quarters', 'Quadrants', 'Bends Both Ways'
+  'Single', 'Vertical Bicolour', 'Horizontal Bicolour', 'Bends Forward', 'Bends Backward', 'Vertical Thirds', 'Horizontal Thirds', 'Vertical Quarters', 'Horizontal Quarters', 'Quadrants', 'Bends Both Ways', 'Saltire'
 ];
 
 const App = () => {
@@ -76,6 +76,7 @@ const App = () => {
       case 'Horizontal Bicolour':
       case 'Bends Forward':
       case 'Bends Backward':
+      case 'Saltire':
         coloursCount = 2;
         defaultColours = ['#003399', '#ffffff'];
         break;

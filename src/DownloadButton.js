@@ -8,6 +8,25 @@ import './DownloadButton.css';
 const DownloadButton = ({ backColours, selectedPattern }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
+  function drawSaltire(ctx, x, y, width, height, strokeWidth) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.translate(x + width / 2, y + height / 2);
+    const angle = Math.atan2(height, width);
+    const length = Math.sqrt(width * width + height * height);
+  
+    ctx.rotate(angle);
+    ctx.moveTo(-length / 2, 0);
+    ctx.lineTo(length / 2, 0);
+    ctx.stroke();
+  
+    ctx.rotate(-2 * angle);
+    ctx.moveTo(-length / 2, 0);
+    ctx.lineTo(length / 2, 0);
+    ctx.stroke();
+    ctx.restore();
+  }  
+
   const handleDownload = () => {
     const starsContainer = document.getElementById('stars-container');
     if (!starsContainer) {
@@ -57,8 +76,20 @@ const DownloadButton = ({ backColours, selectedPattern }) => {
     const dx = Math.cos(angle) * diagonalLength;
     const dy = Math.sin(angle) * diagonalLength;
 
-
-    if (selectedPattern === 'Quadrants') {
+    if (selectedPattern === 'Saltire') {
+      // Draw background color
+      ctx.fillStyle = backColours[1];
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    
+      // Draw saltire
+      ctx.strokeStyle = backColours[0];
+      const saltireWidth = canvasWidth * 0.1; // Adjust this value to change the width of the saltire
+      ctx.lineWidth = saltireWidth;
+    
+      // Draw the saltire using a custom function
+      drawSaltire(ctx, 0, 0, canvasWidth, canvasHeight, saltireWidth);
+    }
+    else if (selectedPattern === 'Quadrants') {
       const halfWidth = canvasWidth / 2;
       const halfHeight = canvasHeight / 2;
   
