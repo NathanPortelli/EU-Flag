@@ -27,7 +27,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
       
       // Quick fix for star/pentagon rotation (https://www.reddit.com/r/InternetIsBeautiful/comments/1dsubkb/comment/lb5n94u/)
       if ((shape === 'Star' || shape === 'Pentagon') && pointAway) {
-        shapeRotation += (17 * Math.PI) / 180;
+        shapeRotation += (19 * Math.PI) / 180;
       }
   
       shapes.push(

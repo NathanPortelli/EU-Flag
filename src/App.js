@@ -61,6 +61,18 @@ const App = () => {
     setSelectedShape(event.target.value);
   };
 
+  const CustomToggle = ({ option1, option2, isActive, onChange }) => {
+    return (
+      <div className="custom-toggle" onClick={onChange}>
+        <div className={`custom-toggle-option ${!isActive ? 'active' : ''}`}>
+          {option1}
+        </div>
+        <div className={`custom-toggle-option ${isActive ? 'active' : ''}`}>
+          {option2}
+        </div>
+      </div>
+    );
+  };
   const handlePatternChange = (event) => {
     const pattern = event.target.value;
     setSelectedPattern(pattern);
@@ -104,25 +116,12 @@ const App = () => {
     <div className={`App ${isNewFormat ? 'old-format' : 'new-format'}`}>
       <header className="App-header">
         <h1>EU Flag Maker</h1>
-        <div className="toggle-container">
-          <span className="toggle-text">{isNewFormat ? 'Vertical' : 'Horizontal'}</span>
-          <label htmlFor="format-switch" className="toggle-label"></label>
-          <Switch
-            checked={isNewFormat}
-            onChange={handleToggle}
-            onColor="#9b870c"
-            onHandleColor="#FFDD00"
-            handleDiameter={30}
-            uncheckedIcon={false}
-            checkedIcon={false}
-            boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-            activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-            height={20}
-            width={48}
-            className="react-switch"
-            id="format-switch"
-          />
-        </div>
+        <CustomToggle 
+          option1="PC"
+          option2="Mobile"
+          isActive={isNewFormat}
+          onChange={handleToggle}
+        />
       </header>
       <main className="App-main">
         <div className="App-content">
@@ -199,23 +198,12 @@ const App = () => {
                     </select>
                   </div>
                 </div>
-                <div className="Point-away-container">
-                  <span className="toggle-text">{pointAway ? 'Pointing Outward' : 'Pointing Inward'}</span>
-                  <label htmlFor="point-away-switch" className="toggle-label-point"></label>
-                  <Switch
-                    checked={pointAway}
+                <div className="custom-toggle-container">
+                  <CustomToggle 
+                    option1="Pointing Up"
+                    option2="Pointing Outward"
+                    isActive={pointAway}
                     onChange={() => setPointAway(!pointAway)}
-                    onColor="#9b870c"
-                    onHandleColor="#FFDD00"
-                    handleDiameter={30}
-                    uncheckedIcon={false}
-                    checkedIcon={false}
-                    boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                    activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                    height={20}
-                    width={48}
-                    className="react-switch"
-                    id="point-away-switch"
                   />
                 </div>
                 <Slider
@@ -226,23 +214,12 @@ const App = () => {
                   unit="°"
                   label="Star Rotation"
                 />
-                <div className="Outline-only-container">
-                  <span className="toggle-text">{outlineOnly ? 'Outline Only' : 'Filled'}</span>
-                  <label htmlFor="outline-only-switch" className="toggle-label-outline"></label>
-                  <Switch
-                    checked={outlineOnly}
+                <div className="custom-toggle-container">
+                  <CustomToggle 
+                    option1="Filled"
+                    option2="Outline Only"
+                    isActive={outlineOnly}
                     onChange={() => setOutlineOnly(!outlineOnly)}
-                    onColor="#9b870c"
-                    onHandleColor="#FFDD00"
-                    handleDiameter={30}
-                    uncheckedIcon={false}
-                    checkedIcon={false}
-                    boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                    activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                    height={20}
-                    width={48}
-                    className="react-switch"
-                    id="outline-only-switch"
                   />
                 </div>
                 {outlineOnly && (

@@ -154,17 +154,39 @@ input[type="range"] {
 
 /* Toggle Container */
 
-.toggle-container {
+.custom-toggle {
+  display: flex;
+  width: 250px;
+  height: 45px;
+  background-color: #003399;
+  border-radius: 20px;
+  border: 1px solid #FFDD00;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.custom-toggle-option {
+  flex: 1;
   display: flex;
   align-items: center;
+  justify-content: center;
+  color: #FFDD00;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
-.toggle-label {
-  margin-right: 10px;
+.custom-toggle-option.active {
+  background-color: #FFDD00;
+  color: #003399;
 }
 
-.react-switch {
-  vertical-align: middle;
+.custom-toggle-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 /* GitHub Icon */
