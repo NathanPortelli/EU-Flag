@@ -40,7 +40,7 @@ const DownloadButton = ({ backColours, selectedPattern }) => {
       starsWidth *= 1.2;
       starsHeight *= 1.2;
     }
-    if (selectedPattern === 'Vertical Quadrants') {
+    if (selectedPattern === 'Vertical Quarters') {
       starsWidth *= 1.3;
       starsHeight *= 1.3;
     }
@@ -52,12 +52,31 @@ const DownloadButton = ({ backColours, selectedPattern }) => {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    if (selectedPattern.includes('Vertical')) {
+    if (selectedPattern === 'Quadrants') {
+      const halfWidth = canvasWidth / 2;
+      const halfHeight = canvasHeight / 2;
+    
+      // Top-left quadrant
+      ctx.fillStyle = backColours[3];
+      ctx.fillRect(0, 0, halfWidth, halfHeight);
+    
+      // Top-right quadrant
+      ctx.fillStyle = backColours[0];
+      ctx.fillRect(halfWidth, 0, halfWidth, halfHeight);
+    
+      // Bottom-left quadrant
+      ctx.fillStyle = backColours[2];
+      ctx.fillRect(0, halfHeight, halfWidth, halfHeight);
+    
+      // Bottom-right quadrant
+      ctx.fillStyle = backColours[1];
+      ctx.fillRect(halfWidth, halfHeight, halfWidth, halfHeight);
+    } else if (selectedPattern.includes('Vertical')) {
       // Vertical
       const stripeWidth = canvasWidth / backColours.length;
-      //todo: quickfix for quadrants pattern
-      if (selectedPattern.includes('Quadrants')) {
-        // Reverse the order for quadrants pattern
+      //todo: quickfix for quarters pattern
+      if (selectedPattern.includes('Quarters')) {
+        // Reverse the order for quarters pattern
         for (let i = 0; i < backColours.length; i++) {
           ctx.fillStyle = backColours[backColours.length - 1 - i];
           ctx.fillRect(i * stripeWidth, 0, stripeWidth, canvasHeight);
@@ -72,9 +91,9 @@ const DownloadButton = ({ backColours, selectedPattern }) => {
     } else {
       // Horizontal pattern (default behavior)
       for (let i = 0; i < backColours.length; i++) {
-        //todo: quickfix for quadrants pattern
-        if (selectedPattern.includes('Quadrants')) {
-          // Reverse the order for quadrants pattern
+        //todo: quickfix for quarters pattern
+        if (selectedPattern.includes('Quarters')) {
+          // Reverse the order for quarters pattern
           ctx.fillStyle = backColours[backColours.length - 1 - i];
         } else {
           ctx.fillStyle = backColours[i];

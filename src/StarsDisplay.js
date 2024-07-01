@@ -74,7 +74,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           background: `linear-gradient(to bottom, ${backColours[0]} 33.33%, ${backColours[1]} 33.33%, ${backColours[1]} 66.66%, ${backColours[2]} 66.66%)`
         };
         break;
-        case 'Horizontal Quadrants':
+        case 'Horizontal Quarters':
           backgroundStyle = {
             background: `linear-gradient(to top, 
                           ${backColours[0]} 0%, ${backColours[0]} 25%, 
@@ -83,13 +83,28 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
                           ${backColours[3]} 75%, ${backColours[3]} 100%)`
           };
           break;
-        case 'Vertical Quadrants':
+        case 'Vertical Quarters':
           backgroundStyle = {
             background: `linear-gradient(to left, 
                           ${backColours[0]} 0%, ${backColours[0]} 25%, 
                           ${backColours[1]} 25%, ${backColours[1]} 50%, 
                           ${backColours[2]} 50%, ${backColours[2]} 75%, 
                           ${backColours[3]} 75%, ${backColours[3]} 100%)`
+          };
+          break;
+        case 'Quadrants':
+          backgroundStyle = {
+            background: `conic-gradient(
+              from 0deg at 50% 50%,
+              ${backColours[0]} 0deg,
+              ${backColours[0]} 90deg,
+              ${backColours[1]} 90deg,
+              ${backColours[1]} 180deg,
+              ${backColours[2]} 180deg,
+              ${backColours[2]} 270deg,
+              ${backColours[3]} 270deg,
+              ${backColours[3]} 360deg
+            )`
           };
           break;
       default:

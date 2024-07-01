@@ -11,7 +11,7 @@ const shapeOptions = [
 ];
 
 const patternOptions = [
-  'Single', 'Vertical Bicolour', 'Horizontal Bicolour', 'Vertical Thirds', 'Horizontal Thirds', 'Vertical Quadrants', 'Horizontal Quadrants'
+  'Single', 'Vertical Bicolour', 'Horizontal Bicolour', 'Vertical Thirds', 'Horizontal Thirds', 'Vertical Quarters', 'Horizontal Quarters', 'Quadrants'
 ];
 
 const App = () => {
@@ -74,17 +74,18 @@ const App = () => {
       case 'Vertical Bicolour':
       case 'Horizontal Bicolour':
         coloursCount = 2;
-        defaultColours = ['#003399', 'white'];
+        defaultColours = ['#003399', '#ffffff'];
         break;
       case 'Vertical Thirds':
       case 'Horizontal Thirds':
         coloursCount = 3;
-        defaultColours = ['#003399', 'white', 'black'];
+        defaultColours = ['#003399', '#ffffff', '#000000'];
         break;
-      case 'Vertical Quadrants':
-      case 'Horizontal Quadrants':
+      case 'Vertical Quarters':
+      case 'Horizontal Quarters':
+      case 'Quadrants':
         coloursCount = 4;
-        defaultColours = ['#003399', 'white', 'black', 'green'];
+        defaultColours = ['#003399', '#ffffff', '#000000', '#008000'];
         break;
       default:
         coloursCount = 1;
