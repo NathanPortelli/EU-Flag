@@ -107,6 +107,43 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
             )`
           };
           break;
+          case 'Bends Forward':
+            backgroundStyle = {
+              background: `linear-gradient(
+                to bottom right,
+                ${backColours[0]} 0%,
+                ${backColours[0]} 50%,
+                ${backColours[1]} 50%,
+                ${backColours[1]} 100%
+              )`
+            };
+            break;
+          case 'Bends Backward':
+            backgroundStyle = {
+              background: `linear-gradient(
+                to bottom left,
+                ${backColours[0]} 0%,
+                ${backColours[0]} 50%,
+                ${backColours[1]} 50%,
+                ${backColours[1]} 100%
+              )`
+            };
+            break;
+          case 'Bends Both Ways':
+            backgroundStyle = {
+              background: `conic-gradient(
+                from 45deg at 50% 50%,
+                ${backColours[0]} 0deg,
+                ${backColours[0]} 90deg,
+                ${backColours[1]} 90deg,
+                ${backColours[1]} 180deg,
+                ${backColours[2]} 180deg,
+                ${backColours[2]} 270deg,
+                ${backColours[3]} 270deg,
+                ${backColours[3]} 360deg
+              )`
+            };
+            break;
       default:
         backgroundStyle = { background: backColours[0] };
     }

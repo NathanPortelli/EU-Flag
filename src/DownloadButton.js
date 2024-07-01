@@ -52,10 +52,16 @@ const DownloadButton = ({ backColours, selectedPattern }) => {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
+    const angle = Math.PI / 4; // 50 degrees in radians
+    const diagonalLength = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight);
+    const dx = Math.cos(angle) * diagonalLength;
+    const dy = Math.sin(angle) * diagonalLength;
+
+
     if (selectedPattern === 'Quadrants') {
       const halfWidth = canvasWidth / 2;
       const halfHeight = canvasHeight / 2;
-    
+  
       // Top-left quadrant
       ctx.fillStyle = backColours[3];
       ctx.fillRect(0, 0, halfWidth, halfHeight);
@@ -71,6 +77,38 @@ const DownloadButton = ({ backColours, selectedPattern }) => {
       // Bottom-right quadrant
       ctx.fillStyle = backColours[1];
       ctx.fillRect(halfWidth, halfHeight, halfWidth, halfHeight);
+    } else if (selectedPattern === 'Bends Forward') {
+      const offsetX = -canvasWidth * 0.0175;
+      const gradient = ctx.createLinearGradient(offsetX, 0, dx + offsetX, dy);
+      gradient.addColorStop(0, backColours[0]);
+      gradient.addColorStop(0.5, backColours[0]);
+      gradient.addColorStop(0.5, backColours[1]);
+      gradient.addColorStop(1, backColours[1]);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    } else if (selectedPattern === 'Bends Backward') {
+      const offsetX = canvasWidth * 0.0175;
+      const gradient = ctx.createLinearGradient(canvasWidth + offsetX, 0, (canvasWidth - dx) + offsetX, dy);
+      gradient.addColorStop(0, backColours[0]);
+      gradient.addColorStop(0.5, backColours[0]);
+      gradient.addColorStop(0.5, backColours[1]);
+      gradient.addColorStop(1, backColours[1]);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    } else if (selectedPattern === 'Bends Both Ways') {
+      const centerX = canvasWidth / 2;
+      const centerY = canvasHeight / 2;
+      const gradient = ctx.createConicGradient(Math.PI / 4, centerX, centerY);
+      gradient.addColorStop(0, backColours[1]);
+      gradient.addColorStop(0.25, backColours[1]);
+      gradient.addColorStop(0.25, backColours[2]);
+      gradient.addColorStop(0.5, backColours[2]);
+      gradient.addColorStop(0.5, backColours[3]);
+      gradient.addColorStop(0.75, backColours[3]);
+      gradient.addColorStop(0.75, backColours[0]);
+      gradient.addColorStop(1, backColours[0]);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     } else if (selectedPattern.includes('Vertical')) {
       // Vertical
       const stripeWidth = canvasWidth / backColours.length;
