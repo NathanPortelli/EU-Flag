@@ -1,18 +1,107 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Slider from './Slider';
 import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
-import Switch from 'react-switch';
-import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import './App.css';
+import { shapePaths } from './ShapePaths';
+import ImageUpload from './ImageUpload';
+import Divider from './Divider';
 
 const shapeOptions = [
   'Star', 'Circle', 'Square', 'Hexagon', 'Pentagon', 'Octagon', 'Diamond', 'Crescent', 'Triangle', 'Cross'
 ];
 
 const patternOptions = [
-  'Single', 'Vertical Bicolour', 'Horizontal Bicolour', 'Bends Forward', 'Bends Backward', 'Vertical Thirds', 'Horizontal Thirds', 'Vertical Quarters', 'Horizontal Quarters', 'Quadrants', 'Bends Both Ways', 'Saltire'
+  'Single', 'Horizontal', 'Vertical', 'Bends', 'Quadrants', 'Saltire'
 ];
+
+// Pattern amount options
+const amountOptions = {
+  'Horizontal': ['Bicolour', 'Thirds', 'Quarters'],
+  'Vertical': ['Bicolour', 'Thirds', 'Quarters'],
+  'Bends': ['Forwards', 'Backwards', 'Both Ways']
+};
+
+const patternIcons = {
+  'Single': '☐',
+  'Vertical': '║',
+  'Horizontal': '═',
+  'Bends': '⫽',
+  'Quadrants': '╬',
+  'Saltire': 'X'
+};
+
+const amountIcons = {
+  'Bicolour': '| ',
+  'Thirds': '||| ',
+  'Quarters': '||||',
+  'Forwards': '/',
+  'Backwards': '\\',
+  'Both Ways': '𝕏'
+};
+
+const CustomShapeDropdown = ({ options, value, onChange, shapePaths }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="Shape-container" ref={dropdownRef}>
+      <label className="shape-label">Shape</label>
+      <div
+        className="shape-dropdown"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <ShapeOption shape={value} shapePaths={shapePaths} />
+      </div>
+      {isOpen && (
+        <div className="dropdown-options">
+          {options.map((shape) => (
+            <div
+              key={shape}
+              className="dropdown-option"
+              onClick={() => {
+                onChange(shape);
+                setIsOpen(false);
+              }}
+            >
+              <ShapeOption shape={shape} shapePaths={shapePaths} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ShapeOption = ({ shape, shapePaths }) => {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 100 100"
+        style={{ marginRight: '10px' }}
+      >
+        <path d={shapePaths[shape]} fill="#FFDD00" />
+      </svg>
+      {shape}
+    </div>
+  );
+};
 
 const App = () => {
   const [starCount, setStarCount] = useState(12);
@@ -25,11 +114,45 @@ const App = () => {
   const [rotationAngle, setRotationAngle] = useState(0);
   const [selectedShape, setSelectedShape] = useState('Star');
   const [selectedPattern, setSelectedPattern] = useState('Single');
+  const [selectedAmount, setSelectedAmount] = useState('');
   const [pointAway, setPointAway] = useState(false);
   const [outlineOnly, setOutlineOnly] = useState(false); 
   const [outlineWeight, setOutlineWeight] = useState(2); 
   const [activeSection, setActiveSection] = useState('Format');
   const [starRotation, setStarRotation] = useState(0);
+  const [customImage, setCustomImage] = useState(null);
+
+  // Calculate opposite colour
+  const getOppositeColor = (hex) => {
+    hex = hex.replace('#', '');
+    let r = parseInt(hex.substr(0, 2), 16);
+    let g = parseInt(hex.substr(2, 2), 16);
+    let b = parseInt(hex.substr(4, 2), 16);
+    r = 255 - r;
+    g = 255 - g;
+    b = 255 - b;
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+  };
+
+  // Calculate initial label colors
+  const initialLabelColors = useMemo(() => {
+    const colors = {};
+    backColours.forEach((color, index) => {
+      colors[`back-${index}`] = getOppositeColor(color);
+    });
+    colors.star = getOppositeColor(starColour);
+    return colors;
+  }, []);
+
+  const [labelColors, setLabelColors] = useState(initialLabelColors);
+
+  const handleImageUpload = (imageData) => {
+    setCustomImage(imageData);
+  };
+
+  const handleImageRemove = () => {
+    setCustomImage(null);
+  };
 
   useEffect(() => {
     setStarRadius(isNewFormat ? 90 : 80);
@@ -50,16 +173,27 @@ const App = () => {
     newColours[index] = colour;
     setBackColours(newColours);
     document.documentElement.style.setProperty(`--back-color-${index}`, colour);
+    
+    setLabelColors(prev => ({...prev, [`back-${index}`]: getOppositeColor(colour)}));
   };
-
+  
   const handleStarColourChange = (colour) => {
     setStarColour(colour);
     document.documentElement.style.setProperty('--star-color', colour);
+    
+    setLabelColors(prev => ({...prev, star: getOppositeColor(colour)}));
   };
-
-  const handleShapeChange = (event) => {
-    setSelectedShape(event.target.value);
-  };
+  
+  // Initialising label colors on component mount
+  useEffect(() => {
+    const initialLabelColors = {};
+    backColours.forEach((color, index) => {
+      initialLabelColors[`back-${index}`] = getOppositeColor(color);
+    });
+    initialLabelColors.star = getOppositeColor(starColour);
+    setLabelColors(initialLabelColors);
+  }, []);
+  
 
   const CustomToggle = ({ option1, option2, isActive, onChange }) => {
     return (
@@ -76,7 +210,8 @@ const App = () => {
   const handlePatternChange = (event) => {
     const pattern = event.target.value;
     setSelectedPattern(pattern);
-  
+    setSelectedAmount('');
+
     let coloursCount = 1;
     let defaultColours = ['#003399'];
   
@@ -84,28 +219,38 @@ const App = () => {
       case 'Single':
         coloursCount = 1;
         break;
-      case 'Vertical Bicolour':
-      case 'Horizontal Bicolour':
-      case 'Bends Forward':
-      case 'Bends Backward':
+      case 'Vertical':
+      case 'Horizontal':
+      case 'Bends':
       case 'Saltire':
         coloursCount = 2;
         defaultColours = ['#003399', '#ffffff'];
         break;
-      case 'Vertical Thirds':
-      case 'Horizontal Thirds':
-        coloursCount = 3;
-        defaultColours = ['#003399', '#ffffff', '#000000'];
-        break;
-      case 'Vertical Quarters':
-      case 'Horizontal Quarters':
       case 'Quadrants':
-      case 'Bends Both Ways':
         coloursCount = 4;
         defaultColours = ['#003399', '#ffffff', '#000000', '#008000'];
         break;
       default:
         coloursCount = 1;
+    }
+  
+    const newColours = Array.from({ length: coloursCount }, (_, index) => defaultColours[index] || '#003399');
+    setBackColours(newColours);
+  };
+
+  const handleAmountChange = (event) => {
+    const amount = event.target.value;
+    setSelectedAmount(amount);
+  
+    let coloursCount = 2;
+    let defaultColours = ['#003399', '#ffffff'];
+  
+    if (amount === 'Thirds') {
+      coloursCount = 3;
+      defaultColours = ['#003399', '#ffffff', '#000000'];
+    } else if (amount === 'Quarters' || amount === 'Both Ways') {
+      coloursCount = 4;
+      defaultColours = ['#003399', '#ffffff', '#000000', '#008000'];
     }
   
     const newColours = Array.from({ length: coloursCount }, (_, index) => defaultColours[index] || '#003399');
@@ -139,7 +284,9 @@ const App = () => {
               outlineOnly={outlineOnly}
               outlineWeight={outlineWeight}
               pattern={selectedPattern}
+              amount={selectedAmount}
               starRotation={starRotation}
+              customImage={customImage}
             />
           </div>
           <div className="Slider-content">
@@ -155,7 +302,7 @@ const App = () => {
                   onChange={setStarCount}
                   min={0}
                   max={50}
-                  unit="stars"
+                  unit={starCount === 1 ? "star" : "stars"}
                   label="Star Count"
                 />
                 <Slider
@@ -163,7 +310,7 @@ const App = () => {
                   onChange={setCircleCount}
                   min={1}
                   max={3}
-                  unit="circles"
+                  unit={circleCount === 1 ? "circle" : "circles"}
                   label="Circle Count"
                 />
                 <Slider
@@ -186,18 +333,44 @@ const App = () => {
             )}
             {activeSection === 'Shape' && (
               <div className="toolbar-segment">
-                <div className="Shape-selector">
-                  <div className="Shape-container">
-                    <label htmlFor="shapeSelector" className="shape-label">Select Shape</label>
-                    <select id="shapeSelector" value={selectedShape} onChange={handleShapeChange} className="shape-dropdown">
-                      {shapeOptions.map((shape) => (
-                        <option key={shape} value={shape}>
-                          {shape}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                <ImageUpload
+                  onImageUpload={handleImageUpload}
+                  onImageRemove={handleImageRemove}
+                  hasImage={!!customImage}
+                />
+                {!customImage && (
+                  <>
+                    <Divider text="or" />
+                    <div className="Shape-selector">
+                      <CustomShapeDropdown
+                        options={shapeOptions}
+                        value={selectedShape}
+                        onChange={setSelectedShape}
+                        shapePaths={shapePaths}
+                      />
+                    </div>
+                    <div className="custom-toggle-container">
+                      <CustomToggle 
+                        option1="Filled"
+                        option2="Outline Only"
+                        isActive={outlineOnly}
+                        onChange={() => setOutlineOnly(!outlineOnly)}
+                      />
+                    </div>
+                    {outlineOnly && (
+                      <div className="outline-weight">
+                        <Slider
+                          value={outlineWeight}
+                          onChange={setOutlineWeight}
+                          min={1}
+                          max={15}
+                          unit="px"
+                          label="Outline Weight"
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
                 <div className="custom-toggle-container">
                   <CustomToggle 
                     option1="Pointing Up"
@@ -214,44 +387,53 @@ const App = () => {
                   unit="°"
                   label="Star Rotation"
                 />
-                <div className="custom-toggle-container">
-                  <CustomToggle 
-                    option1="Filled"
-                    option2="Outline Only"
-                    isActive={outlineOnly}
-                    onChange={() => setOutlineOnly(!outlineOnly)}
-                  />
-                </div>
-                {outlineOnly && (
-                  <div className="outline-weight">
-                    <Slider
-                      value={outlineWeight}
-                      onChange={setOutlineWeight}
-                      min={1}
-                      max={15}
-                      unit="px"
-                      label="Outline Weight"
-                    />
-                  </div>
-                )}
               </div>
             )}
             {activeSection === 'Colours' && (
               <div className="toolbar-segment">
-                <div className="Colour-selector">
+                <div className="Shape-selector">
                   <div className="Shape-container">
-                    <label htmlFor="patternSelector" className="shape-label">Select Pattern</label>
-                    <select id="patternSelector" value={selectedPattern} onChange={handlePatternChange} className="shape-dropdown">
+                    <label htmlFor="patternSelector" className="shape-label">Pattern</label>
+                    <select 
+                      id="patternSelector" 
+                      value={selectedPattern} 
+                      onChange={handlePatternChange} 
+                      className="shape-dropdown"
+                    >
                       {patternOptions.map((pattern) => (
                         <option key={pattern} value={pattern}>
-                          {pattern}
+                          {patternIcons[pattern]}{'\u00A0\u00A0\u00A0\u00A0'}{pattern}
                         </option>
                       ))}
                     </select>
                   </div>
+                  {['Horizontal', 'Vertical', 'Bends'].includes(selectedPattern) && (
+                    <div className="Shape-container">
+                      <label htmlFor="amountSelector" className="shape-label">Amount</label>
+                      <select 
+                        id="amountSelector" 
+                        value={selectedAmount} 
+                        onChange={handleAmountChange} 
+                        className="shape-dropdown"
+                      >
+                        {amountOptions[selectedPattern].map((amount) => (
+                          <option key={amount} value={amount}>
+                            {amountIcons[amount]}{'\u00A0\u00A0\u00A0\u00A0'}{amount}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  <p class="colours-header">Colours</p>
                   {backColours.map((colour, index) => (
                     <div className="Colour-container" key={index}>
-                      <label htmlFor={`backColourPicker-${index}`} className="colour-label">Background Colour {index + 1} </label>
+                      <label
+                        htmlFor={`backColourPicker-${index}`}
+                        className="colour-label"
+                        style={{color: labelColors[`back-${index}`]}}
+                      >
+                        Background Colour {index + 1}
+                      </label>
                       <input
                         type="color"
                         id={`backColourPicker-${index}`}
@@ -260,19 +442,33 @@ const App = () => {
                       />
                     </div>
                   ))}
-                  <div className="Colour-container" id="star-colour">
-                    <label htmlFor="starColourPicker" className="colour-label">Star Colour </label>
-                    <input
-                      type="color"
-                      id="starColourPicker"
-                      value={starColour}
-                      onChange={(e) => handleStarColourChange(e.target.value)}
-                    />
-                  </div>
+                  {!customImage && (
+                  <>
+                    <div className="Colour-container" id="star-colour">
+                      <label
+                        htmlFor="starColourPicker"
+                        className="colour-label"
+                        style={{color: labelColors.star}}
+                      >
+                        Star Colour
+                      </label>
+                      <input
+                        type="color"
+                        id="starColourPicker"
+                        value={starColour}
+                        onChange={(e) => handleStarColourChange(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
                 </div>
               </div>
             )}
-            <DownloadButton backColours={backColours} selectedPattern={selectedPattern} />
+            <DownloadButton 
+              backColours={backColours} 
+              selectedPattern={selectedPattern} 
+              selectedAmount={selectedAmount} 
+            />
           </div>
         </div>
         <a href="https://github.com/NathanPortelli/EU-Flag" className="github-icon" target="_blank" rel="noopener noreferrer">

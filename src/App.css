@@ -185,7 +185,7 @@ input[type="range"] {
 .custom-toggle-container {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  padding-top: 10px;
   margin-bottom: 20px;
 }
 
@@ -206,11 +206,26 @@ input[type="range"] {
 
 /* Colour Inputter */
 
-.Colour-inputs-container {
+.colours-header {
+  margin-bottom: 20px;
+  color: #FFDD00;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.Colour-container
+{
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  margin-bottom: 20px;
+  position: relative;
+  width: 250px;
+  height: 50px;
+  border: 2px solid #FFDD00;
+  border-radius: 30px;
+  overflow: hidden;
+  background-color: #002080;
 }
 
 .Colour-inputs {
@@ -221,47 +236,140 @@ input[type="range"] {
 }
 
 .colour-label {
-  padding-right: 10px;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  height: 40px;
+  padding: 0 10px;
+  color: #FFDD00;
   font-weight: bold;
-  font-size: 1.1em;
-  text-align: center;
+  font-size: 0.9em;
+  z-index: 1;
+  border-radius: 20px;
+  cursor: pointer;
 }
 
 input[type='color'] {
+  -webkit-appearance: none;
   border: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
-  margin-top: 5px;
+  background-color: transparent;
+}
+
+input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type='color']::-webkit-color-swatch {
+  border: none;
+}
+
+.Colour-container:hover {
+  box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);
+  transition: box-shadow 0.3s ease;
 }
 
 #star-colour {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 /* Shape Selector */
 
 .Shape-selector {
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .Shape-container {
+  position: relative;
   margin-bottom: 20px;
+  width: 250px;
+  max-width: 100%;
 }
 
 .shape-label {
-  margin-right: 10px;
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #003399;
+  padding: 0 10px;
+  color: #FFDD00;
+  font-weight: bold;
+  z-index: 1;
 }
 
 .shape-dropdown {
+  width: 100%;
   padding: 10px;
-  border: 2px solid #003399;
-  border-radius: 5px;
-  background-color: #FFDD00;
-  color: #003399;
+  border: 2px solid #FFDD00;
+  border-radius: 20px;
+  background-color: #003399;
+  color: #FFDD00;
   font-size: 16px;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 30px;
+}
+
+.Shape-container::after {
+  content: '\25BC';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: #FFDD00;
+  pointer-events: none;
+}
+
+.shape-dropdown option {
+  background-color: #003399;
+  color: #FFDD00;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #003399;
+  border: 2px solid #FFDD00;
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-icon {
+  width: 30px;
+  text-align: center;
+  margin-right: 60px;
+}
+
+.dropdown-text {
+  flex: 1;
+}
+
+.dropdown-option {
+  padding: 10px;
+  cursor: pointer;
+  color: #FFDD00;
+  width: 100%;
+}
+
+.dropdown-option:hover {
+  background-color: #004499;
 }
 
 .Point-away-container {
@@ -278,4 +386,52 @@ input[type='color'] {
 
 .outline-weight {
   margin-top: 25px;
+}
+
+/* Image Upload */
+
+.image-upload-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.image-upload-container button {
+  background-color: #FFDD00;
+  color: #003399;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.remove-image {
+  background-color: #ff4444 !important;
+  color: white !important;
+}
+
+/* Divider */
+
+.divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 30px 0;
+}
+
+.divider-line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #FFDD00;
+}
+
+.divider-text {
+  padding: 0 10px;
+  color: #FFDD00;
+  font-weight: bold;
 }

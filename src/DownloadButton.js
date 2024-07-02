@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import './DownloadButton.css';
 
-const DownloadButton = ({ backColours, selectedPattern }) => {
+const DownloadButton = ({ backColours, selectedPattern, selectedAmount }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   function drawSaltire(ctx, x, y, width, height, strokeWidth) {
@@ -108,43 +108,45 @@ const DownloadButton = ({ backColours, selectedPattern }) => {
       // Bottom-right quadrant
       ctx.fillStyle = backColours[1];
       ctx.fillRect(halfWidth, halfHeight, halfWidth, halfHeight);
-    } else if (selectedPattern === 'Bends Forward') {
-      const offsetX = -canvasWidth * 0.0175;
-      const gradient = ctx.createLinearGradient(offsetX, 0, dx + offsetX, dy);
-      gradient.addColorStop(0, backColours[0]);
-      gradient.addColorStop(0.5, backColours[0]);
-      gradient.addColorStop(0.5, backColours[1]);
-      gradient.addColorStop(1, backColours[1]);
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-    } else if (selectedPattern === 'Bends Backward') {
-      const offsetX = canvasWidth * 0.0175;
-      const gradient = ctx.createLinearGradient(canvasWidth + offsetX, 0, (canvasWidth - dx) + offsetX, dy);
-      gradient.addColorStop(0, backColours[0]);
-      gradient.addColorStop(0.5, backColours[0]);
-      gradient.addColorStop(0.5, backColours[1]);
-      gradient.addColorStop(1, backColours[1]);
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-    } else if (selectedPattern === 'Bends Both Ways') {
-      const centerX = canvasWidth / 2;
-      const centerY = canvasHeight / 2;
-      const gradient = ctx.createConicGradient(Math.PI / 4, centerX, centerY);
-      gradient.addColorStop(0, backColours[1]);
-      gradient.addColorStop(0.25, backColours[1]);
-      gradient.addColorStop(0.25, backColours[2]);
-      gradient.addColorStop(0.5, backColours[2]);
-      gradient.addColorStop(0.5, backColours[3]);
-      gradient.addColorStop(0.75, backColours[3]);
-      gradient.addColorStop(0.75, backColours[0]);
-      gradient.addColorStop(1, backColours[0]);
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-    } else if (selectedPattern.includes('Vertical')) {
+    } else if (selectedPattern === 'Bends') {
+      if (selectedAmount === 'Forwards') {
+        const offsetX = -canvasWidth * 0.0175;
+        const gradient = ctx.createLinearGradient(offsetX, 0, dx + offsetX, dy);
+        gradient.addColorStop(0, backColours[0]);
+        gradient.addColorStop(0.5, backColours[0]);
+        gradient.addColorStop(0.5, backColours[1]);
+        gradient.addColorStop(1, backColours[1]);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      } else if (selectedAmount === 'Backwards') {
+        const offsetX = canvasWidth * 0.0175;
+        const gradient = ctx.createLinearGradient(canvasWidth + offsetX, 0, (canvasWidth - dx) + offsetX, dy);
+        gradient.addColorStop(0, backColours[0]);
+        gradient.addColorStop(0.5, backColours[0]);
+        gradient.addColorStop(0.5, backColours[1]);
+        gradient.addColorStop(1, backColours[1]);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      } else if (selectedAmount === 'Both Ways') {
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
+        const gradient = ctx.createConicGradient(Math.PI / 4, centerX, centerY);
+        gradient.addColorStop(0, backColours[1]);
+        gradient.addColorStop(0.25, backColours[1]);
+        gradient.addColorStop(0.25, backColours[2]);
+        gradient.addColorStop(0.5, backColours[2]);
+        gradient.addColorStop(0.5, backColours[3]);
+        gradient.addColorStop(0.75, backColours[3]);
+        gradient.addColorStop(0.75, backColours[0]);
+        gradient.addColorStop(1, backColours[0]);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      }
+    } else if (selectedPattern === 'Vertical') {
       // Vertical
       const stripeWidth = canvasWidth / backColours.length;
       //todo: quickfix for quarters pattern
-      if (selectedPattern.includes('Quarters')) {
+      if (selectedAmount === 'Quarters') {
         // Reverse the order for quarters pattern
         for (let i = 0; i < backColours.length; i++) {
           ctx.fillStyle = backColours[backColours.length - 1 - i];
@@ -161,7 +163,7 @@ const DownloadButton = ({ backColours, selectedPattern }) => {
       // Horizontal pattern (default behavior)
       for (let i = 0; i < backColours.length; i++) {
         //todo: quickfix for quarters pattern
-        if (selectedPattern.includes('Quarters')) {
+        if (selectedAmount === 'Quarters') {
           // Reverse the order for quarters pattern
           ctx.fillStyle = backColours[backColours.length - 1 - i];
         } else {
