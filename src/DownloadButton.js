@@ -8,6 +8,24 @@ import './DownloadButton.css';
 const DownloadButton = ({ backColours, selectedPattern, selectedAmount }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
+  function drawCross(ctx, x, y, width, height, strokeWidth) {
+    ctx.save();
+    ctx.strokeStyle = backColours[0];
+    ctx.lineWidth = strokeWidth;
+    ctx.beginPath();
+    
+    // Horizontal line
+    ctx.moveTo(x, y + height / 2);
+    ctx.lineTo(x + width, y + height / 2);
+    
+    // Vertical line
+    ctx.moveTo(x + width / 2, y);
+    ctx.lineTo(x + width / 2, y + height);
+    
+    ctx.stroke();
+    ctx.restore();
+  }
+
   function drawSaltire(ctx, x, y, width, height, strokeWidth) {
     ctx.save();
     ctx.beginPath();
@@ -38,28 +56,36 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount }) => {
     const computedStyle = window.getComputedStyle(starsContainer);
     let starsWidth = parseInt(computedStyle.width, 10);
     let starsHeight = parseInt(computedStyle.height, 10);
-
     // Canvas dimensions -- 2:3 aspect ratio
     const aspectRatio = 3 / 2;
     let canvasWidth, canvasHeight;
-    // Stars container is wider
-    if (starsWidth / starsHeight > aspectRatio) {
-      canvasWidth = starsWidth;
-      canvasHeight = starsWidth / aspectRatio;
-    } 
-    // Stars container is taller or square
-    else {
-      canvasWidth = starsHeight * aspectRatio;
-      canvasHeight = starsHeight;
-    }
+
+    canvasWidth = (starsHeight * aspectRatio);
+    canvasHeight = starsHeight;
+
+    // // Stars container is wider
+    // if (starsWidth / starsHeight > aspectRatio) {
+    //   canvasWidth = starsWidth;
+    //   canvasHeight = starsWidth / aspectRatio;
+    // } 
+    // // Stars container is taller or square
+    // else {
+    //   canvasWidth = starsHeight * aspectRatio;
+    //   canvasHeight = starsHeight;
+    // }
 
     //todo: quickfix for verticals
     // Adjust dimensions for specific patterns
-    if (selectedPattern === 'Vertical Thirds') {
+    if (selectedPattern === 'Single')
+    {
+      starsWidth *= 0.9;
+      starsHeight *= 0.9;
+    }
+    else if (selectedPattern === 'Vertical' && selectedAmount === 'Thirds') {
       starsWidth *= 1.2;
       starsHeight *= 1.2;
     }
-    if (selectedPattern === 'Vertical Quarters') {
+    else if (selectedPattern === 'Vertical' && selectedAmount === 'Quarters') {
       starsWidth *= 1.3;
       starsHeight *= 1.3;
     }
@@ -76,20 +102,28 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount }) => {
     const dx = Math.cos(angle) * diagonalLength;
     const dy = Math.sin(angle) * diagonalLength;
 
-    if (selectedPattern === 'Saltire') {
-      // Draw background color
+    if (selectedPattern === 'Single') {
+      ctx.fillStyle = backColours[0];
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    } else if (selectedPattern === 'Cross') {
+      ctx.fillStyle = backColours[1];
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      // Cross
+      const crossWidth = Math.min(canvasWidth, canvasHeight) * 0.109;
+      drawCross(ctx, 0, 0, canvasWidth, canvasHeight, crossWidth);
+    } else if (selectedPattern === 'Saltire') {
       ctx.fillStyle = backColours[1];
       ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     
-      // Draw saltire
+      // Saltire
       ctx.strokeStyle = backColours[0];
-      const saltireWidth = canvasWidth * 0.1; // Adjust this value to change the width of the saltire
+      const saltireWidth = canvasWidth * 0.1;
       ctx.lineWidth = saltireWidth;
     
       // Draw the saltire using a custom function
       drawSaltire(ctx, 0, 0, canvasWidth, canvasHeight, saltireWidth);
-    }
-    else if (selectedPattern === 'Quadrants') {
+    } else if (selectedPattern === 'Quadrants') {
       const halfWidth = canvasWidth / 2;
       const halfHeight = canvasHeight / 2;
   
@@ -160,7 +194,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount }) => {
         });
       }
     } else {
-      // Horizontal pattern (default behavior)
+      // Horizontal pattern (default behaviour)
       for (let i = 0; i < backColours.length; i++) {
         //todo: quickfix for quarters pattern
         if (selectedAmount === 'Quarters') {
@@ -179,7 +213,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount }) => {
         const starsImg = new Image();
         starsImg.onload = function () {
           const offsetX = (canvasWidth - starsWidth) / 2;
-          const offsetY = (canvasHeight - starsHeight) / 2 - (canvasHeight * 0.02);
+          const offsetY = (canvasHeight - starsHeight) / 2;
 
           ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
 

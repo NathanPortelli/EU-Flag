@@ -3,8 +3,9 @@
     color: white;
     border: none;
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
+    font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;

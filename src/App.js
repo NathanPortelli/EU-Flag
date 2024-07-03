@@ -13,10 +13,9 @@ const shapeOptions = [
 ];
 
 const patternOptions = [
-  'Single', 'Horizontal', 'Vertical', 'Bends', 'Quadrants', 'Saltire'
+  'Single', 'Horizontal', 'Vertical', 'Bends', 'Quadrants', 'Cross', 'Saltire'
 ];
 
-// Pattern amount options
 const amountOptions = {
   'Horizontal': ['Bicolour', 'Thirds', 'Quarters'],
   'Vertical': ['Bicolour', 'Thirds', 'Quarters'],
@@ -28,7 +27,8 @@ const patternIcons = {
   'Vertical': '║',
   'Horizontal': '═',
   'Bends': '⫽',
-  'Quadrants': '╬',
+  'Quadrants': '✚',
+  'Cross': '╬',
   'Saltire': 'X'
 };
 
@@ -104,12 +104,15 @@ const ShapeOption = ({ shape, shapePaths }) => {
 };
 
 const App = () => {
+  const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000'];
+  const [userSetColours, setUserSetColours] = useState([...defaultBackColours]);
+
   const [starCount, setStarCount] = useState(12);
   const [circleCount, setCircleCount] = useState(1);
-  const [starSize, setStarSize] = useState(45);
+  const [starSize, setStarSize] = useState(55);
   const [isNewFormat, setIsNewFormat] = useState(false);
-  const [starRadius, setStarRadius] = useState(100);
-  const [backColours, setBackColours] = useState(['#003399']);
+  const [starRadius, setStarRadius] = useState(window.innerWidth < 1000 ? 90 : 80);
+  const [backColours, setBackColours] = useState(defaultBackColours);
   const [starColour, setStarColour] = useState('#FFDD00');
   const [rotationAngle, setRotationAngle] = useState(0);
   const [selectedShape, setSelectedShape] = useState('Star');
@@ -121,6 +124,39 @@ const App = () => {
   const [activeSection, setActiveSection] = useState('Format');
   const [starRotation, setStarRotation] = useState(0);
   const [customImage, setCustomImage] = useState(null);
+  const [backgroundImage, setBackgroundImage] = useState(null);
+
+  const handleBackgroundImageUpload = (imageData) => {
+    setBackgroundImage(imageData);
+  };
+
+  const getRelevantColors = () => {
+    switch (selectedPattern) {
+      case 'Single':
+        return [backColours[0]];
+      case 'Vertical':
+      case 'Horizontal':
+      case 'Bends':
+        switch (selectedAmount) {
+          case 'Bicolour':
+            return backColours.slice(0, 2);
+          case 'Thirds':
+            return backColours.slice(0, 3);
+          case 'Quarters':
+          case 'Both Ways':
+            return backColours.slice(0, 4);
+          default:
+            return backColours.slice(0, 2);
+        }
+      case 'Cross':
+      case 'Saltire':
+        return backColours.slice(0, 2);
+      case 'Quadrants':
+        return backColours.slice(0, 4);
+      default:
+        return [backColours[0]];
+    }
+  };
 
   // Calculate opposite colour
   const getOppositeColor = (hex) => {
@@ -134,7 +170,7 @@ const App = () => {
     return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
   };
 
-  // Calculate initial label colors
+  // Calculate initial label colours
   const initialLabelColors = useMemo(() => {
     const colors = {};
     backColours.forEach((color, index) => {
@@ -155,25 +191,30 @@ const App = () => {
   };
 
   useEffect(() => {
-    setStarRadius(isNewFormat ? 90 : 80);
-
-    if (window.innerWidth < 1000) {
-      setIsNewFormat(true);
-    }
-
-    return () => { };
+    const handleResize = () => {
+      if (window.innerWidth < 1000) {
+        setIsNewFormat(true);
+        setStarRadius(90);
+      } else {
+        setIsNewFormat(false);
+        setStarRadius(80);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const handleToggle = () => {
-    setIsNewFormat(!isNewFormat);
-  };
 
   const handleBackColourChange = (colour, index) => {
     const newColours = [...backColours];
     newColours[index] = colour;
     setBackColours(newColours);
+  
+    const newUserSetColours = [...userSetColours];
+    newUserSetColours[index] = colour;
+    setUserSetColours(newUserSetColours);
+  
     document.documentElement.style.setProperty(`--back-color-${index}`, colour);
-    
     setLabelColors(prev => ({...prev, [`back-${index}`]: getOppositeColor(colour)}));
   };
   
@@ -211,9 +252,8 @@ const App = () => {
     const pattern = event.target.value;
     setSelectedPattern(pattern);
     setSelectedAmount('');
-
+  
     let coloursCount = 1;
-    let defaultColours = ['#003399'];
   
     switch (pattern) {
       case 'Single':
@@ -222,51 +262,42 @@ const App = () => {
       case 'Vertical':
       case 'Horizontal':
       case 'Bends':
+      case 'Cross':
       case 'Saltire':
         coloursCount = 2;
-        defaultColours = ['#003399', '#ffffff'];
         break;
       case 'Quadrants':
         coloursCount = 4;
-        defaultColours = ['#003399', '#ffffff', '#000000', '#008000'];
         break;
       default:
         coloursCount = 1;
     }
   
-    const newColours = Array.from({ length: coloursCount }, (_, index) => defaultColours[index] || '#003399');
+    const newColours = userSetColours.slice(0, coloursCount);
     setBackColours(newColours);
   };
-
+  
   const handleAmountChange = (event) => {
     const amount = event.target.value;
     setSelectedAmount(amount);
   
     let coloursCount = 2;
-    let defaultColours = ['#003399', '#ffffff'];
   
     if (amount === 'Thirds') {
       coloursCount = 3;
-      defaultColours = ['#003399', '#ffffff', '#000000'];
     } else if (amount === 'Quarters' || amount === 'Both Ways') {
       coloursCount = 4;
-      defaultColours = ['#003399', '#ffffff', '#000000', '#008000'];
     }
   
-    const newColours = Array.from({ length: coloursCount }, (_, index) => defaultColours[index] || '#003399');
+    const newColours = userSetColours.slice(0, coloursCount);
     setBackColours(newColours);
   };
+  
 
   return (
     <div className={`App ${isNewFormat ? 'old-format' : 'new-format'}`}>
       <header className="App-header">
         <h1>EU Flag Maker</h1>
-        <CustomToggle 
-          option1="PC"
-          option2="Mobile"
-          isActive={isNewFormat}
-          onChange={handleToggle}
-        />
       </header>
       <main className="App-main">
         <div className="App-content">
@@ -287,13 +318,29 @@ const App = () => {
               amount={selectedAmount}
               starRotation={starRotation}
               customImage={customImage}
+              backgroundImage={backgroundImage}
             />
           </div>
           <div className="Slider-content">
             <nav className="App-nav">
-              <button onClick={() => setActiveSection('Format')} className={activeSection === 'Format' ? 'active' : ''}>Format</button>
-              <button onClick={() => setActiveSection('Shape')} className={activeSection === 'Shape' ? 'active' : ''}>Shape</button>
-              <button onClick={() => setActiveSection('Colours')} className={activeSection === 'Colours' ? 'active' : ''}>Colours</button>
+              <button 
+                onClick={() => setActiveSection('Format')} 
+                className={activeSection === 'Format' ? 'active' : ''}
+              >
+                Format
+              </button>
+              <button 
+                onClick={() => setActiveSection('Shape')} 
+                className={activeSection === 'Shape' ? 'active' : ''}
+              >
+                Shape
+              </button>
+              <button 
+                onClick={() => setActiveSection('Background')} 
+                className={activeSection === 'Background' ? 'active' : ''}
+              >
+                Background
+              </button>
             </nav>
             {activeSection === 'Format' && (
               <div className="toolbar-segment">
@@ -349,6 +396,23 @@ const App = () => {
                         shapePaths={shapePaths}
                       />
                     </div>
+                    <div className="Shape-colour">
+                      <div className="Colour-container" id="star-colour">
+                        <label
+                          htmlFor="starColourPicker"
+                          className="colour-label"
+                          style={{color: labelColors.star}}
+                        >
+                          Shape Colour
+                        </label>
+                        <input
+                          type="color"
+                          id="starColourPicker"
+                          value={starColour}
+                          onChange={(e) => handleStarColourChange(e.target.value)}
+                        />
+                      </div>
+                    </div>
                     <div className="custom-toggle-container">
                       <CustomToggle 
                         option1="Filled"
@@ -389,8 +453,21 @@ const App = () => {
                 />
               </div>
             )}
-            {activeSection === 'Colours' && (
+            {activeSection === 'Background' && (
               <div className="toolbar-segment">
+                <ImageUpload
+                  onImageUpload={handleBackgroundImageUpload}
+                  onImageRemove={() => setBackgroundImage(null)}
+                  hasImage={!!backgroundImage}
+                  label="Upload Background Image"
+                />
+                {!!backgroundImage && (
+                  <>
+                    <p className='background-image-disclaimer'>Please note that, <i>for now</i>, on download the image will be displayed as a circle in the middle of the flag.</p> 
+                    <p>You can still change the background pattern from below.</p>
+                  </>                
+                )}
+                <Divider text="and / or" />
                 <div className="Shape-selector">
                   <div className="Shape-container">
                     <label htmlFor="patternSelector" className="shape-label">Pattern</label>
@@ -424,8 +501,8 @@ const App = () => {
                       </select>
                     </div>
                   )}
-                  <p class="colours-header">Colours</p>
-                  {backColours.map((colour, index) => (
+                  <p className="colours-header">Colours</p>
+                  {backColours.slice(0, selectedPattern === 'Single' ? 1 : backColours.length).map((colour, index) => (
                     <div className="Colour-container" key={index}>
                       <label
                         htmlFor={`backColourPicker-${index}`}
@@ -442,30 +519,11 @@ const App = () => {
                       />
                     </div>
                   ))}
-                  {!customImage && (
-                  <>
-                    <div className="Colour-container" id="star-colour">
-                      <label
-                        htmlFor="starColourPicker"
-                        className="colour-label"
-                        style={{color: labelColors.star}}
-                      >
-                        Star Colour
-                      </label>
-                      <input
-                        type="color"
-                        id="starColourPicker"
-                        value={starColour}
-                        onChange={(e) => handleStarColourChange(e.target.value)}
-                      />
-                    </div>
-                  </>
-                )}
                 </div>
               </div>
             )}
             <DownloadButton 
-              backColours={backColours} 
+              backColours={getRelevantColors()}
               selectedPattern={selectedPattern} 
               selectedAmount={selectedAmount} 
             />

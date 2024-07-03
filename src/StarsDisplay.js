@@ -2,8 +2,8 @@ import React from 'react';
 import './StarsDisplay.css';
 import { shapePaths } from './ShapePaths';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage }) => {
-  
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage }) => {
+   
   const renderShapes = (count, size, radius, keyPrefix) => {
     const shapes = [];
     for (let i = 0; i < count; i++) {
@@ -58,6 +58,15 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
 
   // Update the generateBackgroundStyle function
   const generateBackgroundStyle = () => {
+    if (backgroundImage) {
+      return {
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      };
+    }
+
     let backgroundStyle = {};
 
     switch (pattern) {
@@ -169,6 +178,16 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           )`
         };
         break;
+      case 'Cross':
+        const crossWidth = '10.9%';
+        backgroundStyle = {
+          background: `
+            linear-gradient(to right, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
+            linear-gradient(to bottom, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
+            ${backColours[1]}
+          `
+        };
+        break;
       case 'Saltire':
         const saltireWidth = '10.9%'; 
         const saltireAngle = '33.8deg';
@@ -188,29 +207,42 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   };  
 
   if (count === 1) {
-    return (
-      <div id="stars-container" className="stars-container"  style={generateBackgroundStyle()}>
-        <svg
-          className="shape"
-          viewBox="0 0 100 100"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: `translate(-50%, -50%) rotate(${starRotation}deg)`, 
-            width: `${size}px`,
-            height: `${size}px`,
-            fill: outlineOnly ? 'none' : starColour,
-            stroke: starColour,
-            strokeWidth: outlineOnly ? outlineWeight : '0',
-            overflow: 'visible',
-          }}
-        >
-          <path d={shapePaths[shape]} />
-        </svg>
-      </div>
-    );
-  }
+  return (
+    <div id="stars-container" className="stars-container" style={generateBackgroundStyle()}>
+      <svg
+        className="shape"
+        viewBox="0 0 100 100"
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: `translate(-50%, -50%) rotate(${starRotation}deg)`,
+          width: `${size}px`,
+          height: `${size}px`,
+          overflow: 'visible',
+        }}
+      >
+        {customImage ? (
+          <image
+            href={customImage}
+            x="0"
+            y="0"
+            width="100"
+            height="100"
+            preserveAspectRatio="xMidYMid meet"
+          />
+        ) : (
+          <path
+            d={shapePaths[shape]}
+            fill={outlineOnly ? 'none' : starColour}
+            stroke={starColour}
+            strokeWidth={outlineOnly ? outlineWeight : '0'}
+          />
+        )}
+      </svg>
+    </div>
+  );
+}
 
   const circleConfigurations = [
     { circleIndex: 1, countRatio: { 1: 1, 2: 2/3, 3: 4/9 }, radiusFactor: 2 },
