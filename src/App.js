@@ -4,42 +4,9 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './App.css';
-import { shapePaths } from './ShapePaths';
+import { shapePaths, shapeOptions, patternOptions, amountOptions, patternIcons, amountIcons } from './ItemLists';
 import ImageUpload from './ImageUpload';
 import Divider from './Divider';
-
-const shapeOptions = [
-  'Star', 'Circle', 'Square', 'Hexagon', 'Pentagon', 'Octagon', 'Diamond', 'Crescent', 'Triangle', 'Cross'
-];
-
-const patternOptions = [
-  'Single', 'Horizontal', 'Vertical', 'Bends', 'Quadrants', 'Cross', 'Saltire'
-];
-
-const amountOptions = {
-  'Horizontal': ['Bicolour', 'Thirds', 'Quarters'],
-  'Vertical': ['Bicolour', 'Thirds', 'Quarters'],
-  'Bends': ['Forwards', 'Backwards', 'Both Ways']
-};
-
-const patternIcons = {
-  'Single': '☐',
-  'Vertical': '║',
-  'Horizontal': '═',
-  'Bends': '⫽',
-  'Quadrants': '✚',
-  'Cross': '╬',
-  'Saltire': 'X'
-};
-
-const amountIcons = {
-  'Bicolour': '| ',
-  'Thirds': '||| ',
-  'Quarters': '||||',
-  'Forwards': '/',
-  'Backwards': '\\',
-  'Both Ways': '𝕏'
-};
 
 const CustomShapeDropdown = ({ options, value, onChange, shapePaths }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -159,7 +126,7 @@ const App = () => {
   };
 
   // Calculate opposite colour
-  const getOppositeColor = (hex) => {
+  const getOppositeColour = (hex) => {
     hex = hex.replace('#', '');
     let r = parseInt(hex.substr(0, 2), 16);
     let g = parseInt(hex.substr(2, 2), 16);
@@ -174,9 +141,9 @@ const App = () => {
   const initialLabelColors = useMemo(() => {
     const colors = {};
     backColours.forEach((color, index) => {
-      colors[`back-${index}`] = getOppositeColor(color);
+      colors[`back-${index}`] = getOppositeColour(color);
     });
-    colors.star = getOppositeColor(starColour);
+    colors.star = getOppositeColour(starColour);
     return colors;
   }, []);
 
@@ -215,27 +182,26 @@ const App = () => {
     setUserSetColours(newUserSetColours);
   
     document.documentElement.style.setProperty(`--back-color-${index}`, colour);
-    setLabelColors(prev => ({...prev, [`back-${index}`]: getOppositeColor(colour)}));
+    setLabelColors(prev => ({...prev, [`back-${index}`]: getOppositeColour(colour)}));
   };
   
   const handleStarColourChange = (colour) => {
     setStarColour(colour);
     document.documentElement.style.setProperty('--star-color', colour);
     
-    setLabelColors(prev => ({...prev, star: getOppositeColor(colour)}));
+    setLabelColors(prev => ({...prev, star: getOppositeColour(colour)}));
   };
   
-  // Initialising label colors on component mount
+  // Initialising label colours on component mount
   useEffect(() => {
     const initialLabelColors = {};
     backColours.forEach((color, index) => {
-      initialLabelColors[`back-${index}`] = getOppositeColor(color);
+      initialLabelColors[`back-${index}`] = getOppositeColour(color);
     });
-    initialLabelColors.star = getOppositeColor(starColour);
+    initialLabelColors.star = getOppositeColour(starColour);
     setLabelColors(initialLabelColors);
   }, []);
   
-
   const CustomToggle = ({ option1, option2, isActive, onChange }) => {
     return (
       <div className="custom-toggle" onClick={onChange}>
@@ -272,7 +238,6 @@ const App = () => {
       default:
         coloursCount = 1;
     }
-  
     const newColours = userSetColours.slice(0, coloursCount);
     setBackColours(newColours);
   };
@@ -292,7 +257,6 @@ const App = () => {
     const newColours = userSetColours.slice(0, coloursCount);
     setBackColours(newColours);
   };
-  
 
   return (
     <div className={`App ${isNewFormat ? 'old-format' : 'new-format'}`}>
@@ -455,77 +419,82 @@ const App = () => {
             )}
             {activeSection === 'Background' && (
               <div className="toolbar-segment">
-                <ImageUpload
-                  onImageUpload={handleBackgroundImageUpload}
-                  onImageRemove={() => setBackgroundImage(null)}
-                  hasImage={!!backgroundImage}
-                  label="Upload Background Image"
-                />
-                {!!backgroundImage && (
-                  <>
-                    <p className='background-image-disclaimer'>Please note that, <i>for now</i>, on download the image will be displayed as a circle in the middle of the flag.</p> 
-                    <p>You can still change the background pattern from below.</p>
-                  </>                
-                )}
-                <Divider text="and / or" />
-                <div className="Shape-selector">
-                  <div className="Shape-container">
-                    <label htmlFor="patternSelector" className="shape-label">Pattern</label>
-                    <select 
-                      id="patternSelector" 
-                      value={selectedPattern} 
-                      onChange={handlePatternChange} 
-                      className="shape-dropdown"
-                    >
-                      {patternOptions.map((pattern) => (
-                        <option key={pattern} value={pattern}>
-                          {patternIcons[pattern]}{'\u00A0\u00A0\u00A0\u00A0'}{pattern}
-                        </option>
-                      ))}
-                    </select>
+                <div className='background-image'>
+                  <ImageUpload
+                    onImageUpload={handleBackgroundImageUpload}
+                    onImageRemove={() => setBackgroundImage(null)}
+                    hasImage={!!backgroundImage}
+                    label="Upload Background Image"
+                  />
+                  {!backgroundImage && (
+                    <span className="tooltiptext">2:3 Aspect Ratio is ideal for downloading</span>
+                  )}
                   </div>
-                  {['Horizontal', 'Vertical', 'Bends'].includes(selectedPattern) && (
+                {!backgroundImage && (
+                  <>
+                  <Divider text="or" />
+                  <div className="Shape-selector">
                     <div className="Shape-container">
-                      <label htmlFor="amountSelector" className="shape-label">Amount</label>
+                      <label htmlFor="patternSelector" className="shape-label">Pattern</label>
                       <select 
-                        id="amountSelector" 
-                        value={selectedAmount} 
-                        onChange={handleAmountChange} 
+                        id="patternSelector" 
+                        value={selectedPattern} 
+                        onChange={handlePatternChange} 
                         className="shape-dropdown"
                       >
-                        {amountOptions[selectedPattern].map((amount) => (
-                          <option key={amount} value={amount}>
-                            {amountIcons[amount]}{'\u00A0\u00A0\u00A0\u00A0'}{amount}
+                        {patternOptions.map((pattern) => (
+                          <option key={pattern} value={pattern}>
+                            {patternIcons[pattern]}{'\u00A0\u00A0\u00A0\u00A0'}{pattern}
                           </option>
                         ))}
                       </select>
                     </div>
-                  )}
-                  <p className="colours-header">Colours</p>
-                  {backColours.slice(0, selectedPattern === 'Single' ? 1 : backColours.length).map((colour, index) => (
-                    <div className="Colour-container" key={index}>
-                      <label
-                        htmlFor={`backColourPicker-${index}`}
-                        className="colour-label"
-                        style={{color: labelColors[`back-${index}`]}}
-                      >
-                        Background Colour {index + 1}
-                      </label>
-                      <input
-                        type="color"
-                        id={`backColourPicker-${index}`}
-                        value={colour}
-                        onChange={(e) => handleBackColourChange(e.target.value, index)}
-                      />
-                    </div>
-                  ))}
-                </div>
+                    {['Horizontal', 'Vertical', 'Bends'].includes(selectedPattern) && (
+                      <div className="Shape-container">
+                        <label htmlFor="amountSelector" className="shape-label">Amount</label>
+                        <select 
+                          id="amountSelector" 
+                          value={selectedAmount} 
+                          onChange={handleAmountChange} 
+                          className="shape-dropdown"
+                        >
+                          {amountOptions[selectedPattern].map((amount) => (
+                            <option key={amount} value={amount}>
+                              {amountIcons[amount]}{'\u00A0\u00A0\u00A0\u00A0'}{amount}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    <p className="colours-header">Colours</p>
+                    {backColours.slice(0, selectedPattern === 'Single' ? 1 : backColours.length).map((colour, index) => (
+                      <div className="Colour-container" key={index}>
+                        <label
+                          htmlFor={`backColourPicker-${index}`}
+                          className="colour-label"
+                          style={{color: labelColors[`back-${index}`]}}
+                        >
+                          Background Colour {index + 1}
+                        </label>
+                        <input
+                          type="color"
+                          id={`backColourPicker-${index}`}
+                          value={colour}
+                          onChange={(e) => handleBackColourChange(e.target.value, index)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  </>
+                )}
               </div>
             )}
             <DownloadButton 
               backColours={getRelevantColors()}
               selectedPattern={selectedPattern} 
               selectedAmount={selectedAmount} 
+              backgroundImage={backgroundImage}
+              customImage={customImage}
             />
           </div>
         </div>

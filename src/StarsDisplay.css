@@ -9,6 +9,8 @@
   height: 500px;
   background-color: var(--back-colour);
   border-radius: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .star {
@@ -23,4 +25,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.stars-only-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }

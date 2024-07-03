@@ -1,6 +1,6 @@
 import React from 'react';
 import './StarsDisplay.css';
-import { shapePaths } from './ShapePaths';
+import { shapePaths } from './ItemLists';
 
 const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage }) => {
    
@@ -56,155 +56,154 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
     return shapes;
   };
 
-  // Update the generateBackgroundStyle function
   const generateBackgroundStyle = () => {
+    let backgroundStyle = {};
+  
     if (backgroundImage) {
-      return {
+      backgroundStyle = {
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
       };
+    } else {
+      switch (pattern) {
+        case 'Single':
+          backgroundStyle = { background: backColours[0] };
+          break;
+        case 'Horizontal':
+          switch (amount) {
+            case 'Bicolour':
+            default:
+              backgroundStyle = {
+                background: `linear-gradient(to bottom, ${backColours[0]} 50%, ${backColours[1]} 50%)`
+              };
+              break;
+            case 'Thirds':
+              backgroundStyle = {
+                background: `linear-gradient(to bottom, ${backColours[0]} 33.33%, ${backColours[1]} 33.33%, ${backColours[1]} 66.66%, ${backColours[2]} 66.66%)`
+              };
+              break;
+            case 'Quarters':
+              backgroundStyle = {
+                background: `linear-gradient(to top, 
+                              ${backColours[3]} 0%, ${backColours[3]} 25%, 
+                              ${backColours[2]} 25%, ${backColours[2]} 50%, 
+                              ${backColours[1]} 50%, ${backColours[1]} 75%, 
+                              ${backColours[0]} 75%, ${backColours[0]} 100%)`
+              };
+              break;
+          }
+          break;
+        case 'Vertical':
+          switch (amount) {
+            case 'Bicolour':
+            default:
+              backgroundStyle = {
+                background: `linear-gradient(to right, ${backColours[0]} 50%, ${backColours[1]} 50%)`
+              };
+              break;
+            case 'Thirds':
+              backgroundStyle = {
+                background: `linear-gradient(to right, ${backColours[0]} 33.33%, ${backColours[1]} 33.33%, ${backColours[1]} 66.66%, ${backColours[2]} 66.66%)`
+              };
+              break;
+            case 'Quarters':
+              backgroundStyle = {
+                background: `linear-gradient(to left, 
+                              ${backColours[3]} 0%, ${backColours[3]} 25%, 
+                              ${backColours[2]} 25%, ${backColours[2]} 50%, 
+                              ${backColours[1]} 50%, ${backColours[1]} 75%, 
+                              ${backColours[0]} 75%, ${backColours[0]} 100%)`
+              };
+              break;
+          }
+          break;
+        case 'Bends':
+          switch (amount) {
+            case 'Forwards':
+            default:
+              backgroundStyle = {
+                background: `linear-gradient(
+                  to bottom right,
+                  ${backColours[0]} 0%,
+                  ${backColours[0]} 50%,
+                  ${backColours[1]} 50%,
+                  ${backColours[1]} 100%
+                )`
+              };
+              break;
+            case 'Backwards':
+              backgroundStyle = {
+                background: `linear-gradient(
+                  to bottom left,
+                  ${backColours[0]} 0%,
+                  ${backColours[0]} 50%,
+                  ${backColours[1]} 50%,
+                  ${backColours[1]} 100%
+                )`
+              };
+              break;
+            case 'Both Ways':
+              backgroundStyle = {
+                background: `conic-gradient(
+                  from 45deg at 50% 50%,
+                  ${backColours[0]} 0deg,
+                  ${backColours[0]} 90deg,
+                  ${backColours[1]} 90deg,
+                  ${backColours[1]} 180deg,
+                  ${backColours[2]} 180deg,
+                  ${backColours[2]} 270deg,
+                  ${backColours[3]} 270deg,
+                  ${backColours[3]} 360deg
+                )`
+              };
+              break;
+          }
+          break;
+        case 'Quadrants':
+          backgroundStyle = {
+            background: `conic-gradient(
+              from 0deg at 50% 50%,
+              ${backColours[0]} 0deg,
+              ${backColours[0]} 90deg,
+              ${backColours[1]} 90deg,
+              ${backColours[1]} 180deg,
+              ${backColours[2]} 180deg,
+              ${backColours[2]} 270deg,
+              ${backColours[3]} 270deg,
+              ${backColours[3]} 360deg
+            )`
+          };
+          break;
+        case 'Cross':
+          const crossWidth = '10.9%';
+          backgroundStyle = {
+            background: `
+              linear-gradient(to right, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
+              linear-gradient(to bottom, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
+              ${backColours[1]}
+            `
+          };
+          break;
+        case 'Saltire':
+          const saltireWidth = '10.9%'; 
+          const saltireAngle = '33.8deg';
+          backgroundStyle = {
+            background: `
+              linear-gradient(${saltireAngle}, transparent calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% + ${saltireWidth}/2), transparent calc(50% + ${saltireWidth}/2)),
+              linear-gradient(-${saltireAngle}, transparent calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% + ${saltireWidth}/2), transparent calc(50% + ${saltireWidth}/2)),
+              ${backColours[1]}
+            `
+          };
+          break;
+        default:
+          backgroundStyle = { background: backColours[0] };
+      }
     }
-
-    let backgroundStyle = {};
-
-    switch (pattern) {
-      case 'Single':
-        backgroundStyle = { background: backColours[0] };
-        break;
-      case 'Horizontal':
-        switch (amount) {
-          case 'Bicolour':
-          default:
-            backgroundStyle = {
-              background: `linear-gradient(to bottom, ${backColours[0]} 50%, ${backColours[1]} 50%)`
-            };
-            break;
-          case 'Thirds':
-            backgroundStyle = {
-              background: `linear-gradient(to bottom, ${backColours[0]} 33.33%, ${backColours[1]} 33.33%, ${backColours[1]} 66.66%, ${backColours[2]} 66.66%)`
-            };
-            break;
-          case 'Quarters':
-            backgroundStyle = {
-              background: `linear-gradient(to top, 
-                            ${backColours[0]} 0%, ${backColours[0]} 25%, 
-                            ${backColours[1]} 25%, ${backColours[1]} 50%, 
-                            ${backColours[2]} 50%, ${backColours[2]} 75%, 
-                            ${backColours[3]} 75%, ${backColours[3]} 100%)`
-            };
-            break;
-        }
-        break;
-      case 'Vertical':
-        switch (amount) {
-          case 'Bicolour':
-          default:
-            backgroundStyle = {
-              background: `linear-gradient(to right, ${backColours[0]} 50%, ${backColours[1]} 50%)`
-            };
-            break;
-          case 'Thirds':
-            backgroundStyle = {
-              background: `linear-gradient(to right, ${backColours[0]} 33.33%, ${backColours[1]} 33.33%, ${backColours[1]} 66.66%, ${backColours[2]} 66.66%)`
-            };
-            break;
-          case 'Quarters':
-            backgroundStyle = {
-              background: `linear-gradient(to left, 
-                            ${backColours[0]} 0%, ${backColours[0]} 25%, 
-                            ${backColours[1]} 25%, ${backColours[1]} 50%, 
-                            ${backColours[2]} 50%, ${backColours[2]} 75%, 
-                            ${backColours[3]} 75%, ${backColours[3]} 100%)`
-            };
-            break;
-        }
-        break;
-      case 'Bends':
-        switch (amount) {
-          case 'Forwards':
-          default:
-            backgroundStyle = {
-              background: `linear-gradient(
-                to bottom right,
-                ${backColours[0]} 0%,
-                ${backColours[0]} 50%,
-                ${backColours[1]} 50%,
-                ${backColours[1]} 100%
-              )`
-            };
-            break;
-          case 'Backwards':
-            backgroundStyle = {
-              background: `linear-gradient(
-                to bottom left,
-                ${backColours[0]} 0%,
-                ${backColours[0]} 50%,
-                ${backColours[1]} 50%,
-                ${backColours[1]} 100%
-              )`
-            };
-            break;
-          case 'Both Ways':
-            backgroundStyle = {
-              background: `conic-gradient(
-                from 45deg at 50% 50%,
-                ${backColours[0]} 0deg,
-                ${backColours[0]} 90deg,
-                ${backColours[1]} 90deg,
-                ${backColours[1]} 180deg,
-                ${backColours[2]} 180deg,
-                ${backColours[2]} 270deg,
-                ${backColours[3]} 270deg,
-                ${backColours[3]} 360deg
-              )`
-            };
-            break;
-        }
-        break;
-      case 'Quadrants':
-        backgroundStyle = {
-          background: `conic-gradient(
-            from 0deg at 50% 50%,
-            ${backColours[0]} 0deg,
-            ${backColours[0]} 90deg,
-            ${backColours[1]} 90deg,
-            ${backColours[1]} 180deg,
-            ${backColours[2]} 180deg,
-            ${backColours[2]} 270deg,
-            ${backColours[3]} 270deg,
-            ${backColours[3]} 360deg
-          )`
-        };
-        break;
-      case 'Cross':
-        const crossWidth = '10.9%';
-        backgroundStyle = {
-          background: `
-            linear-gradient(to right, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
-            linear-gradient(to bottom, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
-            ${backColours[1]}
-          `
-        };
-        break;
-      case 'Saltire':
-        const saltireWidth = '10.9%'; 
-        const saltireAngle = '33.8deg';
-        backgroundStyle = {
-          background: `
-            linear-gradient(${saltireAngle}, transparent calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% + ${saltireWidth}/2), transparent calc(50% + ${saltireWidth}/2)),
-            linear-gradient(-${saltireAngle}, transparent calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% - ${saltireWidth}/2), ${backColours[0]} calc(50% + ${saltireWidth}/2), transparent calc(50% + ${saltireWidth}/2)),
-            ${backColours[1]}
-          `
-        };
-        break;
-      default:
-        backgroundStyle = { background: backColours[0] };
-    }
-
+  
     return backgroundStyle;
-  };  
+  }; 
 
   if (count === 1) {
   return (
@@ -254,10 +253,10 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   const circles = circleConfigurations.slice(0, circleCount).map((config, index) => {
     let newCount;
     if (index === circleCount - 1) {
-      // For the last circle, use the remaining stars
+      // For the last circle
       newCount = remainingStars;
     } else {
-      // For other circles, calculate as before
+      // For other circles
       newCount = Math.round((config.countRatio[circleCount] || 1) * count);
       remainingStars -= newCount;
     }
@@ -281,8 +280,15 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   });
 
   return (
-    <div id="stars-container" className="stars-container" style={generateBackgroundStyle()}>
-      {circles}
+    <div 
+      id="stars-container" 
+      className="stars-container" 
+      style={generateBackgroundStyle()}
+      data-has-background-image={!!backgroundImage}
+    >
+      <div id="stars-only-container" className="stars-only-container">
+        {circles}
+      </div>
     </div>
   );
 };
