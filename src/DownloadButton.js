@@ -47,33 +47,41 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
 
   const handleSvgDownload = () => {
     const starsContainer = document.getElementById('stars-container');
-    const starsOnlyContainer = document.getElementById('stars-only-container');
+    const starsOnlyContainer = document.getElementById('stars-only-container') || document.getElementById('stars-container');
     if (!starsContainer || !starsOnlyContainer) {
       console.error('Stars container not found.');
       return;
     }
   
-    // Create a new SVG element with 2:3 aspect ratio
+    // New SVG element with 2:3 aspect ratio
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     svg.setAttribute("width", "600");
     svg.setAttribute("height", "400");
     svg.setAttribute("viewBox", "0 0 600 400");
-  
-    // Create background based on selected pattern
     createBackground(svg);
   
-    // Clone the stars-only container and adjust its size and position
+    // Contain the stars
+    const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+    foreignObject.setAttribute("width", "66.67%");
+    foreignObject.setAttribute("height", "100%");
+    foreignObject.setAttribute("x", "16.665%");
+
     const starsClone = starsOnlyContainer.cloneNode(true);
-    starsClone.setAttribute("width", "100%");
-    starsClone.setAttribute("height", "100%");
-    
-    svg.appendChild(starsClone);
+
+    // Center the stars
+    const wrapper = document.createElement('div');
+    wrapper.style.width = '100%';
+    wrapper.style.height = '100%';
+    wrapper.style.display = 'flex';
+    wrapper.style.justifyContent = 'center';
+    wrapper.style.alignItems = 'center';
+
+    wrapper.appendChild(starsClone);
+    foreignObject.appendChild(wrapper);
+    svg.appendChild(foreignObject);
   
-    // Convert to string and download
     const svgData = new XMLSerializer().serializeToString(svg);
-    console.log("Generated SVG data:", svgData);
-  
     const svgBlob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
     const svgUrl = URL.createObjectURL(svgBlob);
     const downloadLink = document.createElement("a");
@@ -220,21 +228,21 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       rect.setAttribute("fill", "url(#bendsGradient)");
       svg.appendChild(rect);
     } else if (selectedAmount === 'Both Ways') {
-      // This is a simplified version and might not perfectly match the CSS version
-      const rects = [
-        {x: 0, y: 0, color: backColours[0]},
-        {x: 300, y: 0, color: backColours[1]},
-        {x: 0, y: 200, color: backColours[3]},
-        {x: 300, y: 200, color: backColours[2]}
+      const width = svg.getAttribute("width");
+      const height = svg.getAttribute("height");
+  
+      const paths = [
+        { d: `M0,0 L${width/2},${height/2} L0,${height} Z`, color: backColours[2] }, 
+        { d: `M0,0 L${width},0 L${width/2},${height/2} Z`, color: backColours[3] }, 
+        { d: `M${width},0 L${width},${height} L${width/2},${height/2} Z`, color: backColours[0] }, 
+        { d: `M0,${height} L${width/2},${height/2} L${width},${height} Z`, color: backColours[1] } 
       ];
-      rects.forEach(({x, y, color}) => {
-        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect.setAttribute("x", x);
-        rect.setAttribute("y", y);
-        rect.setAttribute("width", "300");
-        rect.setAttribute("height", "200");
-        rect.setAttribute("fill", color);
-        svg.appendChild(rect);
+  
+      paths.forEach(({ d, color }) => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute("fill", color);
+        svg.appendChild(path);
       });
     }
   };
@@ -243,7 +251,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
 
   const handleDownload = () => {
     const starsContainerBackground = document.getElementById('stars-container');
-    const starsContainer = document.getElementById('stars-only-container');
+    const starsContainer = document.getElementById('stars-only-container') || document.getElementById('stars-container');
     if (!starsContainer || !starsContainerBackground) {
       console.error('Stars container not found.');
       return;
@@ -286,8 +294,8 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     function drawPatternBackground() {
       const angle = Math.PI / 4; // 50 degrees in radians
       const diagonalLength = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight);
-      const dx = Math.cos(angle) * diagonalLength;
-      const dy = Math.sin(angle) * diagonalLength;
+      const dx = Math.cos(angle) * diagonalLength - 150;
+      const dy = Math.sin(angle) * diagonalLength + 120;
 
       if (selectedPattern === 'Single') {
         ctx.fillStyle = backColours[0];
@@ -331,8 +339,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
         ctx.fillRect(halfWidth, halfHeight, halfWidth, halfHeight);
       } else if (selectedPattern === 'Bends') {
         if (selectedAmount === 'Forwards') {
-          const offsetX = -canvasWidth * 0.0175;
-          const gradient = ctx.createLinearGradient(offsetX, 0, dx + offsetX, dy);
+          const gradient = ctx.createLinearGradient(-50, -50, dx, dy);
           gradient.addColorStop(0, backColours[0]);
           gradient.addColorStop(0.5, backColours[0]);
           gradient.addColorStop(0.5, backColours[1]);
@@ -340,8 +347,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           ctx.fillStyle = gradient;
           ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         } else if (selectedAmount === 'Backwards') {
-          const offsetX = canvasWidth * 0.0175;
-          const gradient = ctx.createLinearGradient(canvasWidth + offsetX, 0, (canvasWidth - dx) + offsetX, dy);
+          const gradient = ctx.createLinearGradient(canvasWidth, -30, canvasWidth - dx, dy - 50);
           gradient.addColorStop(0, backColours[0]);
           gradient.addColorStop(0.5, backColours[0]);
           gradient.addColorStop(0.5, backColours[1]);
@@ -351,7 +357,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
         } else if (selectedAmount === 'Both Ways') {
           const centerX = canvasWidth / 2;
           const centerY = canvasHeight / 2;
-          const gradient = ctx.createConicGradient(Math.PI / 4, centerX, centerY);
+          const gradient = ctx.createConicGradient((Math.PI / 4), centerX, centerY);
           gradient.addColorStop(0, backColours[1]);
           gradient.addColorStop(0.25, backColours[1]);
           gradient.addColorStop(0.25, backColours[2]);
@@ -378,70 +384,48 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           ctx.fillRect(0, (canvasHeight / backColours.length) * i, canvasWidth, canvasHeight / backColours.length);
         }
       }
-
-      // Converting stars container to image and draw on canvas
-      htmlToImage.toPng(starsContainer)
-        .then(function (starsDataUrl) {
-          const starsImg = new Image();
-          starsImg.onload = function () {
-            const offsetX = (canvasWidth - starsWidth) / 2;
-            const offsetY = (canvasHeight - starsHeight) / 2;
-
-            ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
-
-            // Downloading composite image
-            canvas.toBlob(function (blob) {
-              download(blob, 'eu-flag.png');
-            });
-          };
-          starsImg.src = starsDataUrl;
-        })
-        .catch(function (error) {
-          console.error('Error generating flag: ', error);
-        });
     }
 
     function drawStars() {
       // Converting stars-only container to image and draw on canvas
       htmlToImage.toPng(starsContainer)
-        .then(function (starsDataUrl) {
-          const starsImg = new Image();
-          starsImg.onload = function () {
-            const offsetX = (canvasWidth - starsWidth) / 2;
-            const offsetY = (canvasHeight - starsHeight) / 2;
+      .then(function (starsDataUrl) {
+        const starsImg = new Image();
+        starsImg.onload = function () {
+          const offsetX = (canvasWidth - starsWidth) / 2;
+          const offsetY = (canvasHeight - starsHeight) / 2;
 
-            ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
+          ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
 
-            // Downloading composite image
-            canvas.toBlob(function (blob) {
-              download(blob, 'eu-flag.png');
-            });
-          };
-          starsImg.src = starsDataUrl;
-        })
-        .catch(function (error) {
-          console.error('Error generating flag: ', error);
-        });
+          // Downloading composite image
+          canvas.toBlob(function (blob) {
+            download(blob, 'eu-flag.png');
+          });
+        };
+        starsImg.src = starsDataUrl;
+      })
+      .catch(function (error) {
+        console.error('Error generating flag: ', error);
+      });
     }
 
     setButtonClicked(true);
   };
 
   return (
-    <div className="download-button-container">
-      <button className="download-button" onClick={handleDownload}>
-        <FontAwesomeIcon icon={faDownload} className="download-icon" />
-        Download as PNG
-      </button>
-      {canDownloadSvg && (
-        <div className='background-image'>
+    <div>
+      <div className="download-button-container">
+        <button className="download-button" onClick={handleDownload}>
+          <FontAwesomeIcon icon={faDownload} className="download-icon" />
+          Download PNG
+        </button>
+        {canDownloadSvg && (
           <button className="download-button svg-button" onClick={handleSvgDownload}>
             <FontAwesomeIcon icon={faFileExport} className="download-icon" />
-            Download as SVG
+            Download SVG
           </button>
-          <span className="tooltiptext">Only the background is currently exportable as SVG</span>
-        </div>
-      )}
+        )}
+      </div>
       {buttonClicked && (
         <div className="flag-text">
           <p><a href="https://krikienoid.github.io/flagwaver/" target="_blank" rel="noopener noreferrer">Wave the Flag!</a></p>
