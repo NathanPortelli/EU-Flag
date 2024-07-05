@@ -286,7 +286,7 @@ input[type='color']::-webkit-color-swatch {
   flex: 1;
   background-color: transparent;
   margin: 0;
-  padding: 0;
+  padding: 5px;
   color: #FFDD00;
   font-size: 1.2em;
   cursor: pointer;
@@ -435,6 +435,10 @@ input[type='color']::-webkit-color-swatch {
   margin-right: 10px;
 }
 
+.image-upload-container :hover {
+  background-color: #ffdd00d2;
+}
+
 .remove-image {
   background-color: #ff4444 !important;
   color: white !important;
@@ -499,4 +503,27 @@ input[type='color']::-webkit-color-swatch {
   padding: 0 10px;
   color: #FFDD00;
   font-weight: bold;
+}
+
+/* Header Buttons */
+
+.header-button {
+  background-color: transparent;
+  color: #FFDD00;
+  border: none;
+  padding: 10px 20px;
+  font-size: 30px;
+  cursor: pointer;
+  font-weight: bold;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.header-button:hover {
+  color: #ffdd00d2;
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
 }

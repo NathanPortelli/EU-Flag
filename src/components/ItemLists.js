@@ -12,6 +12,16 @@ export const shapePaths = {
   Shield: "M 50 0 L 90 20 Q 95 25 90 50 Q 50 140 10 50 Q 5 25 10 20 Z",
 };
 
+// export const formatOptions = [
+//   'Circle', 
+//   'Square', 
+// ];
+
+// export const formatIcons = {
+//   'Square': '☐',
+//   'Circle': '⚪',
+// };
+
 export const shapeOptions = [
   'Star', 
   'Circle', 

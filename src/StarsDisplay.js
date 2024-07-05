@@ -1,61 +1,128 @@
 import React from 'react';
 import './StarsDisplay.css';
-import { shapePaths } from './ItemLists';
+import { shapePaths } from './components/ItemLists';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration }) => {
    
   const renderShapes = (count, size, radius, keyPrefix) => {
     const shapes = [];
-    for (let i = 0; i < count; i++) {
-      const angle = (i / count) * 2 * Math.PI - Math.PI / 2 + (rotationAngle * Math.PI / 180);
-      const x = 50 + radius * Math.cos(angle);
-      const y = 50 + radius * Math.sin(angle);
     
-      let shapeRotation = pointAway ? angle : 0;
+    if (shapeConfiguration === 'square') {
+      // Calculate the number of rows and columns
+      let rows = Math.round(Math.sqrt(count));
+      let cols = Math.ceil(count / rows);
       
-      // Quick fix for star/pentagon rotation (https://www.reddit.com/r/InternetIsBeautiful/comments/1dsubkb/comment/lb5n94u/)
-      if ((shape === 'Star' || shape === 'Pentagon') && pointAway) {
-        shapeRotation += (19 * Math.PI) / 180;
-      }
+      // Calculate if we need to stagger the columns
+      const remainingStars = count % cols;
+      const staggered = remainingStars > 0;
   
-      shapes.push(
-        <svg
-          key={`${keyPrefix}-${i}`}
-          className="shape"
-          viewBox="0 0 100 100"
-          style={{
-            position: 'absolute',
-            left: `calc(${x}% - ${size / 2}px)`,
-            top: `calc(${y}% - ${size / 2}px)`,
-            width: `${size}px`,
-            height: `${size}px`,
-            transform: `rotate(${shapeRotation}rad) rotate(${starRotation}deg)`,
-            overflow: 'visible',
-          }}
-        >
-          {customImage ? (
-            <image
-              href={customImage}
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMid meet"
-            />
-          ) : (
-            <path
-              d={shapePaths[shape]}
-              fill={outlineOnly ? 'none' : starColour}
-              stroke={starColour}
-              strokeWidth={outlineOnly ? outlineWeight : '0'}
-            />
-          )}
-        </svg>
-      );
+      const horizontalGap = 100 / (cols + 1);
+      const verticalGap = 100 / (rows + 1);
+  
+      let starIndex = 0;
+      for (let row = 0; row < rows; row++) {
+        const isLastRow = row === rows - 1;
+        const starsInThisRow = isLastRow && staggered ? remainingStars : cols;
+        const offsetX = isLastRow && staggered ? horizontalGap / 2 : 0;
+  
+        for (let col = 0; col < starsInThisRow; col++) {
+          if (starIndex >= count) break;
+  
+          const x = offsetX + (col + 1) * horizontalGap;
+          const y = (row + 1) * verticalGap;
+  
+          let shapeRotation = pointAway ? 0 : starRotation;
+  
+          shapes.push(
+            <svg
+              key={`${keyPrefix}-${starIndex}`}
+              className="shape"
+              viewBox="0 0 100 100"
+              style={{
+                position: 'absolute',
+                left: `calc(${x}% - ${size / 2}px)`,
+                top: `calc(${y}% - ${size / 2}px)`,
+                width: `${size}px`,
+                height: `${size}px`,
+                transform: `rotate(${shapeRotation}deg)`,
+                overflow: 'visible',
+              }}
+            >
+              {customImage ? (
+                <image
+                  href={customImage}
+                  x="0"
+                  y="0"
+                  width="100"
+                  height="100"
+                  preserveAspectRatio="xMidYMid meet"
+                />
+              ) : (
+                <path
+                  d={shapePaths[shape]}
+                  fill={outlineOnly ? 'none' : starColour}
+                  stroke={starColour}
+                  strokeWidth={outlineOnly ? outlineWeight : '0'}
+                />
+              )}
+            </svg>
+          );
+          starIndex++;
+        }
+      }
+    } else {
+      // Original circle arrangement code (unchanged)
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * 2 * Math.PI - Math.PI / 2 + (rotationAngle * Math.PI / 180);
+        const x = 50 + radius * Math.cos(angle);
+        const y = 50 + radius * Math.sin(angle);
+      
+        let shapeRotation = pointAway ? angle : 0;
+        
+        if ((shape === 'Star' || shape === 'Pentagon') && pointAway) {
+          shapeRotation += (19 * Math.PI) / 180;
+        }
+  
+        shapes.push(
+          <svg
+            key={`${keyPrefix}-${i}`}
+            className="shape"
+            viewBox="0 0 100 100"
+            style={{
+              position: 'absolute',
+              left: `calc(${x}% - ${size / 2}px)`,
+              top: `calc(${y}% - ${size / 2}px)`,
+              width: `${size}px`,
+              height: `${size}px`,
+              transform: `rotate(${shapeRotation}rad) rotate(${starRotation}deg)`,
+              overflow: 'visible',
+            }}
+          >
+            {customImage ? (
+              <image
+                href={customImage}
+                x="0"
+                y="0"
+                width="100"
+                height="100"
+                preserveAspectRatio="xMidYMid meet"
+              />
+            ) : (
+              <path
+                d={shapePaths[shape]}
+                fill={outlineOnly ? 'none' : starColour}
+                stroke={starColour}
+                strokeWidth={outlineOnly ? outlineWeight : '0'}
+              />
+            )}
+          </svg>
+        );
+      }
     }
+    
     return shapes;
   };
-
+  
   const generateBackgroundStyle = () => {
     let backgroundStyle = {};
   

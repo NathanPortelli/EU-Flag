@@ -417,12 +417,12 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       <div className="download-button-container">
         <button className="download-button" onClick={handleDownload}>
           <FontAwesomeIcon icon={faDownload} className="download-icon" />
-          Download PNG
+          Export PNG
         </button>
         {canDownloadSvg && (
           <button className="download-button svg-button" onClick={handleSvgDownload}>
             <FontAwesomeIcon icon={faFileExport} className="download-icon" />
-            Download SVG
+            Export SVG
           </button>
         )}
       </div>

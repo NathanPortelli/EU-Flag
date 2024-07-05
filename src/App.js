@@ -1,74 +1,16 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import Slider from './Slider';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Analytics } from "@vercel/analytics/react"
+import Slider from './components/Slider';
 import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { faArrowsRotate, faPlus, faShareFromSquare } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
-import { shapePaths, shapeOptions, patternOptions, amountOptions, patternIcons, amountIcons } from './ItemLists';
-import ImageUpload from './ImageUpload';
-import Divider from './Divider';
-
-const CustomShapeDropdown = ({ options, value, onChange, shapePaths }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  return (
-    <div className="Shape-container" ref={dropdownRef}>
-      <label className="shape-label">Shape</label>
-      <div
-        className="shape-dropdown"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <ShapeOption shape={value} shapePaths={shapePaths} />
-      </div>
-      {isOpen && (
-        <div className="dropdown-options">
-          {options.map((shape) => (
-            <div
-              key={shape}
-              className="dropdown-option"
-              onClick={() => {
-                onChange(shape);
-                setIsOpen(false);
-              }}
-            >
-              <ShapeOption shape={shape} shapePaths={shapePaths} />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const ShapeOption = ({ shape, shapePaths }) => {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 100 100"
-        style={{ marginRight: '10px' }}
-      >
-        <path d={shapePaths[shape]} fill="#FFDD00" />
-      </svg>
-      {shape}
-    </div>
-  );
-};
+import { shapePaths, shapeOptions, patternOptions, amountOptions, patternIcons, amountIcons } from './components/ItemLists';
+import ImageUpload from './components/ImageUpload';
+import Divider from './components/Divider';
+import { CustomShapeDropdown } from './components/CustomShapeDropdown';
 
 const App = () => {
   const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000'];
@@ -78,7 +20,7 @@ const App = () => {
   const [circleCount, setCircleCount] = useState(1);
   const [starSize, setStarSize] = useState(55);
   const [isNewFormat, setIsNewFormat] = useState(false);
-  const [starRadius, setStarRadius] = useState(window.innerWidth < 1000 ? 90 : 80);
+  const [starRadius, setStarRadius] = useState(window.innerWidth < 1000 ? 80 : 90);
   const [backColours, setBackColours] = useState(defaultBackColours);
   const [starColour, setStarColour] = useState('#FFDD00');
   const [rotationAngle, setRotationAngle] = useState(0);
@@ -92,6 +34,7 @@ const App = () => {
   const [starRotation, setStarRotation] = useState(0);
   const [customImage, setCustomImage] = useState(null);
   const [backgroundImage, setBackgroundImage] = useState(null);
+  const [shapeConfiguration, setShapeConfiguration] = useState('circle');
 
   const handleBackgroundImageUpload = (imageData) => {
     setBackgroundImage(imageData);
@@ -145,7 +88,7 @@ const App = () => {
     });
     colors.star = getOppositeColour(starColour);
     return colors;
-  }, []);
+  }, [backColours, starColour]);
 
   const [labelColors, setLabelColors] = useState(initialLabelColors);
 
@@ -161,16 +104,111 @@ const App = () => {
     const handleResize = () => {
       if (window.innerWidth < 1000) {
         setIsNewFormat(true);
-        setStarRadius(90);
+        setStarRadius(80);
       } else {
         setIsNewFormat(false);
-        setStarRadius(80);
+        setStarRadius(90);
       }
     };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    
+    const getParamOrDefault = (paramName, defaultValue, parser = (v) => v) => {
+      const paramValue = params.get(paramName);
+      return paramValue !== null ? parser(paramValue) : defaultValue;
+    };
+
+    setStarCount(getParamOrDefault('starCount', 12, parseInt));
+    setCircleCount(getParamOrDefault('circleCount', 1, parseInt));
+    setStarSize(getParamOrDefault('starSize', 55, parseInt));
+    setStarRadius(getParamOrDefault('starRadius', window.innerWidth < 1000 ? 80 : 90, parseInt));
+    setStarColour(getParamOrDefault('starColour', '#FFDD00'));
+    setRotationAngle(getParamOrDefault('rotationAngle', 0, parseInt));
+    setSelectedShape(getParamOrDefault('shape', 'Star'));
+    setSelectedPattern(getParamOrDefault('pattern', 'Single'));
+    setSelectedAmount(getParamOrDefault('amount', ''));
+    setPointAway(getParamOrDefault('pointAway', false, (v) => v === 'true'));
+    setOutlineOnly(getParamOrDefault('outlineOnly', false, (v) => v === 'true'));
+    setOutlineWeight(getParamOrDefault('outlineWeight', 2, parseInt));
+    setStarRotation(getParamOrDefault('starRotation', 0, parseInt));
+    setShapeConfiguration(getParamOrDefault('shapeConfiguration', 'circle'));
+
+    // Handle background colours
+    const urlBackColors = params.get('backColours');
+    if (urlBackColors) {
+      const colors = urlBackColors.split(',');
+      setBackColours(colors);
+      setUserSetColours(colors);
+    } else {
+      setBackColours(defaultBackColours);
+      setUserSetColours(defaultBackColours);
+    }
+
+  }, []);
+
+  const updateURL = () => {
+    const params = new URLSearchParams();
+    
+    params.set('starCount', starCount);
+    params.set('circleCount', circleCount);
+    params.set('starSize', starSize);
+    params.set('starRadius', starRadius);
+    params.set('starColour', starColour);
+    params.set('rotationAngle', rotationAngle);
+    params.set('shape', selectedShape);
+    params.set('pattern', selectedPattern);
+    params.set('amount', selectedAmount);
+    params.set('pointAway', pointAway.toString());
+    params.set('outlineOnly', outlineOnly.toString());
+    params.set('outlineWeight', outlineWeight);
+    params.set('starRotation', starRotation);
+    params.set('shapeConfiguration', shapeConfiguration);
+    params.set('backColours', backColours.join(','));
+  
+    window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
+  };
+
+  const debouncedUpdateURL = debounce(updateURL, 300);
+
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  useEffect(() => {
+    debouncedUpdateURL();
+  }, [starCount, circleCount, starSize, starRadius, starColour, rotationAngle, selectedShape, selectedPattern, selectedAmount, pointAway, outlineOnly, outlineWeight, starRotation, shapeConfiguration, backColours]);
+
+  const setStateAndUpdateURL = (setter) => (value) => {
+    setter(value);
+    updateURL();
+  };
+
+  const setStarCountAndURL = setStateAndUpdateURL(setStarCount);
+  const setCircleCountAndURL = setStateAndUpdateURL(setCircleCount);
+  const setStarSizeAndURL = setStateAndUpdateURL(setStarSize);
+  const setStarColourAndURL = setStateAndUpdateURL(setStarColour);
+  const setRotationAngleAndURL = setStateAndUpdateURL(setRotationAngle);
+  const setSelectedShapeAndURL = setStateAndUpdateURL(setSelectedShape);
+  const setSelectedPatternAndURL = setStateAndUpdateURL(setSelectedPattern);
+  const setSelectedAmountAndURL = setStateAndUpdateURL(setSelectedAmount);
+  const setPointAwayAndURL = setStateAndUpdateURL(setPointAway);
+  const setOutlineOnlyAndURL = setStateAndUpdateURL(setOutlineOnly);
+  const setOutlineWeightAndURL = setStateAndUpdateURL(setOutlineWeight);
+  const setStarRotationAndURL = setStateAndUpdateURL(setStarRotation);
+  const setShapeConfigurationAndURL = setStateAndUpdateURL(setShapeConfiguration);
 
   const handleBackColourChange = (colour, index) => {
     const newColours = [...backColours];
@@ -183,13 +221,18 @@ const App = () => {
   
     document.documentElement.style.setProperty(`--back-color-${index}`, colour);
     setLabelColors(prev => ({...prev, [`back-${index}`]: getOppositeColour(colour)}));
+
+    updateURL();
   };
+
   
   const handleStarColourChange = (colour) => {
-    setStarColour(colour);
+    setStarColourAndURL(colour);
     document.documentElement.style.setProperty('--star-color', colour);
     
     setLabelColors(prev => ({...prev, star: getOppositeColour(colour)}));
+
+    updateURL();
   };
   
   // Initialising label colours on component mount
@@ -200,8 +243,8 @@ const App = () => {
     });
     initialLabelColors.star = getOppositeColour(starColour);
     setLabelColors(initialLabelColors);
-  }, []);
-  
+  }, [backColours, starColour]);
+
   const CustomToggle = ({ option1, option2, isActive, onChange }) => {
     return (
       <div className="custom-toggle" onClick={onChange}>
@@ -214,10 +257,19 @@ const App = () => {
       </div>
     );
   };
+
+  const handleShapeConfigurationChange = (e) => {
+    const newConfig = e.target.value;
+    if (newConfig === 'square') {
+      setCircleCount(1);
+    }
+    setShapeConfigurationAndURL(newConfig);
+  };
+
   const handlePatternChange = (event) => {
     const pattern = event.target.value;
-    setSelectedPattern(pattern);
-    setSelectedAmount('');
+    setSelectedPatternAndURL(pattern);
+    setSelectedAmountAndURL('');
   
     let coloursCount = 1;
   
@@ -240,11 +292,13 @@ const App = () => {
     }
     const newColours = userSetColours.slice(0, coloursCount);
     setBackColours(newColours);
+
+    updateURL();
   };
   
   const handleAmountChange = (event) => {
     const amount = event.target.value;
-    setSelectedAmount(amount);
+    setSelectedAmountAndURL(amount);
   
     let coloursCount = 2;
   
@@ -256,12 +310,43 @@ const App = () => {
   
     const newColours = userSetColours.slice(0, coloursCount);
     setBackColours(newColours);
+
+    updateURL();
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => {
+        alert("Current URL copied to clipboard!");
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err);
+        alert("Failed to copy URL. Please try again.");
+      });
+  };
+
+  const handleRefresh = () => {
+    // Remove query parameters
+    window.history.replaceState({}, '', window.location.pathname);
+    window.location.reload();
   };
 
   return (
     <div className={`App ${isNewFormat ? 'old-format' : 'new-format'}`}>
       <header className="App-header">
         <h1>EU Flag Maker</h1>
+        <div className="header-buttons">
+          <div>
+            <button className="header-button" onClick={handleShare}>
+              <FontAwesomeIcon icon={faShareFromSquare} className="header-icon" />
+            </button>
+          </div>
+          <div>
+            <button className="header-button" onClick={handleRefresh}>
+              <FontAwesomeIcon icon={faArrowsRotate} className="header-icon" />
+            </button>
+          </div>
+        </div>
       </header>
       <main className="App-main">
         <div className="App-content">
@@ -283,6 +368,7 @@ const App = () => {
               starRotation={starRotation}
               customImage={customImage}
               backgroundImage={backgroundImage}
+              shapeConfiguration={shapeConfiguration}
             />
           </div>
           <div className="Slider-content">
@@ -300,6 +386,12 @@ const App = () => {
                 Shape
               </button>
               <button 
+                onClick={() => setActiveSection('Overlays')} 
+                className={activeSection === 'Overlays' ? 'active' : ''}
+              >
+                Overlays
+              </button>
+              <button 
                 onClick={() => setActiveSection('Background')} 
                 className={activeSection === 'Background' ? 'active' : ''}
               >
@@ -308,38 +400,48 @@ const App = () => {
             </nav>
             {activeSection === 'Format' && (
               <div className="toolbar-segment">
+                <div className="Shape-selector">
+                  <div className="Shape-container">
+                    <label htmlFor="configurationSelector" className="shape-label">Configuration</label>
+                    <select 
+                      id="configurationSelector" 
+                      value={shapeConfiguration} 
+                      onChange={handleShapeConfigurationChange}
+                      className="shape-dropdown"
+                    >
+                      <option value="circle">Circle</option>
+                      <option value="square">Square</option>
+                    </select>
+                  </div>
+                </div>
                 <Slider
                   value={starCount}
-                  onChange={setStarCount}
+                  onChange={setStarCountAndURL}
                   min={0}
                   max={50}
                   unit={starCount === 1 ? "star" : "stars"}
                   label="Star Count"
                 />
-                <Slider
-                  value={circleCount}
-                  onChange={setCircleCount}
-                  min={1}
-                  max={3}
-                  unit={circleCount === 1 ? "circle" : "circles"}
-                  label="Circle Count"
-                />
-                <Slider
-                  value={starSize}
-                  onChange={setStarSize}
-                  min={10}
-                  max={150}
-                  unit="px"
-                  label="Star Size"
-                />
-                <Slider
-                  value={rotationAngle}
-                  onChange={setRotationAngle}
-                  min={0}
-                  max={360}
-                  unit="°"
-                  label="Rotation Angle"
-                />
+                {shapeConfiguration === 'circle' && (
+                  <>
+                    <Slider
+                      value={circleCount}
+                      onChange={setCircleCountAndURL}
+                      min={1}
+                      max={3}
+                      unit={circleCount === 1 ? "circle" : "circles"}
+                      label="Circle Count"
+                    />
+                    <Slider
+                      value={rotationAngle}
+                      onChange={setRotationAngleAndURL}
+                      min={0}
+                      max={360}
+                      unit="°"
+                      label="Rotation Angle"
+                    />
+                  </>
+                )}
               </div>
             )}
             {activeSection === 'Shape' && (
@@ -356,8 +458,9 @@ const App = () => {
                       <CustomShapeDropdown
                         options={shapeOptions}
                         value={selectedShape}
-                        onChange={setSelectedShape}
+                        onChange={setSelectedShapeAndURL}
                         shapePaths={shapePaths}
+                        title={"Shape"}
                       />
                     </div>
                     <div className="Shape-colour">
@@ -377,44 +480,69 @@ const App = () => {
                         />
                       </div>
                     </div>
+                  </>
+                )}
+                {shapeConfiguration === 'circle' && (
+                  <div className="custom-toggle-container">
+                    <CustomToggle 
+                      option1="Pointing Up"
+                      option2="Pointing Outward"
+                      isActive={pointAway}
+                      onChange={() => setPointAwayAndURL(!pointAway)}
+                    />
+                  </div>
+                )}
+                {!customImage && (
+                  <>
                     <div className="custom-toggle-container">
                       <CustomToggle 
                         option1="Filled"
                         option2="Outline Only"
                         isActive={outlineOnly}
-                        onChange={() => setOutlineOnly(!outlineOnly)}
+                        onChange={() => setOutlineOnlyAndURL(!outlineOnly)}
                       />
                     </div>
                     {outlineOnly && (
                       <div className="outline-weight">
                         <Slider
                           value={outlineWeight}
-                          onChange={setOutlineWeight}
+                          onChange={setOutlineWeightAndURL}
                           min={1}
                           max={15}
-                          unit="px"
+                          unit="px (outline)"
                           label="Outline Weight"
                         />
                       </div>
                     )}
                   </>
                 )}
-                <div className="custom-toggle-container">
-                  <CustomToggle 
-                    option1="Pointing Up"
-                    option2="Pointing Outward"
-                    isActive={pointAway}
-                    onChange={() => setPointAway(!pointAway)}
-                  />
-                </div>
+                <Slider
+                  value={starSize}
+                  onChange={setStarSizeAndURL}
+                  min={10}
+                  max={150}
+                  unit="px"
+                  label="Star Size"
+                />
                 <Slider
                   value={starRotation}
-                  onChange={setStarRotation}
+                  onChange={setStarRotationAndURL}
                   min={0}
                   max={360}
                   unit="°"
                   label="Star Rotation"
                 />
+              </div>
+            )}
+            {activeSection === 'Overlays' && (
+              <div className="toolbar-segment">
+                <p><b>Work-in-progress, coming soon!</b></p>
+                <div className="download-button-container">
+                  <button className="download-button">
+                    <FontAwesomeIcon icon={faPlus} className="download-icon" />
+                    Add New
+                  </button>
+                </div>
               </div>
             )}
             {activeSection === 'Background' && (
@@ -427,7 +555,7 @@ const App = () => {
                     label="Upload Background Image"
                   />
                   {!backgroundImage && (
-                    <span className="tooltiptext">2:3 Aspect Ratio is ideal for downloading</span>
+                    <span className="tooltiptext">2:3 Aspect Ratio optimal for downloading</span>
                   )}
                   </div>
                 {!backgroundImage && (
@@ -501,6 +629,7 @@ const App = () => {
         <a href="https://github.com/NathanPortelli/EU-Flag" className="github-icon" target="_blank" rel="noopener noreferrer">
           <i className="fab fa-github"></i>
         </a>
+        <Analytics />
       </main>
       <footer className="App-footer">
       </footer>

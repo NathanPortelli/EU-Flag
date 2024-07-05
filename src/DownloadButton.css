@@ -1,12 +1,12 @@
 .download-button-container {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center items vertically */
+  align-items: center;
 }
 
 .download-button {
-  background-color: #003399;
-  color: white;
+  background-color: #FFDD00;
+  color: #003399;
   border: none;
   padding: 10px 20px;
   font-size: 20px;
@@ -23,8 +23,7 @@
 }
 
 .download-button:hover {
-  background-color: #FFDD00;
-  color: #003399;
+  background-color: #ffdd00d2;
 }
 
 .download-icon {
