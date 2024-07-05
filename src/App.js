@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Analytics } from "@vercel/analytics/react"
 import Slider from './components/Slider';
 import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
@@ -629,7 +628,6 @@ const App = () => {
         <a href="https://github.com/NathanPortelli/EU-Flag" className="github-icon" target="_blank" rel="noopener noreferrer">
           <i className="fab fa-github"></i>
         </a>
-        <Analytics />
       </main>
       <footer className="App-footer">
       </footer>
