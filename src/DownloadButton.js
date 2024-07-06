@@ -3,9 +3,10 @@ import * as htmlToImage from 'html-to-image';
 import download from 'downloadjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFileExport } from '@fortawesome/free-solid-svg-icons';
-import './DownloadButton.css';
+import './styles/DownloadButton.css';
+import { overlaySymbols } from './components/OverlaySymbols';
 
-const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage }) => {
+const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   function drawCross(ctx, x, y, width, height, strokeWidth) {
@@ -80,6 +81,20 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     wrapper.appendChild(starsClone);
     foreignObject.appendChild(wrapper);
     svg.appendChild(foreignObject);
+
+    // Add overlays
+    overlays.forEach((overlay, index) => {
+      const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("x", "50%");
+      text.setAttribute("y", "50%");
+      text.setAttribute("font-size", `${overlay.size}px`);
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("dominant-baseline", "central");
+      text.setAttribute("transform", `translate(${overlay.offsetX}%, ${overlay.offsetY}%) rotate(${overlay.rotation})`);
+      text.textContent = overlaySymbol.unicode;
+      svg.appendChild(text);
+    });
   
     const svgData = new XMLSerializer().serializeToString(svg);
     const svgBlob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
@@ -396,6 +411,20 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           const offsetY = (canvasHeight - starsHeight) / 2;
 
           ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
+
+          // Draw overlays
+          overlays.forEach((overlay) => {
+            const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
+            ctx.save();
+            ctx.font = `${overlay.size}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.translate(canvasWidth / 2, canvasHeight / 2);
+            ctx.translate(overlay.offsetX * canvasWidth / 100, overlay.offsetY * canvasHeight / 100);
+            ctx.rotate(overlay.rotation * Math.PI / 180);
+            ctx.fillText(overlaySymbol.unicode, 0, 0);
+            ctx.restore();
+          });
 
           // Downloading composite image
           canvas.toBlob(function (blob) {

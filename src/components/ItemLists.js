@@ -19,7 +19,7 @@ export const shapePaths = {
 
 // export const formatIcons = {
 //   'Square': '☐',
-//   'Circle': '⚪',
+//   'Circle': '○',
 // };
 
 export const shapeOptions = [

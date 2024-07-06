@@ -5,15 +5,17 @@ import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { faArrowsRotate, faPlus, faShareFromSquare } from '@fortawesome/free-solid-svg-icons';
-import './App.css';
+import './styles/App.css';
 import { shapePaths, shapeOptions, patternOptions, amountOptions, patternIcons, amountIcons } from './components/ItemLists';
 import ImageUpload from './components/ImageUpload';
 import Divider from './components/Divider';
 import { CustomShapeDropdown } from './components/CustomShapeDropdown';
+import { overlaySymbols } from './components/OverlaySymbols';
 
 const App = () => {
   const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000'];
   const [userSetColours, setUserSetColours] = useState([...defaultBackColours]);
+  const MAX_OVERLAYS = 10;
 
   const [starCount, setStarCount] = useState(12);
   const [circleCount, setCircleCount] = useState(1);
@@ -34,9 +36,35 @@ const App = () => {
   const [customImage, setCustomImage] = useState(null);
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [shapeConfiguration, setShapeConfiguration] = useState('circle');
+  const [overlays, setOverlays] = useState([]);
 
   const handleBackgroundImageUpload = (imageData) => {
     setBackgroundImage(imageData);
+  };
+
+  const addOverlay = () => {
+    if (overlays.length < MAX_OVERLAYS) {
+      setOverlays(prevOverlays => [...prevOverlays, { 
+        shape: 'circle', 
+        size: 20,
+        offsetX: 0,
+        offsetY: 0,
+        rotation: 0,
+        color: '#000000'
+      }]);
+    }
+  };
+
+  const removeOverlay = (index) => {
+    setOverlays(prevOverlays => prevOverlays.filter((_, i) => i !== index));
+  };
+
+  const updateOverlayProperty = (index, property, value) => {
+    setOverlays(prevOverlays => {
+      const newOverlays = [...prevOverlays];
+      newOverlays[index][property] = value;
+      return newOverlays;
+    });
   };
 
   const getRelevantColors = () => {
@@ -147,6 +175,22 @@ const App = () => {
       setBackColours(defaultBackColours);
       setUserSetColours(defaultBackColours);
     }
+    
+    const overlayData = params.get('overlays');
+    if (overlayData) {
+      const parsedOverlays = overlayData.split(';').map(overlayString => {
+        const [shape, size, offsetX, offsetY, rotation, color] = overlayString.split(',');
+        return {
+          shape,
+          size: parseFloat(size),
+          offsetX: parseFloat(offsetX),
+          offsetY: parseFloat(offsetY),
+          rotation: parseFloat(rotation),
+          color: `#${color}`
+        };
+      });
+      setOverlays(parsedOverlays);
+    }
 
   }, []);
 
@@ -169,6 +213,13 @@ const App = () => {
     params.set('shapeConfiguration', shapeConfiguration);
     params.set('backColours', backColours.join(','));
   
+    if (overlays.length > 0) {
+      const overlayData = overlays.map(overlay => 
+        `${overlay.shape},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`
+      ).join(';');
+      params.set('overlays', overlayData);
+    }
+  
     window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
   };
 
@@ -188,7 +239,7 @@ const App = () => {
 
   useEffect(() => {
     debouncedUpdateURL();
-  }, [starCount, circleCount, starSize, starRadius, starColour, rotationAngle, selectedShape, selectedPattern, selectedAmount, pointAway, outlineOnly, outlineWeight, starRotation, shapeConfiguration, backColours]);
+  }, [starCount, circleCount, starSize, starRadius, starColour, rotationAngle, selectedShape, selectedPattern, selectedAmount, pointAway, outlineOnly, outlineWeight, starRotation, shapeConfiguration, backColours, overlays]);
 
   const setStateAndUpdateURL = (setter) => (value) => {
     setter(value);
@@ -325,7 +376,6 @@ const App = () => {
   };
 
   const handleRefresh = () => {
-    // Remove query parameters
     window.history.replaceState({}, '', window.location.pathname);
     window.location.reload();
   };
@@ -344,6 +394,11 @@ const App = () => {
             <button className="header-button" onClick={handleRefresh}>
               <FontAwesomeIcon icon={faArrowsRotate} className="header-icon" />
             </button>
+          </div>
+          <div>
+            <a href="https://github.com/NathanPortelli/EU-Flag" className="github-icon" target="_blank" rel="noopener noreferrer">
+              <i className="fab fa-github"></i>
+            </a>
           </div>
         </div>
       </header>
@@ -368,6 +423,7 @@ const App = () => {
               customImage={customImage}
               backgroundImage={backgroundImage}
               shapeConfiguration={shapeConfiguration}
+              overlays={overlays}
             />
           </div>
           <div className="Slider-content">
@@ -535,13 +591,94 @@ const App = () => {
             )}
             {activeSection === 'Overlays' && (
               <div className="toolbar-segment">
-                <p><b>Work-in-progress, coming soon!</b></p>
-                <div className="download-button-container">
-                  <button className="download-button">
-                    <FontAwesomeIcon icon={faPlus} className="download-icon" />
-                    Add New
-                  </button>
-                </div>
+                {overlays.length < MAX_OVERLAYS && (
+                  <div>
+                    <div className="add-button-container">
+                      <button className="download-button" onClick={addOverlay}>
+                        <FontAwesomeIcon icon={faPlus} className="download-icon" />
+                        Add New
+                      </button>
+                    </div>
+                    <p><b>Overlays are not being displayed correctly/at all when Exporting.</b></p>
+                    <p><b>A fix for this is in progress.</b></p>
+                  </div>
+                )}
+                {overlays.map((overlay, index) => (
+                  <div>
+                    <Divider />
+                    <div className="overlay-container" key={index}>
+                      <div className="Shape-container">
+                        <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
+                        <select
+                          id={`overlaySelector-${index}`}  
+                          className="shape-dropdown"
+                          value={overlay.shape}
+                          onChange={(e) => updateOverlayProperty(index, 'shape', e.target.value)}
+                        >
+                          {overlaySymbols.map(symbol => (
+                            <option key={symbol.value} value={symbol.value}>
+                              {symbol.label} {symbol.displayName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <button className="remove-image" onClick={() => removeOverlay(index)}>
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                    <div className="overlay-container">
+                      <Slider
+                        value={overlay.size}
+                        onChange={(value) => updateOverlayProperty(index, 'size', value)}
+                        min={10}
+                        max={150}
+                        unit="%"
+                        label="Size"
+                      />
+                      <Slider
+                        value={overlay.offsetX}
+                        onChange={(value) => updateOverlayProperty(index, 'offsetX', value)}
+                        min={-150}
+                        max={150}
+                        unit="↔"
+                        label="Horizontal Position"
+                      />
+                      <Slider
+                        value={overlay.offsetY}
+                        onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
+                        min={-150}
+                        max={150}
+                        unit="↕"
+                        label="Vertical Position"
+                      />
+                      <Slider
+                        value={overlay.rotation}
+                        onChange={(value) => updateOverlayProperty(index, 'rotation', value)}
+                        min={0}
+                        max={360}
+                        unit="°"
+                        label="Rotation"
+                      />
+                    </div>
+                    <div className='overlay-container'>
+                      <div className="Colour-container">
+                        <label
+                          htmlFor={`overlayColorPicker-${index}`}
+                          className="colour-label"
+                          style={{color: getOppositeColour(overlay.color)}}
+                        >
+                          Overlay Colour
+                        </label>
+                        <input
+                          type="color"
+                          id={`overlayColorPicker-${index}`}
+                          value={overlay.color}
+                          onChange={(e) => updateOverlayProperty(index, 'color', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
             {activeSection === 'Background' && (
@@ -622,12 +759,10 @@ const App = () => {
               selectedAmount={selectedAmount} 
               backgroundImage={backgroundImage}
               customImage={customImage}
+              overlays={overlays}
             />
           </div>
         </div>
-        <a href="https://github.com/NathanPortelli/EU-Flag" className="github-icon" target="_blank" rel="noopener noreferrer">
-          <i className="fab fa-github"></i>
-        </a>
       </main>
       <footer className="App-footer">
       </footer>

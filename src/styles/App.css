@@ -32,7 +32,7 @@ body {
 
 .App-header {
   background-color: #002080;
-  padding: 20px 10%;
+  padding: 20px;
   text-align: center;
   display: flex;
   justify-content: space-between;
@@ -55,7 +55,7 @@ body {
 }
 
 .Stars-content {
-  margin-top: 20px;
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -107,6 +107,22 @@ input[type="range"] {
 
 /* New Format */
 
+.new-format h1 {
+  margin: 0;
+  color: #FFDD00;
+  font: 1.4em 'Montserrat', sans-serif;
+  font-weight: bold;
+}
+
+.new-format .App-header {
+  background-color: #002080;
+  padding: 20px 10%;
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .new-format .App-content {
   display: flex;
   flex-direction: row;
@@ -116,7 +132,7 @@ input[type="range"] {
 }
 
 .new-format .Stars-content {
-  margin-top: 30px;
+  margin-top: 75px;
   flex: 1;
   display: flex;
   justify-content: center;
@@ -173,16 +189,15 @@ input[type="range"] {
 /* GitHub Icon */
 
 .github-icon {
-  position: fixed;
-  bottom: 15px;
-  right: 15px;
-  font-size: 3rem;
+  font-size: 2.2rem;
   color: #ffffff;
   text-decoration: none;
+  margin-left: 15px;
+  color: #FFDD00
 }
 
 .github-icon:hover {
-  color: #d3d3d3;
+  color: #d6bb02;
 }
 
 /* Colour Inputter */
@@ -526,4 +541,32 @@ input[type='color']::-webkit-color-swatch {
 .header-buttons {
   display: flex;
   align-items: center;
+}
+
+/* Overlays */
+
+.add-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.overlay-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-container button {
+  margin-top: -20px;
+  background-color: #FFDD00;
+  color: #003399;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  margin-left: 10px;
 }
