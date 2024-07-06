@@ -1,0 +1,32 @@
+.notification {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: #FFDD00;
+    color: #003399;
+    padding: 15px 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .notification.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .close-button {
+    top: 3px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: #003399;
+    font-size: 25px;
+    font-weight: bold;
+    cursor: pointer;
+  }

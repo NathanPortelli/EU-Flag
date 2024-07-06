@@ -15,7 +15,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
             position: 'absolute',
             top: '50%',
             left: '50%',
-            transform: `translate(calc(-50% + ${overlay.offsetX}%), calc(-50% + ${overlay.offsetY}%)) rotate(${overlay.rotation}deg)`,
+            transform: `translate(calc(-50% + ${overlay.offsetX}px), calc(-50% + ${overlay.offsetY}px)) rotate(${overlay.rotation}deg)`,
             fontSize: `${overlay.size}px`,
             zIndex: 10 + index,
             color: overlay.color,

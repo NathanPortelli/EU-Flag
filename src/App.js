@@ -11,8 +11,10 @@ import ImageUpload from './components/ImageUpload';
 import Divider from './components/Divider';
 import { CustomShapeDropdown } from './components/CustomShapeDropdown';
 import { overlaySymbols } from './components/OverlaySymbols';
+import Notification from './components/Notification';
 
 const App = () => {
+  const [notification, setNotification] = useState(null);
   const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000'];
   const [userSetColours, setUserSetColours] = useState([...defaultBackColours]);
   const MAX_OVERLAYS = 10;
@@ -41,16 +43,17 @@ const App = () => {
   const handleBackgroundImageUpload = (imageData) => {
     setBackgroundImage(imageData);
   };
-
   const addOverlay = () => {
     if (overlays.length < MAX_OVERLAYS) {
+      const randomShape = overlaySymbols[Math.floor(Math.random() * overlaySymbols.length)].value;
+      const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
       setOverlays(prevOverlays => [...prevOverlays, { 
-        shape: 'circle', 
-        size: 20,
+        shape: randomShape, 
+        size: 50,
         offsetX: 0,
         offsetY: 0,
         rotation: 0,
-        color: '#000000'
+        color: randomColor
       }]);
     }
   };
@@ -342,37 +345,36 @@ const App = () => {
     }
     const newColours = userSetColours.slice(0, coloursCount);
     setBackColours(newColours);
-
     updateURL();
   };
   
   const handleAmountChange = (event) => {
     const amount = event.target.value;
     setSelectedAmountAndURL(amount);
-  
     let coloursCount = 2;
-  
     if (amount === 'Thirds') {
       coloursCount = 3;
     } else if (amount === 'Quarters' || amount === 'Both Ways') {
       coloursCount = 4;
     }
-  
     const newColours = userSetColours.slice(0, coloursCount);
     setBackColours(newColours);
-
     updateURL();
   };
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href)
-      .then(() => {
-        alert("Current URL copied to clipboard!");
-      })
-      .catch(err => {
-        console.error('Failed to copy: ', err);
-        alert("Failed to copy URL. Please try again.");
-      });
+    .then(() => {
+      setNotification("Current URL copied to clipboard!");
+    })
+    .catch(err => {
+      console.error('Failed to copy: ', err);
+      setNotification("Failed to copy URL. Please try again.");
+    });
+  };
+
+  const clearNotification = () => {
+    setNotification(null);
   };
 
   const handleRefresh = () => {
@@ -592,15 +594,11 @@ const App = () => {
             {activeSection === 'Overlays' && (
               <div className="toolbar-segment">
                 {overlays.length < MAX_OVERLAYS && (
-                  <div>
-                    <div className="add-button-container">
-                      <button className="download-button" onClick={addOverlay}>
-                        <FontAwesomeIcon icon={faPlus} className="download-icon" />
-                        Add New
-                      </button>
-                    </div>
-                    <p><b>Overlays are not being displayed correctly/at all when Exporting.</b></p>
-                    <p><b>A fix for this is in progress.</b></p>
+                  <div className="add-button-container">
+                    <button className="download-button" onClick={addOverlay}>
+                      <FontAwesomeIcon icon={faPlus} className="download-icon" />
+                      Add New
+                    </button>
                   </div>
                 )}
                 {overlays.map((overlay, index) => (
@@ -631,23 +629,23 @@ const App = () => {
                         value={overlay.size}
                         onChange={(value) => updateOverlayProperty(index, 'size', value)}
                         min={10}
-                        max={150}
+                        max={200}
                         unit="%"
                         label="Size"
                       />
                       <Slider
                         value={overlay.offsetX}
                         onChange={(value) => updateOverlayProperty(index, 'offsetX', value)}
-                        min={-150}
-                        max={150}
+                        min={-200}
+                        max={200}
                         unit="↔"
                         label="Horizontal Position"
                       />
                       <Slider
                         value={overlay.offsetY}
                         onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
-                        min={-150}
-                        max={150}
+                        min={-200}
+                        max={200}
                         unit="↕"
                         label="Vertical Position"
                       />
@@ -766,6 +764,9 @@ const App = () => {
       </main>
       <footer className="App-footer">
       </footer>
+      {notification && (
+        <Notification message={notification} onClose={clearNotification} />
+      )}
     </div>
   );
 };

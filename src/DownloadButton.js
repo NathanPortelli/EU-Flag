@@ -86,12 +86,14 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     overlays.forEach((overlay, index) => {
       const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
       const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      text.setAttribute("x", "50%");
-      text.setAttribute("y", "50%");
       text.setAttribute("font-size", `${overlay.size}px`);
       text.setAttribute("text-anchor", "middle");
       text.setAttribute("dominant-baseline", "central");
-      text.setAttribute("transform", `translate(${overlay.offsetX}%, ${overlay.offsetY}%) rotate(${overlay.rotation})`);
+      text.setAttribute("fill", overlay.color);
+      text.setAttribute("transform", `
+        translate(${300 + overlay.offsetX}, ${200 + overlay.offsetY})
+        rotate(${overlay.rotation})
+      `);
       text.textContent = overlaySymbol.unicode;
       svg.appendChild(text);
     });
@@ -409,23 +411,24 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
         starsImg.onload = function () {
           const offsetX = (canvasWidth - starsWidth) / 2;
           const offsetY = (canvasHeight - starsHeight) / 2;
-
+    
           ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
-
+    
           // Draw overlays
           overlays.forEach((overlay) => {
             const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
             ctx.save();
             ctx.font = `${overlay.size}px Arial`;
+            ctx.fillStyle = overlay.color;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.translate(canvasWidth / 2, canvasHeight / 2);
-            ctx.translate(overlay.offsetX * canvasWidth / 100, overlay.offsetY * canvasHeight / 100);
+            ctx.translate(overlay.offsetX, overlay.offsetY);
             ctx.rotate(overlay.rotation * Math.PI / 180);
             ctx.fillText(overlaySymbol.unicode, 0, 0);
             ctx.restore();
           });
-
+    
           // Downloading composite image
           canvas.toBlob(function (blob) {
             download(blob, 'eu-flag.png');

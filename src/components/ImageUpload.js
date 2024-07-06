@@ -1,6 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import Notification from './Notification';
 
 const ImageUpload = ({ onImageUpload, onImageRemove, hasImage }) => {
+  const [notification, setNotification] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
@@ -10,9 +12,13 @@ const ImageUpload = ({ onImageUpload, onImageRemove, hasImage }) => {
       reader.onload = (e) => onImageUpload(e.target.result);
       reader.readAsDataURL(file);
     } else {
-      alert('Please select an image file under 1MB.');
+      setNotification("Please select an image file under 1MB.");
     }
     event.target.value = '';
+  };
+
+  const clearNotification = () => {
+    setNotification(null);
   };
 
   const handleRemove = () => {
@@ -39,6 +45,9 @@ const ImageUpload = ({ onImageUpload, onImageRemove, hasImage }) => {
         <button onClick={handleRemove} className="remove-image">
           <i className="fas fa-trash"></i>
         </button>
+      )}
+      {notification && (
+        <Notification message={notification} onClose={clearNotification} />
       )}
     </div>
   );
