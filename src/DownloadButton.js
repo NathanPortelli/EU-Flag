@@ -6,7 +6,7 @@ import { faDownload, faFileExport } from '@fortawesome/free-solid-svg-icons';
 import './styles/DownloadButton.css';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays }) => {
+const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   function drawCross(ctx, x, y, width, height, strokeWidth) {
@@ -146,29 +146,29 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
   };
   
   const createVerticalStripes = (svg) => {
-    const stripeWidth = 600 / backColours.length;
-    backColours.forEach((color, index) => {
+    const stripeWidth = 600 / stripeCount;
+    for (let i = 0; i < stripeCount; i++) {
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      rect.setAttribute("x", index * stripeWidth);
+      rect.setAttribute("x", i * stripeWidth);
       rect.setAttribute("y", "0");
       rect.setAttribute("width", stripeWidth);
       rect.setAttribute("height", "400");
-      rect.setAttribute("fill", color);
+      rect.setAttribute("fill", backColours[i] || backColours[backColours.length - 1]);
       svg.appendChild(rect);
-    });
+    }
   };
   
   const createHorizontalStripes = (svg) => {
-    const stripeHeight = 400 / backColours.length;
-    backColours.forEach((color, index) => {
+    const stripeHeight = 400 / stripeCount;
+    for (let i = 0; i < stripeCount; i++) {
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       rect.setAttribute("x", "0");
-      rect.setAttribute("y", index * stripeHeight);
+      rect.setAttribute("y", i * stripeHeight);
       rect.setAttribute("width", "600");
       rect.setAttribute("height", stripeHeight);
-      rect.setAttribute("fill", color);
+      rect.setAttribute("fill", backColours[i] || backColours[backColours.length - 1]);
       svg.appendChild(rect);
-    });
+    }
   };
   
   const createCrossBackground = (svg) => {
@@ -387,18 +387,16 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         }
       } else if (selectedPattern === 'Vertical') {
-        // Vertical
-        const stripeWidth = canvasWidth / backColours.length;
-        // Normal vertical pattern
-        backColours.forEach((colour, index) => {
-          ctx.fillStyle = colour;
-          ctx.fillRect(index * stripeWidth, 0, stripeWidth, canvasHeight);
-        });
-      } else {
-        // Horizontal pattern (default behaviour)
-        for (let i = 0; i < backColours.length; i++) {
-          ctx.fillStyle = backColours[i];
-          ctx.fillRect(0, (canvasHeight / backColours.length) * i, canvasWidth, canvasHeight / backColours.length);
+        const stripeWidth = canvasWidth / stripeCount;
+        for (let i = 0; i < stripeCount; i++) {
+          ctx.fillStyle = backColours[i] || backColours[backColours.length - 1];
+          ctx.fillRect(i * stripeWidth, 0, stripeWidth, canvasHeight);
+        }
+      } else if (selectedPattern === 'Horizontal') {
+        const stripeHeight = canvasHeight / stripeCount;
+        for (let i = 0; i < stripeCount; i++) {
+          ctx.fillStyle = backColours[i] || backColours[backColours.length - 1];
+          ctx.fillRect(0, i * stripeHeight, canvasWidth, stripeHeight);
         }
       }
     }

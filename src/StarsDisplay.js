@@ -163,52 +163,14 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           backgroundStyle = { background: backColours[0] };
           break;
         case 'Horizontal':
-          switch (amount) {
-            case 'Bicolour':
-            default:
-              backgroundStyle = {
-                background: `linear-gradient(to bottom, ${backColours[0]} 50%, ${backColours[1]} 50%)`
-              };
-              break;
-            case 'Thirds':
-              backgroundStyle = {
-                background: `linear-gradient(to bottom, ${backColours[0]} 33.33%, ${backColours[1]} 33.33%, ${backColours[1]} 66.66%, ${backColours[2]} 66.66%)`
-              };
-              break;
-            case 'Quarters':
-              backgroundStyle = {
-                background: `linear-gradient(to top, 
-                              ${backColours[3]} 0%, ${backColours[3]} 25%, 
-                              ${backColours[2]} 25%, ${backColours[2]} 50%, 
-                              ${backColours[1]} 50%, ${backColours[1]} 75%, 
-                              ${backColours[0]} 75%, ${backColours[0]} 100%)`
-              };
-              break;
-          }
-          break;
         case 'Vertical':
-          switch (amount) {
-            case 'Bicolour':
-            default:
-              backgroundStyle = {
-                background: `linear-gradient(to right, ${backColours[0]} 50%, ${backColours[1]} 50%)`
-              };
-              break;
-            case 'Thirds':
-              backgroundStyle = {
-                background: `linear-gradient(to right, ${backColours[0]} 33.33%, ${backColours[1]} 33.33%, ${backColours[1]} 66.66%, ${backColours[2]} 66.66%)`
-              };
-              break;
-            case 'Quarters':
-              backgroundStyle = {
-                background: `linear-gradient(to left, 
-                              ${backColours[3]} 0%, ${backColours[3]} 25%, 
-                              ${backColours[2]} 25%, ${backColours[2]} 50%, 
-                              ${backColours[1]} 50%, ${backColours[1]} 75%, 
-                              ${backColours[0]} 75%, ${backColours[0]} 100%)`
-              };
-              break;
-          }
+          const gradientDirection = pattern === 'Horizontal' ? 'to bottom' : 'to right';
+          const gradientStops = backColours.map((color, index) => 
+            `${color} ${index * (100 / backColours.length)}%, ${color} ${(index + 1) * (100 / backColours.length)}%`
+          ).join(', ');
+          backgroundStyle = {
+            background: `linear-gradient(${gradientDirection}, ${gradientStops})`
+          };
           break;
         case 'Bends':
           switch (amount) {

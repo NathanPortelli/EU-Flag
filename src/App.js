@@ -15,7 +15,7 @@ import Notification from './components/Notification';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
-  const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000'];
+  const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000', '#ff5733', '#33ff57', '#5733ff', '#f0f033', '#33f0f0', '#f033f0'];
   const [userSetColours, setUserSetColours] = useState([...defaultBackColours]);
   const MAX_OVERLAYS = 10;
 
@@ -39,6 +39,7 @@ const App = () => {
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [shapeConfiguration, setShapeConfiguration] = useState('circle');
   const [overlays, setOverlays] = useState([]);
+  const [stripeCount, setStripeCount] = useState(2);
 
   const handleBackgroundImageUpload = (imageData) => {
     setBackgroundImage(imageData);
@@ -76,6 +77,7 @@ const App = () => {
         return [backColours[0]];
       case 'Vertical':
       case 'Horizontal':
+        return backColours.slice(0, stripeCount);
       case 'Bends':
         switch (selectedAmount) {
           case 'Bicolour':
@@ -178,6 +180,13 @@ const App = () => {
       setBackColours(defaultBackColours);
       setUserSetColours(defaultBackColours);
     }
+
+    setSelectedPattern(getParamOrDefault('pattern', 'Single'));
+    if (params.get('pattern') === 'Horizontal' || params.get('pattern') === 'Vertical') {
+      setStripeCount(getParamOrDefault('stripeCount', 2, parseInt));
+    } else {
+      setSelectedAmount(getParamOrDefault('amount', ''));
+    }
     
     const overlayData = params.get('overlays');
     if (overlayData) {
@@ -216,6 +225,13 @@ const App = () => {
     params.set('shapeConfiguration', shapeConfiguration);
     params.set('backColours', backColours.join(','));
   
+    params.set('pattern', selectedPattern);
+    if (selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') {
+      params.set('stripeCount', stripeCount);
+    } else {
+      params.set('amount', selectedAmount);
+    }
+
     if (overlays.length > 0) {
       const overlayData = overlays.map(overlay => 
         `${overlay.shape},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`
@@ -311,6 +327,12 @@ const App = () => {
     );
   };
 
+  const handleStripeCountChange = (value) => {
+    setStripeCount(value);
+    setBackColours(userSetColours.slice(0, value));
+    updateURL();
+  };
+
   const handleShapeConfigurationChange = (e) => {
     const newConfig = e.target.value;
     if (newConfig === 'square') {
@@ -323,29 +345,40 @@ const App = () => {
     const pattern = event.target.value;
     setSelectedPatternAndURL(pattern);
     setSelectedAmountAndURL('');
-  
-    let coloursCount = 1;
-  
-    switch (pattern) {
-      case 'Single':
-        coloursCount = 1;
-        break;
-      case 'Vertical':
-      case 'Horizontal':
-      case 'Bends':
-      case 'Cross':
-      case 'Saltire':
-        coloursCount = 2;
-        break;
-      case 'Quadrants':
-        coloursCount = 4;
-        break;
-      default:
-        coloursCount = 1;
+
+    if (pattern === 'Horizontal' || pattern === 'Vertical') {
+      setStripeCount(2);
+      setBackColours(userSetColours.slice(0, 2));
+    } else {
+      if (['Quadrants', 'Saltire', 'Cross', 'Single'].includes(pattern)) {
+        setSelectedAmountAndURL('');
+      } else {
+        setSelectedAmountAndURL(amountOptions[pattern][0] || '');
+      }
+
+      let coloursCount = 1;
+
+      switch (pattern) {
+        case 'Single':
+          coloursCount = 1;
+          break;
+        case 'Vertical':
+        case 'Horizontal':
+        case 'Bends':
+        case 'Cross':
+        case 'Saltire':
+          coloursCount = 2;
+          break;
+        case 'Quadrants':
+          coloursCount = 4;
+          break;
+        default:
+          coloursCount = 1;
+      }
+      const newColours = userSetColours.slice(0, coloursCount);
+      setBackColours(newColours);
+      updateURL();
     }
-    const newColours = userSetColours.slice(0, coloursCount);
-    setBackColours(newColours);
-    updateURL();
   };
   
   const handleAmountChange = (event) => {
@@ -711,41 +744,94 @@ const App = () => {
                         ))}
                       </select>
                     </div>
-                    {['Horizontal', 'Vertical', 'Bends'].includes(selectedPattern) && (
-                      <div className="Shape-container">
-                        <label htmlFor="amountSelector" className="shape-label">Amount</label>
-                        <select 
-                          id="amountSelector" 
-                          value={selectedAmount} 
-                          onChange={handleAmountChange} 
-                          className="shape-dropdown"
-                        >
-                          {amountOptions[selectedPattern].map((amount) => (
-                            <option key={amount} value={amount}>
-                              {amountIcons[amount]}{'\u00A0\u00A0\u00A0\u00A0'}{amount}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                    {(selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') ? (
+                      <Slider
+                        value={stripeCount}
+                        onChange={handleStripeCountChange}
+                        min={2}
+                        max={10}
+                        unit="stripes"
+                        label="Number of Stripes"
+                      />
+                    ) : (
+                      selectedPattern !== 'Single' && selectedPattern !== 'Quadrants' && selectedPattern !== 'Saltire' && selectedPattern !== 'Cross' && (
+                        <div className="Shape-container">
+                          <label htmlFor="amountSelector" className="shape-label">Amount</label>
+                          <select 
+                            id="amountSelector" 
+                            value={selectedAmount} 
+                            onChange={handleAmountChange} 
+                            className="shape-dropdown"
+                          >
+                            {amountOptions[selectedPattern] && amountOptions[selectedPattern].map((amount) => (
+                              <option key={amount} value={amount}>
+                                {amountIcons[amount]}{'\u00A0\u00A0\u00A0\u00A0'}{amount}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )
                     )}
                     <p className="colours-header">Colours</p>
-                    {backColours.slice(0, selectedPattern === 'Single' ? 1 : backColours.length).map((colour, index) => (
-                      <div className="Colour-container" key={index}>
-                        <label
-                          htmlFor={`backColourPicker-${index}`}
-                          className="colour-label"
-                          style={{color: labelColors[`back-${index}`]}}
-                        >
-                          Background Colour {index + 1}
-                        </label>
-                        <input
-                          type="color"
-                          id={`backColourPicker-${index}`}
-                          value={colour}
-                          onChange={(e) => handleBackColourChange(e.target.value, index)}
-                        />
+                    {selectedPattern === 'Single' ? (
+                      <div className="single-colour-container">
+                        <div className="Colour-container">
+                          <label
+                            htmlFor="backColourPicker-0"
+                            className="colour-label"
+                            style={{color: labelColors['back-0']}}
+                          >
+                            Background Colour
+                          </label>
+                          <input
+                            type="color"
+                            id="backColourPicker-0"
+                            value={backColours[0]}
+                            onChange={(e) => handleBackColourChange(e.target.value, 0)}
+                          />
+                        </div>
                       </div>
-                    ))}
+                    ) : (
+                      <div className="colour-grid">
+                        {(selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') ? (
+                          Array.from({ length: stripeCount }, (_, index) => (
+                            <div className="Colour-container" key={index}>
+                              <label
+                                htmlFor={`backColourPicker-${index}`}
+                                className="colour-label"
+                                style={{color: labelColors[`back-${index}`]}}
+                              >
+                                Stripe Colour {index + 1}
+                              </label>
+                              <input
+                                type="color"
+                                id={`backColourPicker-${index}`}
+                                value={backColours[index] || '#ffffff'}
+                                onChange={(e) => handleBackColourChange(e.target.value, index)}
+                              />
+                            </div>
+                          ))
+                        ) : (
+                          backColours.map((colour, index) => (
+                            <div className="Colour-container" key={index}>
+                              <label
+                                htmlFor={`backColourPicker-${index}`}
+                                className="colour-label"
+                                style={{color: labelColors[`back-${index}`]}}
+                              >
+                                Background Colour {index + 1}
+                              </label>
+                              <input
+                                type="color"
+                                id={`backColourPicker-${index}`}
+                                value={colour}
+                                onChange={(e) => handleBackColourChange(e.target.value, index)}
+                              />
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
                   </>
                 )}
@@ -758,11 +844,18 @@ const App = () => {
               backgroundImage={backgroundImage}
               customImage={customImage}
               overlays={overlays}
+              stripeCount={stripeCount}
             />
           </div>
         </div>
       </main>
       <footer className="App-footer">
+        <div className="App-footer-content">
+          <p className="App-footer-text">Created by</p>
+          <a href="https://github.com/NathanPortelli/" target="_blank" rel="noopener noreferrer">
+            Nathan Portelli
+          </a>
+        </div>
       </footer>
       {notification && (
         <Notification message={notification} onClose={clearNotification} />

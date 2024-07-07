@@ -18,16 +18,17 @@ body,
 body {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
   font-family: Arial, sans-serif;
   background-color: var(--back-colour);
   color: white;
-  height: 100vh;
 }
 
 .App {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  min-height: 100vh;
 }
 
 .App-header {
@@ -40,10 +41,10 @@ body {
 }
 
 .App-main {
-  flex: 1;
+  flex: 1 0 auto;
   display: flex;
   justify-content: center;
-  align-items: center;
+  padding-top: 30px;
 }
 
 .App-content {
@@ -51,11 +52,9 @@ body {
   border-radius: 10px;
   max-width: 700px;
   width: 100%;
-  align-items: center;
 }
 
 .Stars-content {
-  margin-top: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -64,7 +63,6 @@ body {
 }
 
 .Slider-content {
-  margin-top: 10%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -215,14 +213,32 @@ input[type="range"] {
   justify-content: center;
 }
 
+.new-format .colour-grid { 
+  width: 80%;
+}
+
+.new-format .colour-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 80%;
+}
+
+.single-colour-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .Colour-container
 {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
   position: relative;
-  width: 250px;
+  width: 220px;
   height: 50px;
   border: 2px solid #FFDD00;
   border-radius: 30px;
@@ -569,4 +585,41 @@ input[type='color']::-webkit-color-swatch {
   font-weight: bold;
   font-size: 18px;
   margin-left: 10px;
+}
+
+/* Footer */
+
+.App-footer {
+  flex-shrink: 0;
+  background-color: #002080;
+  padding: 20px 0;
+  color: #FFDD00;
+  font-size: 1em;
+  border-top: 3px solid #FFDD00;
+  text-align: center;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.App-footer-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.App-footer a {
+  font-weight: bold;
+  color: #FFDD00;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 5px 5px;
+  margin-left: 1px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+}
+
+.App-footer a:hover {
+  color: #d6bb02;
+  text-shadow: 0 0 10px rgba(255, 221, 0, 0.7);
 }
