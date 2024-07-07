@@ -17,7 +17,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
             left: '50%',
             transform: `translate(calc(-50% + ${overlay.offsetX}px), calc(-50% + ${overlay.offsetY}px)) rotate(${overlay.rotation}deg)`,
             fontSize: `${overlay.size}px`,
-            zIndex: 10 + index,
+            zIndex: overlays.length - index,
             color: overlay.color,
           }}
         >
@@ -31,11 +31,8 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
     const shapes = [];
     
     if (shapeConfiguration === 'square') {
-      // Calculate the number of rows and columns
       let rows = Math.round(Math.sqrt(count));
       let cols = Math.ceil(count / rows);
-      
-      // Calculate if we need to stagger the columns
 
       const remainingStars = count % cols;
       const staggered = remainingStars > 0;
@@ -95,7 +92,6 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         }
       }
     } else {
-      // Original circle arrangement code (unchanged)
       for (let i = 0; i < count; i++) {
         const angle = (i / count) * 2 * Math.PI - Math.PI / 2 + (rotationAngle * Math.PI / 180);
         const x = 50 + radius * Math.cos(angle);
@@ -143,7 +139,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         );
       }
     }
-    
+
     return shapes;
   };
   
@@ -306,10 +302,8 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   const circles = circleConfigurations.slice(0, circleCount).map((config, index) => {
     let newCount;
     if (index === circleCount - 1) {
-      // For the last circle
       newCount = remainingStars;
     } else {
-      // For other circles
       newCount = Math.round((config.countRatio[circleCount] || 1) * count);
       remainingStars -= newCount;
     }

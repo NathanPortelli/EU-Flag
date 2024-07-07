@@ -60,6 +60,7 @@ body {
   align-items: center;
   max-width: 100%;
   overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .Slider-content {
@@ -568,14 +569,14 @@ input[type='color']::-webkit-color-swatch {
   margin-bottom: 30px;
 }
 
-.overlay-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.overlay-full-container {
+  border: 3px solid #FFDD00;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  padding: 20px;
 }
 
 .overlay-container button {
-  margin-top: -20px;
   background-color: #FFDD00;
   color: #003399;
   border: none;
@@ -585,6 +586,71 @@ input[type='color']::-webkit-color-swatch {
   font-weight: bold;
   font-size: 18px;
   margin-left: 10px;
+}
+
+.overlay-handle {
+  color: #082d9c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.overlay-topcontent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.overlay-content {
+  padding: 15px;
+  display: flex;
+  gap: 15px; 
+}
+
+.overlay-sliders {
+  padding-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-color {
+  padding: 0 15px 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay-arrows {
+  display: flex;
+  justify-content: space-between;
+  width: 70px;
+  margin-right: 10px;
+}
+
+.arrow-button {
+  background-color: transparent;
+  border: none;
+  color: #FFDD00;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.arrow-button:disabled {
+  color: #666;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1000px) {
+  .overlay-topcontent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
 
 /* Footer */

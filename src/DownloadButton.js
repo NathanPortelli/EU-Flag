@@ -9,6 +9,10 @@ import { overlaySymbols } from './components/OverlaySymbols';
 const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
+  const sortOverlays = (overlays) => {
+    return [...overlays].sort((a, b) => overlays.indexOf(b) - overlays.indexOf(a));
+  };
+
   function drawCross(ctx, x, y, width, height, strokeWidth) {
     ctx.save();
     ctx.strokeStyle = backColours[0];
@@ -83,7 +87,8 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     svg.appendChild(foreignObject);
 
     // Add overlays
-    overlays.forEach((overlay, index) => {
+    const sortedOverlays = sortOverlays(overlays);
+    sortedOverlays.forEach((overlay, index) => {
       const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
       const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
       text.setAttribute("font-size", `${overlay.size}px`);
@@ -413,7 +418,8 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
     
           // Draw overlays
-          overlays.forEach((overlay) => {
+          const sortedOverlays = sortOverlays(overlays);
+          sortedOverlays.forEach((overlay) => {
             const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
             ctx.save();
             ctx.font = `${overlay.size}px Arial`;

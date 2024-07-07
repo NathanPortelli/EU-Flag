@@ -6,18 +6,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { faArrowsRotate, faPlus, faShareFromSquare } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
+
 import { shapePaths, shapeOptions, patternOptions, amountOptions, patternIcons, amountIcons } from './components/ItemLists';
 import ImageUpload from './components/ImageUpload';
 import Divider from './components/Divider';
 import { CustomShapeDropdown } from './components/CustomShapeDropdown';
 import { overlaySymbols } from './components/OverlaySymbols';
 import Notification from './components/Notification';
+import { CustomToggle } from './components/CustomToggle';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
-  const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000', '#ff5733', '#33ff57', '#5733ff', '#f0f033', '#33f0f0', '#f033f0'];
+  const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000', '#ff5733', '#33ff57', '#5733ff', '#f0f033', '#33f0f0', '#f033f0', '#ff33aa', '#33aaff', '#aa33ff', '#ff3380', '#33ffaa', '#ffaa33'];
   const [userSetColours, setUserSetColours] = useState([...defaultBackColours]);
-  const MAX_OVERLAYS = 10;
+  const MAX_OVERLAYS = 15;
 
   const [starCount, setStarCount] = useState(12);
   const [circleCount, setCircleCount] = useState(1);
@@ -41,9 +43,20 @@ const App = () => {
   const [overlays, setOverlays] = useState([]);
   const [stripeCount, setStripeCount] = useState(2);
 
+  const moveOverlay = (index, direction) => {
+    const newOverlays = [...overlays];
+    if (direction === 'up' && index > 0) {
+      [newOverlays[index - 1], newOverlays[index]] = [newOverlays[index], newOverlays[index - 1]];
+    } else if (direction === 'down' && index < newOverlays.length - 1) {
+      [newOverlays[index], newOverlays[index + 1]] = [newOverlays[index + 1], newOverlays[index]];
+    }
+    setOverlays(newOverlays);
+  };
+  
   const handleBackgroundImageUpload = (imageData) => {
     setBackgroundImage(imageData);
   };
+
   const addOverlay = () => {
     if (overlays.length < MAX_OVERLAYS) {
       const randomShape = overlaySymbols[Math.floor(Math.random() * overlaySymbols.length)].value;
@@ -319,19 +332,6 @@ const App = () => {
     initialLabelColors.star = getOppositeColour(starColour);
     setLabelColors(initialLabelColors);
   }, [backColours, starColour]);
-
-  const CustomToggle = ({ option1, option2, isActive, onChange }) => {
-    return (
-      <div className="custom-toggle" onClick={onChange}>
-        <div className={`custom-toggle-option ${!isActive ? 'active' : ''}`}>
-          {option1}
-        </div>
-        <div className={`custom-toggle-option ${isActive ? 'active' : ''}`}>
-          {option2}
-        </div>
-      </div>
-    );
-  };
 
   const handleStripeCountChange = (value) => {
     setStripeCount(value);
@@ -641,52 +641,77 @@ const App = () => {
                   </div>
                 )}
                 {overlays.map((overlay, index) => (
-                  <div>
-                    <Divider />
-                    <div className="overlay-container" key={index}>
-                      <div className="Shape-container">
-                        <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
-                        <select
-                          id={`overlaySelector-${index}`}  
-                          className="shape-dropdown"
-                          value={overlay.shape}
-                          onChange={(e) => updateOverlayProperty(index, 'shape', e.target.value)}
-                        >
-                          {overlaySymbols.map(symbol => (
-                            <option key={symbol.value} value={symbol.value}>
-                              {symbol.label} {symbol.displayName}
-                            </option>
-                          ))}
-                        </select>
+                  <div className='overlay-full-container'>
+                    <div className="overlay-handle">
+                      <div className="overlay-topcontent">
+                        <div className="overlay-arrows">
+                          <button 
+                            className="arrow-button"
+                            onClick={() => moveOverlay(index, 'up')}
+                            disabled={index === 0}
+                          >
+                            <i className="fas fa-arrow-up"></i>
+                          </button>
+                          <button 
+                            className="arrow-button"
+                            onClick={() => moveOverlay(index, 'down')}
+                            disabled={index === overlays.length - 1}
+                          >
+                            <i className="fas fa-arrow-down"></i>
+                          </button>
+                        </div>
+                        <div className="overlay-sliders">
+                          <div className="overlay-content">
+                            <div className="Shape-container">
+                              <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
+                              <select
+                                id={`overlaySelector-${index}`}  
+                                className="shape-dropdown"
+                                value={overlay.shape}
+                                onChange={(e) => updateOverlayProperty(index, 'shape', e.target.value)}
+                              >
+                                {overlaySymbols.map(symbol => (
+                                  <option key={symbol.value} value={symbol.value}>
+                                    {symbol.label} {symbol.displayName}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="overlay-container">
+                              <button className="remove-image" onClick={() => removeOverlay(index)}>
+                                <i className="fas fa-trash"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <button className="remove-image" onClick={() => removeOverlay(index)}>
-                        <i className="fas fa-trash"></i>
-                      </button>
                     </div>
-                    <div className="overlay-container">
-                      <Slider
-                        value={overlay.size}
-                        onChange={(value) => updateOverlayProperty(index, 'size', value)}
-                        min={10}
-                        max={500}
-                        unit="%"
-                        label="Size"
+                    <div className="overlay-sliders">
+                    <Slider
+                        value={overlay.offsetY}
+                        onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
+                        min={-250}
+                        max={250}
+                        unit="↕"
+                        label="Vertical Position"
                       />
                       <Slider
                         value={overlay.offsetX}
                         onChange={(value) => updateOverlayProperty(index, 'offsetX', value)}
-                        min={-200}
-                        max={200}
+                        min={-250}
+                        max={250}
                         unit="↔"
                         label="Horizontal Position"
                       />
+                    </div>
+                    <div className="overlay-sliders">
                       <Slider
-                        value={overlay.offsetY}
-                        onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
-                        min={-200}
-                        max={200}
-                        unit="↕"
-                        label="Vertical Position"
+                        value={overlay.size}
+                        onChange={(value) => updateOverlayProperty(index, 'size', value)}
+                        min={10}
+                        max={800}
+                        unit="%"
+                        label="Size"
                       />
                       <Slider
                         value={overlay.rotation}
@@ -697,7 +722,7 @@ const App = () => {
                         label="Rotation"
                       />
                     </div>
-                    <div className='overlay-container'>
+                    <div className='overlay-color'>
                       <div className="Colour-container">
                         <label
                           htmlFor={`overlayColorPicker-${index}`}
@@ -755,7 +780,7 @@ const App = () => {
                         value={stripeCount}
                         onChange={handleStripeCountChange}
                         min={2}
-                        max={10}
+                        max={16}
                         unit="stripes"
                         label="Number of Stripes"
                       />
