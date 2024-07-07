@@ -57,8 +57,8 @@ export const patternIcons = {
 };
 
 export const amountOptions = {
-  'Horizontal': ['Bicolour', 'Thirds', 'Quarters'],
-  'Vertical': ['Bicolour', 'Thirds', 'Quarters'],
+  'Horizontal': [],
+  'Vertical': [],
   'Bends': ['Forwards', 'Backwards', 'Both Ways'],
   'Quadrants': [],
   'Saltire': [],
@@ -67,9 +67,6 @@ export const amountOptions = {
 };
 
 export const amountIcons = {
-  'Bicolour': '| ',
-  'Thirds': '||| ',
-  'Quarters': '||||',
   'Forwards': '/',
   'Backwards': '\\',
   'Both Ways': '𝕏'

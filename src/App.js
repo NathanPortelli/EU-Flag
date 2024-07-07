@@ -102,14 +102,20 @@ const App = () => {
 
   // Calculate opposite colour
   const getOppositeColour = (hex) => {
-    hex = hex.replace('#', '');
-    let r = parseInt(hex.substr(0, 2), 16);
-    let g = parseInt(hex.substr(2, 2), 16);
-    let b = parseInt(hex.substr(4, 2), 16);
-    r = 255 - r;
-    g = 255 - g;
-    b = 255 - b;
-    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    
+    let luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    let max = Math.max(r, g, b);
+    let min = Math.min(r, g, b);
+    let saturation = (max - min) / max;
+    
+    if (saturation < 0.2 && luminance > 0.4 && luminance < 0.6) {
+      return luminance > 0.5 ? '#000000' : '#FFFFFF';
+    }
+    return `#${(0xFFFFFF ^ parseInt(hex.slice(1), 16)).toString(16).padStart(6, '0')}`;
   };
 
   // Calculate initial label colours
@@ -662,7 +668,7 @@ const App = () => {
                         value={overlay.size}
                         onChange={(value) => updateOverlayProperty(index, 'size', value)}
                         min={10}
-                        max={200}
+                        max={500}
                         unit="%"
                         label="Size"
                       />
