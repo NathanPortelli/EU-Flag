@@ -15,6 +15,7 @@ import { overlaySymbols } from './components/OverlaySymbols';
 import Notification from './components/Notification';
 import { CustomToggle } from './components/CustomToggle';
 import { CountryList } from './components/CountryURLList';
+import FilterableSelect from './components/FilterableSelect';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
@@ -692,18 +693,12 @@ const App = () => {
                           <div className="overlay-content">
                             <div className="Shape-container">
                               <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
-                              <select
-                                id={`overlaySelector-${index}`}  
-                                className="shape-dropdown"
-                                value={overlay.shape}
-                                onChange={(e) => updateOverlayProperty(index, 'shape', e.target.value)}
-                              >
-                                {overlaySymbols.map(symbol => (
-                                  <option key={symbol.value} value={symbol.value}>
-                                    {symbol.label} {symbol.displayName}
-                                  </option>
-                                ))}
-                              </select>
+                              <FilterableSelect
+                                options={overlaySymbols}
+                                value={overlay.shape} 
+                                onChange={(value) => updateOverlayProperty(index, 'shape', value)}
+                                placeholder="Select or type to filter..."
+                              />
                             </div>
                             <div className="overlay-container">
                               <button className="remove-image" onClick={() => removeOverlay(index)}>
@@ -798,8 +793,8 @@ const App = () => {
                         className="shape-dropdown"
                       >
                         {patternOptions.map((pattern) => (
-                          <option key={pattern} value={pattern}>
-                            {patternIcons[pattern]}{'\u00A0\u00A0\u00A0\u00A0'}{pattern}
+                          <option key={pattern} value={pattern} className="optionWithSpacing">
+                            {patternIcons[pattern]} {' '} {pattern}
                           </option>
                         ))}
                       </select>
@@ -824,8 +819,8 @@ const App = () => {
                             className="shape-dropdown"
                           >
                             {amountOptions[selectedPattern] && amountOptions[selectedPattern].map((amount) => (
-                              <option key={amount} value={amount}>
-                                {amountIcons[amount]}{'\u00A0\u00A0\u00A0\u00A0'}{amount}
+                              <option key={amount} value={amount} className="optionWithSpacing">
+                                {amountIcons[amount]} {' '} {amount}
                               </option>
                             ))}
                           </select>

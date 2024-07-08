@@ -570,11 +570,14 @@ input[type='color']::-webkit-color-swatch {
 
 /* Overlays */
 
+.optionWithSpacing {
+  white-space: nowrap;
+}
+
 .add-button-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* margin-bottom: 30px; */
 }
 
 .overlay-full-container {
@@ -697,4 +700,67 @@ input[type='color']::-webkit-color-swatch {
 .App-footer a:hover {
   color: #d6bb02;
   text-shadow: 0 0 10px rgba(255, 221, 0, 0.7);
+}
+
+/* Filtering */
+
+.filterable-select {
+  position: relative;
+  width: 100%;
+}
+
+.filterable-select-input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #FFDD00;
+  border-radius: 20px;
+  background-color: #003399;
+  color: #FFDD00;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.filterable-select-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #003399;
+  border: 2px solid #FFDD00;
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  z-index: 10;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.filterable-select-options li {
+  padding: 10px;
+  cursor: pointer;
+  color: #FFDD00;
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.filterable-select-options li:hover,
+.filterable-select-options li.selected {
+  background-color: #004499;
+}
+
+.option-label {
+  width: 30px;
+  text-align: center;
+  margin-right: 20px;
+}
+
+.option-displayname {
+  flex: 1;
+}
+
+.filterable-select-input::placeholder {
+  color: #FFDD00;
 }
