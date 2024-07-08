@@ -14,6 +14,7 @@ import { CustomShapeDropdown } from './components/CustomShapeDropdown';
 import { overlaySymbols } from './components/OverlaySymbols';
 import Notification from './components/Notification';
 import { CustomToggle } from './components/CustomToggle';
+import { CountryList } from './components/CountryURLList';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
@@ -42,7 +43,13 @@ const App = () => {
   const [shapeConfiguration, setShapeConfiguration] = useState('circle');
   const [overlays, setOverlays] = useState([]);
   const [stripeCount, setStripeCount] = useState(2);
+  const [containerFormat, setContainerFormat] = useState('circle');
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
+  const handleBackgroundImageUpload = (imageData) => {
+    setBackgroundImage(imageData);
+  };
+  
   const moveOverlay = (index, direction) => {
     const newOverlays = [...overlays];
     if (direction === 'up' && index > 0) {
@@ -53,22 +60,18 @@ const App = () => {
     setOverlays(newOverlays);
   };
   
-  const handleBackgroundImageUpload = (imageData) => {
-    setBackgroundImage(imageData);
-  };
-
   const addOverlay = () => {
     if (overlays.length < MAX_OVERLAYS) {
       const randomShape = overlaySymbols[Math.floor(Math.random() * overlaySymbols.length)].value;
       const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-      setOverlays(prevOverlays => [...prevOverlays, { 
+      setOverlays(prevOverlays => [{ 
         shape: randomShape, 
         size: 50,
         offsetX: 0,
         offsetY: 0,
         rotation: 0,
         color: randomColor
-      }]);
+      }, ...prevOverlays]);
     }
   };
 
@@ -153,18 +156,16 @@ const App = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1000) {
-        setIsNewFormat(true);
-        setStarRadius(80);
-      } else {
-        setIsNewFormat(false);
-        setStarRadius(90);
-      }
+      const smallScreen = window.innerWidth < 1000;
+      setIsSmallScreen(smallScreen);
+      setIsNewFormat(!smallScreen);
     };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const formatClass = containerFormat === 'flag' || isSmallScreen ? 'old-format' : 'new-format';
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -422,7 +423,7 @@ const App = () => {
   };
 
   return (
-    <div className={`App ${isNewFormat ? 'old-format' : 'new-format'}`}>
+    <div className={`App ${formatClass}`}>
       <header className="App-header">
         <h1>EU Flag Maker</h1>
         <div className="header-buttons">
@@ -446,26 +447,52 @@ const App = () => {
       <main className="App-main">
         <div className="App-content">
           <div className="Stars-content">
-            <StarsDisplay
-              count={starCount}
-              size={starSize}
-              radius={starRadius}
-              circleCount={circleCount}
-              backColours={backColours}
-              starColour={starColour}
-              rotationAngle={rotationAngle}
-              shape={selectedShape}
-              pointAway={pointAway}
-              outlineOnly={outlineOnly}
-              outlineWeight={outlineWeight}
-              pattern={selectedPattern}
-              amount={selectedAmount}
-              starRotation={starRotation}
-              customImage={customImage}
-              backgroundImage={backgroundImage}
-              shapeConfiguration={shapeConfiguration}
-              overlays={overlays}
-            />
+            <div className="Stars-display">
+              <StarsDisplay
+                count={starCount}
+                size={starSize}
+                radius={starRadius}
+                circleCount={circleCount}
+                backColours={backColours}
+                starColour={starColour}
+                rotationAngle={rotationAngle}
+                shape={selectedShape}
+                pointAway={pointAway}
+                outlineOnly={outlineOnly}
+                outlineWeight={outlineWeight}
+                pattern={selectedPattern}
+                amount={selectedAmount}
+                starRotation={starRotation}
+                customImage={customImage}
+                backgroundImage={backgroundImage}
+                shapeConfiguration={shapeConfiguration}
+                overlays={overlays}
+                containerFormat={containerFormat}
+              />
+            </div>
+            <div className="custom-toggle-container">
+              <CustomToggle 
+                option1="Circle"
+                option2="Flag"
+                isActive={containerFormat === 'flag'}
+                onChange={() => setContainerFormat(containerFormat === 'circle' ? 'flag' : 'circle')}
+              />
+            </div>
+            <div className="Shape-selector">
+              <div className="Shape-container">
+                <label htmlFor="countrySelector" className="shape-label">Samples</label>
+                <select 
+                  id="countrySelector" 
+                  className="shape-dropdown"
+                  onChange={(e) => window.location.href = CountryList.find(country => country.value === e.target.value).link}
+                >
+                  <option value="">Select a Country</option>
+                  {CountryList.map((country) => (
+                    <option key={country.value} value={country.value}>{country.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
           <div className="Slider-content">
             <nav className="App-nav">
@@ -505,8 +532,8 @@ const App = () => {
                       onChange={handleShapeConfigurationChange}
                       className="shape-dropdown"
                     >
-                      <option value="circle">Circle</option>
-                      <option value="square">Square</option>
+                      <option value="circle">EU</option>
+                      <option value="square">USA</option>
                     </select>
                   </div>
                 </div>
@@ -547,6 +574,7 @@ const App = () => {
                   onImageRemove={handleImageRemove}
                   hasImage={!!customImage}
                 />
+                <p className='image-disclaimer'>Images cannot be shared via link.</p>
                 {!customImage && (
                   <>
                     <Divider text="or" />
@@ -690,16 +718,16 @@ const App = () => {
                     <Slider
                         value={overlay.offsetY}
                         onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
-                        min={-250}
-                        max={250}
+                        min={-300}
+                        max={300}
                         unit="↕"
                         label="Vertical Position"
                       />
                       <Slider
                         value={overlay.offsetX}
                         onChange={(value) => updateOverlayProperty(index, 'offsetX', value)}
-                        min={-250}
-                        max={250}
+                        min={-300}
+                        max={300}
                         unit="↔"
                         label="Horizontal Position"
                       />
@@ -752,6 +780,7 @@ const App = () => {
                     hasImage={!!backgroundImage}
                     label="Upload Background Image"
                   />
+                  <p className='image-disclaimer'>Images cannot be shared via link.</p>
                   {!backgroundImage && (
                     <span className="tooltiptext">2:3 Aspect Ratio optimal for downloading</span>
                   )}

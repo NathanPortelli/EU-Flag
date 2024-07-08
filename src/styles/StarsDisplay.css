@@ -13,6 +13,12 @@
   overflow: hidden;
 }
 
+.stars-container.flag {
+  width: 675px;
+  height: 450px;
+  border-radius: 0;
+}
+
 .star {
   display: inline-block;
   transform: translate(-50%, -50%);

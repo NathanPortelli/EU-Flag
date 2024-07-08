@@ -3,7 +3,7 @@ import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat }) => {
    
   const renderOverlays = () => {
     return overlays.map((overlay, index) => {
@@ -29,22 +29,28 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
 
   const renderShapes = (count, size, radius, keyPrefix) => {
     const shapes = [];
-    
-    if (shapeConfiguration === 'square') {
-      let rows = Math.round(Math.sqrt(count));
-      let cols = Math.ceil(count / rows);
-
-      const remainingStars = count % cols;
-      const staggered = remainingStars > 0;
   
-      const horizontalGap = 100 / (cols + 1);
-      const verticalGap = 100 / (rows + 1);
+    if (shapeConfiguration === 'square') {
+      let rows = Math.ceil(Math.sqrt(count));
+      let cols = Math.floor(count / rows);
+      let remainingStars = count - rows * cols;
+  
+      if (remainingStars > 0) {
+        rows++;
+      }
   
       let starIndex = 0;
       for (let row = 0; row < rows; row++) {
-        const isLastRow = row === rows - 1;
-        const starsInThisRow = isLastRow && staggered ? remainingStars : cols;
-        const offsetX = isLastRow && staggered ? horizontalGap / 2 : 0;
+        const isOddRow = row % 2 === 1;
+        const starsInThisRow = isOddRow ? Math.ceil(count / rows) : Math.floor(count / rows);
+        
+        const horizontalGap = 100 / (starsInThisRow + 1);
+        const verticalGap = 100 / (rows + 1);
+        
+        let offsetX = 0;
+        if (starsInThisRow !== Math.ceil(count / rows)) {
+          offsetX = (horizontalGap / 2) * (isOddRow ? 1 : 0);
+        }
   
         for (let col = 0; col < starsInThisRow; col++) {
           if (starIndex >= count) break;
@@ -94,8 +100,15 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
     } else {
       for (let i = 0; i < count; i++) {
         const angle = (i / count) * 2 * Math.PI - Math.PI / 2 + (rotationAngle * Math.PI / 180);
-        const x = 50 + radius * Math.cos(angle);
-        const y = 50 + radius * Math.sin(angle);
+        let x, y;
+        
+        if (containerFormat === 'flag') {
+          x = 50 + (radius * 0.66) * Math.cos(angle);
+          y = 50 + radius * Math.sin(angle);
+        } else {
+          x = 50 + radius * Math.cos(angle);
+          y = 50 + radius * Math.sin(angle);
+        }
       
         let shapeRotation = pointAway ? angle : 0;
         
@@ -226,13 +239,13 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           };
           break;
         case 'Cross':
-          const crossWidth = '10.9%';
+          const crossWidth = '50px';
           backgroundStyle = {
-            background: `
-              linear-gradient(to right, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
-              linear-gradient(to bottom, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
-              ${backColours[1]}
-            `
+              background: `
+                  linear-gradient(to right, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
+                  linear-gradient(to bottom, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
+                  ${backColours[1]}
+              `
           };
           break;
         case 'Saltire':
@@ -329,11 +342,30 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   return (
     <div 
       id="stars-container" 
-      className="stars-container" 
-      style={generateBackgroundStyle()}
+      className={`stars-container ${containerFormat === 'flag' ? 'flag' : ''}`}
+      style={{
+        ...generateBackgroundStyle(),
+        ...(containerFormat === 'flag' ? {
+          borderRadius: '0',
+        } : {
+          borderRadius: '100%',
+        })
+      }}
       data-has-background-image={!!backgroundImage}
     >
-      <div id="stars-only-container" className="stars-only-container">
+      <div 
+        id="stars-only-container" 
+        className="stars-only-container"
+        style={{
+          ...(containerFormat === 'flag' ? {
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+          } : {})
+        }}
+      >
         {circles}
       </div>
       {renderOverlays()}

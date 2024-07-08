@@ -60,7 +60,6 @@ body {
   align-items: center;
   max-width: 100%;
   overflow: hidden;
-  margin-bottom: 20px;
 }
 
 .Slider-content {
@@ -102,6 +101,10 @@ h1 {
 input[type="range"] {
   width: 80%;
   margin-top: 10px;
+}
+
+.Stars-display {
+  margin-bottom: 10px;
 }
 
 /* New Format */
@@ -448,6 +451,11 @@ input[type='color']::-webkit-color-swatch {
 
 /* Image Upload */
 
+.image-disclaimer {
+  margin-top: 15px;
+  font-style: italic;
+}
+
 .image-upload-container {
   display: flex;
   align-items: center;
@@ -566,12 +574,13 @@ input[type='color']::-webkit-color-swatch {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 30px;
+  /* margin-bottom: 30px; */
 }
 
 .overlay-full-container {
   border: 3px solid #FFDD00;
   border-radius: 10px;
+  margin-top: 20px;
   margin-bottom: 20px;
   padding: 20px;
 }
