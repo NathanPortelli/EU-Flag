@@ -47,11 +47,13 @@
   
   .slider-content {
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
   }
 
   input[type=number]  {
-    width: 48px;
+    width: 55px;
     height: 30px;
     border: none;
     margin-right: 0;
@@ -66,4 +68,16 @@
     padding-left: 2px;
     font-size: 20px;
     margin-left: 0;
+  }
+
+  .slider-input {
+    margin-left: 1px;
+  }
+  
+  .unit-text {
+    margin-left: 4px;
+  }
+  
+  .slider-icon {
+    margin-right: 8px;
   }

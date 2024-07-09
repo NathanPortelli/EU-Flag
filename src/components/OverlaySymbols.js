@@ -59,6 +59,7 @@ export const overlaySymbols = [
     { value: 'eastSyrianCross', label: '♱', unicode: '♱', displayName: 'East Syrian Cross' },
     { value: 'starAndCrescent', label: '☪', unicode: '☪', displayName: 'Star and Crescent' },
     { value: 'starOfDavid', label: '✡', unicode: '✡', displayName: 'Star of David' },
+    { value: 'outlinedWhiteStar', label: '⚝', unicode: '\u269D', displayName: 'Outlined Moroccan Star' },
     { value: 'farsiSymbol', label: '☫', unicode: '☫', displayName: 'Farsi Symbol' },
     { value: 'khanda', label: '☬', unicode: '☬', displayName: 'Khanda' },
     { value: 'hammerAndSickle', label: '☭', unicode: '☭', displayName: 'Hammer and Sickle' },

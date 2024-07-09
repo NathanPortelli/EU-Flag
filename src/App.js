@@ -4,10 +4,11 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faArrowsRotate, faPlus, faShareFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faArrowsRotate, faBorderTopLeft, faShareFromSquare, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 
 import { shapePaths, shapeOptions, patternOptions, amountOptions, patternIcons, amountIcons } from './components/ItemLists';
+import Header from './components/Header';
 import ImageUpload from './components/ImageUpload';
 import Divider from './components/Divider';
 import { CustomShapeDropdown } from './components/CustomShapeDropdown';
@@ -16,6 +17,7 @@ import Notification from './components/Notification';
 import { CustomToggle } from './components/CustomToggle';
 import { CountryList } from './components/CountryURLList';
 import FilterableSelect from './components/FilterableSelect';
+import ColourPicker from './components/ColourPicker';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
@@ -46,6 +48,27 @@ const App = () => {
   const [stripeCount, setStripeCount] = useState(2);
   const [containerFormat, setContainerFormat] = useState('circle');
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [crossSaltireSize, setCrossSaltireSize] = useState(11);
+  const [draggedItem, setDraggedItem] = useState(null);
+  const [dragOverItem, setDragOverItem] = useState(null);
+
+  const handleDragStart = (e, index) => {
+    setDraggedItem(index);
+  };
+  
+  const handleDragEnter = (e, index) => {
+    setDragOverItem(index);
+  };
+  
+  const handleDragEnd = () => {
+    const newOverlays = [...overlays];
+    const draggedItemContent = newOverlays[draggedItem];
+    newOverlays.splice(draggedItem, 1);
+    newOverlays.splice(dragOverItem, 0, draggedItemContent);
+    setOverlays(newOverlays);
+    setDraggedItem(null);
+    setDragOverItem(null);
+  };
 
   const handleBackgroundImageUpload = (imageData) => {
     setBackgroundImage(imageData);
@@ -59,6 +82,7 @@ const App = () => {
       [newOverlays[index], newOverlays[index + 1]] = [newOverlays[index + 1], newOverlays[index]];
     }
     setOverlays(newOverlays);
+    updateURL();
   };
   
   const addOverlay = () => {
@@ -67,7 +91,7 @@ const App = () => {
       const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
       setOverlays(prevOverlays => [{ 
         shape: randomShape, 
-        size: 50,
+        size: 200,
         offsetX: 0,
         offsetY: 0,
         rotation: 0,
@@ -176,6 +200,7 @@ const App = () => {
       return paramValue !== null ? parser(paramValue) : defaultValue;
     };
 
+    setCrossSaltireSize(getParamOrDefault('crossSaltireSize', 11, parseFloat));
     setStarCount(getParamOrDefault('starCount', 12, parseInt));
     setCircleCount(getParamOrDefault('circleCount', 1, parseInt));
     setStarSize(getParamOrDefault('starSize', 55, parseInt));
@@ -193,14 +218,15 @@ const App = () => {
 
     // Handle background colours
     const urlBackColors = params.get('backColours');
-    if (urlBackColors) {
-      const colors = urlBackColors.split(',');
-      setBackColours(colors);
-      setUserSetColours(colors);
-    } else {
-      setBackColours(defaultBackColours);
-      setUserSetColours(defaultBackColours);
-    }
+  if (urlBackColors) {
+    const colors = urlBackColors.split(',');
+    setBackColours(colors);
+    setUserSetColours(colors);
+    setStripeCount(colors.length);
+  } else {
+    setBackColours(defaultBackColours);
+    setUserSetColours(defaultBackColours);
+  }
 
     setSelectedPattern(getParamOrDefault('pattern', 'Single'));
     if (params.get('pattern') === 'Horizontal' || params.get('pattern') === 'Vertical') {
@@ -245,6 +271,7 @@ const App = () => {
     params.set('starRotation', starRotation);
     params.set('shapeConfiguration', shapeConfiguration);
     params.set('backColours', backColours.join(','));
+    params.set('crossSaltireSize', crossSaltireSize);
   
     params.set('pattern', selectedPattern);
     if (selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') {
@@ -337,7 +364,12 @@ const App = () => {
 
   const handleStripeCountChange = (value) => {
     setStripeCount(value);
-    setBackColours(userSetColours.slice(0, value));
+    const newColors = [...backColours];
+    while (newColors.length < value) {
+      newColors.push(defaultBackColours[newColors.length % defaultBackColours.length]);
+    }
+    setBackColours(newColors.slice(0, value));
+    setUserSetColours(newColors);
     updateURL();
   };
 
@@ -425,26 +457,7 @@ const App = () => {
 
   return (
     <div className={`App ${formatClass}`}>
-      <header className="App-header">
-        <h1>EU Flag Maker</h1>
-        <div className="header-buttons">
-          <div>
-            <button className="header-button" onClick={handleShare}>
-              <FontAwesomeIcon icon={faShareFromSquare} className="header-icon" />
-            </button>
-          </div>
-          <div>
-            <button className="header-button" onClick={handleRefresh}>
-              <FontAwesomeIcon icon={faArrowsRotate} className="header-icon" />
-            </button>
-          </div>
-          <div>
-            <a href="https://github.com/NathanPortelli/EU-Flag" className="github-icon" target="_blank" rel="noopener noreferrer">
-              <i className="fab fa-github"></i>
-            </a>
-          </div>
-        </div>
-      </header>
+      <Header handleShare={handleShare} handleRefresh={handleRefresh} />
       <main className="App-main">
         <div className="App-content">
           <div className="Stars-content">
@@ -469,6 +482,7 @@ const App = () => {
                 shapeConfiguration={shapeConfiguration}
                 overlays={overlays}
                 containerFormat={containerFormat}
+                crossSaltireSize={crossSaltireSize}
               />
             </div>
             <div className="custom-toggle-container">
@@ -533,8 +547,8 @@ const App = () => {
                       onChange={handleShapeConfigurationChange}
                       className="shape-dropdown"
                     >
-                      <option value="circle">EU</option>
-                      <option value="square">USA</option>
+                      <option value="circle">EU Format</option>
+                      <option value="square">USA Format</option>
                     </select>
                   </div>
                 </div>
@@ -543,8 +557,8 @@ const App = () => {
                   onChange={setStarCountAndURL}
                   min={0}
                   max={50}
-                  unit={starCount === 1 ? "star" : "stars"}
-                  label="Star Count"
+                  unit={starCount === 1 ? "shape" : "shapes"}
+                  label="Shape Count"
                 />
                 {shapeConfiguration === 'circle' && (
                   <>
@@ -563,6 +577,7 @@ const App = () => {
                       max={360}
                       unit="°"
                       label="Rotation Angle"
+                      icon={faRotate}
                     />
                   </>
                 )}
@@ -589,21 +604,13 @@ const App = () => {
                       />
                     </div>
                     <div className="Shape-colour">
-                      <div className="Colour-container" id="star-colour">
-                        <label
-                          htmlFor="starColourPicker"
-                          className="colour-label"
-                          style={{color: labelColors.star}}
-                        >
-                          Shape Colour
-                        </label>
-                        <input
-                          type="color"
-                          id="starColourPicker"
-                          value={starColour}
-                          onChange={(e) => handleStarColourChange(e.target.value)}
-                        />
-                      </div>
+                      <ColourPicker
+                        id="starColourPicker"
+                        label="Shape Colour"
+                        value={starColour}
+                        onChange={handleStarColourChange}
+                        labelColor={labelColors.star}
+                      />
                     </div>
                   </>
                 )}
@@ -634,8 +641,9 @@ const App = () => {
                           onChange={setOutlineWeightAndURL}
                           min={1}
                           max={15}
-                          unit="px (outline)"
+                          unit="px"
                           label="Outline Weight"
+                          icon={faBorderTopLeft}
                         />
                       </div>
                     )}
@@ -648,6 +656,7 @@ const App = () => {
                   max={150}
                   unit="px"
                   label="Star Size"
+                  icon={faMaximize}
                 />
                 <Slider
                   value={starRotation}
@@ -656,75 +665,116 @@ const App = () => {
                   max={360}
                   unit="°"
                   label="Star Rotation"
+                  icon={faRotate}
                 />
               </div>
             )}
             {activeSection === 'Overlays' && (
               <div className="toolbar-segment">
                 {overlays.length < MAX_OVERLAYS && (
-                  <div className="add-button-container">
-                    <button className="download-button" onClick={addOverlay}>
-                      <FontAwesomeIcon icon={faPlus} className="download-icon" />
-                      Add New
-                    </button>
+                  <div>
+                    <div className="add-button-container">
+                      <button className="download-button" onClick={addOverlay}>
+                        <FontAwesomeIcon icon={faPlus} className="download-icon" />
+                        Add New
+                      </button>
+                    </div>
+                    {overlays.length >= 2 && (
+                      <p className='image-disclaimer'>Drag/Move overlays up or down to change their stacking order.</p>
+                    )}
                   </div>
                 )}
                 {overlays.map((overlay, index) => (
-                  <div className='overlay-full-container'>
+                  <div 
+                    className={`overlay-full-container ${dragOverItem === index ? 'drag-over' : ''}`}
+                  >
                     <div className="overlay-handle">
-                      <div className="overlay-topcontent">
-                        <div className="overlay-arrows">
-                          <button 
-                            className="arrow-button"
-                            onClick={() => moveOverlay(index, 'up')}
-                            disabled={index === 0}
-                          >
-                            <i className="fas fa-arrow-up"></i>
-                          </button>
-                          <button 
-                            className="arrow-button"
-                            onClick={() => moveOverlay(index, 'down')}
-                            disabled={index === overlays.length - 1}
-                          >
-                            <i className="fas fa-arrow-down"></i>
-                          </button>
+                      <div 
+                        className="overlay-topcontent"
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragEnter={(e) => handleDragEnter(e, index)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => e.preventDefault()}
+                      >
+                        <div className="overlay-first-line">
+                          <div className="overlay-arrows">
+                            <button 
+                              className="arrow-button"
+                              onClick={() => moveOverlay(index, 'up')}
+                              disabled={index === 0}
+                            >
+                              <i className="fas fa-arrow-up"></i>
+                            </button>
+                            <button 
+                              className="arrow-button"
+                              onClick={() => moveOverlay(index, 'down')}
+                              disabled={index === overlays.length - 1}
+                            >
+                              <i className="fas fa-arrow-down"></i>
+                            </button>
+                          </div>
+                          <div className="overlay-sliders">
+                            <div className="overlay-content">
+                              <div className="Shape-container">
+                                <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
+                                <FilterableSelect
+                                  options={overlaySymbols}
+                                  value={overlay.shape} 
+                                  onChange={(value) => updateOverlayProperty(index, 'shape', value)}
+                                  placeholder="Select or type to filter..."
+                                />
+                              </div>
+                              <div className="overlay-container">
+                                <button className="remove-image" onClick={() => removeOverlay(index)}>
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="overlay-sliders">
-                          <div className="overlay-content">
-                            <div className="Shape-container">
-                              <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
-                              <FilterableSelect
-                                options={overlaySymbols}
-                                value={overlay.shape} 
-                                onChange={(value) => updateOverlayProperty(index, 'shape', value)}
-                                placeholder="Select or type to filter..."
-                              />
-                            </div>
-                            <div className="overlay-container">
-                              <button className="remove-image" onClick={() => removeOverlay(index)}>
-                                <i className="fas fa-trash"></i>
-                              </button>
-                            </div>
+                        <div className='overlay-color'>
+                          <div className="Colour-container">
+                            <label
+                              htmlFor={`overlayColorPicker-${index}`}
+                              className="colour-label"
+                              style={{color: getOppositeColour(overlay.color)}}
+                            >
+                              <FontAwesomeIcon 
+                                icon={faPaintRoller} 
+                                className="header-icon" 
+                                style={{ marginRight: '8px' }} 
+                              />  
+                              Overlay Colour
+                            </label>
+                            <input
+                              type="color"
+                              id={`overlayColorPicker-${index}`}
+                              value={overlay.color}
+                              onChange={(e) => updateOverlayProperty(index, 'color', e.target.value)}
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
                     <div className="overlay-sliders">
-                    <Slider
+                      <Slider
                         value={overlay.offsetY}
                         onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
                         min={-300}
                         max={300}
-                        unit="↕"
+                        // unit="↕"
                         label="Vertical Position"
+                        icon={faUpDown}
                       />
                       <Slider
                         value={overlay.offsetX}
                         onChange={(value) => updateOverlayProperty(index, 'offsetX', value)}
                         min={-300}
                         max={300}
-                        unit="↔"
+                        // unit="↔"
                         label="Horizontal Position"
+                        icon={faLeftRight}
                       />
                     </div>
                     <div className="overlay-sliders">
@@ -733,8 +783,9 @@ const App = () => {
                         onChange={(value) => updateOverlayProperty(index, 'size', value)}
                         min={10}
                         max={800}
-                        unit="%"
+                        // unit="%"
                         label="Size"
+                        icon={faMaximize}
                       />
                       <Slider
                         value={overlay.rotation}
@@ -743,24 +794,8 @@ const App = () => {
                         max={360}
                         unit="°"
                         label="Rotation"
+                        icon={faRotate}
                       />
-                    </div>
-                    <div className='overlay-color'>
-                      <div className="Colour-container">
-                        <label
-                          htmlFor={`overlayColorPicker-${index}`}
-                          className="colour-label"
-                          style={{color: getOppositeColour(overlay.color)}}
-                        >
-                          Overlay Colour
-                        </label>
-                        <input
-                          type="color"
-                          id={`overlayColorPicker-${index}`}
-                          value={overlay.color}
-                          onChange={(e) => updateOverlayProperty(index, 'color', e.target.value)}
-                        />
-                      </div>
                     </div>
                   </div>
                 ))}
@@ -799,6 +834,17 @@ const App = () => {
                         ))}
                       </select>
                     </div>
+                    {(selectedPattern === 'Cross' || selectedPattern === 'Saltire') && (
+                      <Slider
+                        value={crossSaltireSize}
+                        onChange={(value) => setCrossSaltireSize(value)}
+                        min={1}
+                        max={60}
+                        // unit="%"
+                        label={`${selectedPattern} Size`}
+                        icon={faMaximize}
+                      />
+                    )}
                     {(selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') ? (
                       <Slider
                         value={stripeCount}
@@ -836,6 +882,11 @@ const App = () => {
                             className="colour-label"
                             style={{color: labelColors['back-0']}}
                           >
+                          <FontAwesomeIcon 
+                            icon={faPaintRoller} 
+                            className="header-icon" 
+                            style={{ marginRight: '8px' }} 
+                          />
                             Background Colour
                           </label>
                           <input
@@ -850,39 +901,25 @@ const App = () => {
                       <div className="colour-grid">
                         {(selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') ? (
                           Array.from({ length: stripeCount }, (_, index) => (
-                            <div className="Colour-container" key={index}>
-                              <label
-                                htmlFor={`backColourPicker-${index}`}
-                                className="colour-label"
-                                style={{color: labelColors[`back-${index}`]}}
-                              >
-                                Stripe Colour {index + 1}
-                              </label>
-                              <input
-                                type="color"
-                                id={`backColourPicker-${index}`}
-                                value={backColours[index] || '#ffffff'}
-                                onChange={(e) => handleBackColourChange(e.target.value, index)}
-                              />
-                            </div>
+                            <ColourPicker
+                              key={index}
+                              id={`backColourPicker-${index}`}
+                              label={`Stripe Colour ${index + 1}`}
+                              value={backColours[index] || defaultBackColours[index % defaultBackColours.length]}
+                              onChange={(e) => handleBackColourChange(e, index)}
+                              labelColor={labelColors[`back-${index}`]}
+                            />
                           ))
                         ) : (
                           backColours.map((colour, index) => (
-                            <div className="Colour-container" key={index}>
-                              <label
-                                htmlFor={`backColourPicker-${index}`}
-                                className="colour-label"
-                                style={{color: labelColors[`back-${index}`]}}
-                              >
-                                Background Colour {index + 1}
-                              </label>
-                              <input
-                                type="color"
-                                id={`backColourPicker-${index}`}
-                                value={colour}
-                                onChange={(e) => handleBackColourChange(e.target.value, index)}
-                              />
-                            </div>
+                            <ColourPicker
+                              key={index}
+                              id={`backColourPicker-${index}`}
+                              label={`Background Colour ${index + 1}`}
+                              value={colour}
+                              onChange={(value) => handleBackColourChange(value, index)}
+                              labelColor={labelColors[`back-${index}`]}
+                            />
                           ))
                         )}
                       </div>
@@ -900,6 +937,8 @@ const App = () => {
               customImage={customImage}
               overlays={overlays}
               stripeCount={stripeCount}
+              crossSaltireSize={crossSaltireSize}
+              containerFormat={containerFormat}
             />
           </div>
         </div>

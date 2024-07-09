@@ -6,7 +6,7 @@ import { faDownload, faFileExport } from '@fortawesome/free-solid-svg-icons';
 import './styles/DownloadButton.css';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount }) => {
+const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   const sortOverlays = (overlays) => {
@@ -16,7 +16,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
   function drawCross(ctx, x, y, width, height, strokeWidth) {
     ctx.save();
     ctx.strokeStyle = backColours[0];
-    ctx.lineWidth = strokeWidth;
+    ctx.lineWidth = strokeWidth * (crossSaltireSize / 11);
     ctx.beginPath();
     
     // Horizontal line
@@ -38,6 +38,9 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     const angle = Math.atan2(height, width);
     const length = Math.sqrt(width * width + height * height);
   
+    ctx.lineWidth = strokeWidth * (crossSaltireSize / 11);
+    ctx.strokeStyle = backColours[0];
+  
     ctx.rotate(angle);
     ctx.moveTo(-length / 2, 0);
     ctx.lineTo(length / 2, 0);
@@ -48,8 +51,8 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     ctx.lineTo(length / 2, 0);
     ctx.stroke();
     ctx.restore();
-  }  
-
+  }
+  
   const handleSvgDownload = () => {
     const starsContainer = document.getElementById('stars-container');
     const starsOnlyContainer = document.getElementById('stars-only-container') || document.getElementById('stars-container');
@@ -68,9 +71,15 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
   
     // Contain the stars
     const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
-    foreignObject.setAttribute("width", "66.67%");
-    foreignObject.setAttribute("height", "100%");
-    foreignObject.setAttribute("x", "16.665%");
+    if (containerFormat === 'circle') {
+      foreignObject.setAttribute("width", "66.67%");
+      foreignObject.setAttribute("height", "100%");
+      foreignObject.setAttribute("x", "16.665%");
+    } else {
+      foreignObject.setAttribute("width", "100%");
+      foreignObject.setAttribute("height", "100%");
+      foreignObject.setAttribute("x", "0");
+    }
 
     const starsClone = starsOnlyContainer.cloneNode(true);
 
@@ -181,7 +190,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     createSolidBackground(svg, backColours[1]);
     
     // Cross
-    const crossWidth = 600 * 0.109;
+    const crossWidth = 600 * (crossSaltireSize / 100);
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", `M0,200 H600 M300,0 V400`);
     path.setAttribute("stroke", backColours[0]);
@@ -194,7 +203,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     createSolidBackground(svg, backColours[1]);
     
     // Saltire
-    const saltireWidth = 600 * 0.1;
+    const saltireWidth = 600 * (crossSaltireSize / 100);
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", `M0,0 L600,400 M0,400 L600,0`);
     path.setAttribute("stroke", backColours[0]);

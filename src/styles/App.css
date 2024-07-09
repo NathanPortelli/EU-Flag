@@ -9,9 +9,7 @@
   padding: 0;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   height: 100%;
 }
 
@@ -134,7 +132,7 @@ input[type="range"] {
 }
 
 .new-format .Stars-content {
-  margin-top: 75px;
+  margin-top: 30px;
   flex: 1;
   display: flex;
   justify-content: center;
@@ -143,7 +141,7 @@ input[type="range"] {
 }
 
 .new-format .Slider-content {
-  margin-top: 7%;
+  margin-top: 30px;
   flex: 1;
   margin-bottom: 20px;
   display: flex;
@@ -218,14 +216,14 @@ input[type="range"] {
 }
 
 .new-format .colour-grid { 
-  width: 80%;
+  width: 90%;
 }
 
 .new-format .colour-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  width: 80%;
+  width: 90%;
 }
 
 .single-colour-container {
@@ -242,7 +240,7 @@ input[type="range"] {
   justify-content: center;
   margin-bottom: 20px;
   position: relative;
-  width: 220px;
+  width: 250px;
   height: 50px;
   border: 2px solid #FFDD00;
   border-radius: 30px;
@@ -356,11 +354,14 @@ input[type='color']::-webkit-color-swatch {
 
 .shape-label {
   position: absolute;
+  border-left: 2px solid #FFDD00;
+  border-right: 2px solid #FFDD00;
   top: -10px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #003399;
   padding: 0 10px;
+  border-radius: 20px;
   color: #FFDD00;
   font-weight: bold;
   z-index: 1;
@@ -581,11 +582,12 @@ input[type='color']::-webkit-color-swatch {
 }
 
 .overlay-full-container {
+  background-color: #002080;
   border: 3px solid #FFDD00;
   border-radius: 10px;
   margin-top: 20px;
   margin-bottom: 20px;
-  padding: 20px;
+  padding: 0 20px 20px;
 }
 
 .overlay-container button {
@@ -610,6 +612,14 @@ input[type='color']::-webkit-color-swatch {
 }
 
 .overlay-topcontent {
+  cursor: move;
+}
+
+.overlay-full-container.drag-over {
+  border: 2px dashed #FFDD00;
+}
+
+.overlay-first-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -629,7 +639,6 @@ input[type='color']::-webkit-color-swatch {
 }
 
 .overlay-color {
-  padding: 0 15px 15px;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Slider.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const Slider = ({ value, onChange, min, max, label, unit }) => {
+const Slider = ({ value, onChange, min, max, label, unit, icon }) => {
   const [inputValue, setInputValue] = useState(value);
+
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const handleInputChange = (e) => {
     const newValue = parseInt(e.target.value, 10);
@@ -44,6 +49,7 @@ const Slider = ({ value, onChange, min, max, label, unit }) => {
         />
       </div>
       <div className="slider-container">
+        {icon && <FontAwesomeIcon icon={icon} className="slider-icon" />}
         <input
           type="number"
           value={inputValue}
