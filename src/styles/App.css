@@ -302,12 +302,11 @@ input[type='color']::-webkit-color-swatch {
 .App-nav {
   display: flex;
   justify-content: center;
-  background-color: #003399;
+  background-color: #002080;
   padding: 0;
   display: flex;
   width: 100%;
   height: 60px;
-  background-color: #003399;
   border-radius: 10px;
   border: 1px solid #FFDD00;
   overflow: hidden;
@@ -772,4 +771,35 @@ input[type='color']::-webkit-color-swatch {
 
 .filterable-select-input::placeholder {
   color: #FFDD00;
+}
+
+/* Randomiser */
+
+.random-button {
+  background: linear-gradient(in hsl longer hue 45deg, blue 0 0);
+  color: #003399;
+  border: none;
+  padding: 10px 20px;
+  font-size: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+  border-radius: 100px;
+  margin-bottom: 20px;
+  width: 250px;
+}
+
+.random-button:hover {
+  text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #FFDD00, 0 0 25px #FFDD00, 0 0 30px #FFDD00, 0 0 35px #FFDD00;
+}
+
+.random-icon {
+  margin-right: 10px;
+}
+
+.random-button:hover .random-icon {
+  filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #fff) drop-shadow(0 0 15px #FFDD00);
 }

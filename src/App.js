@@ -4,8 +4,9 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faArrowsRotate, faBorderTopLeft, faShareFromSquare, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
+import { faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
+import { random } from 'lodash';
 
 import { shapePaths, shapeOptions, patternOptions, amountOptions, patternIcons, amountIcons } from './components/ItemLists';
 import Header from './components/Header';
@@ -21,7 +22,7 @@ import ColourPicker from './components/ColourPicker';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
-  const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000', '#ff5733', '#33ff57', '#5733ff', '#f0f033', '#33f0f0', '#f033f0', '#ff33aa', '#33aaff', '#aa33ff', '#ff3380', '#33ffaa', '#ffaa33'];
+  const defaultBackColours = ['#003399', '#ffffff', '#000000', '#008000', '#ff5733', '#33ff57', '#5733ff', '#f0f033', '#33f0f0', '#f033f0', '#ff7100', '#33aaff', '#aa33ff', '#033308', '#33ffaa', '#ffaa33'];
   const [userSetColours, setUserSetColours] = useState([...defaultBackColours]);
   const MAX_OVERLAYS = 15;
 
@@ -110,6 +111,48 @@ const App = () => {
       newOverlays[index][property] = value;
       return newOverlays;
     });
+  };
+
+  const randomizeAll = () => {
+    const randomPattern = patternOptions[Math.floor(Math.random() * patternOptions.length)];
+    const randomShape = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
+    const randomAmount = amountOptions[randomPattern] ? amountOptions[randomPattern][Math.floor(Math.random() * amountOptions[randomPattern].length)] : '';
+  
+    setStarCountAndURL(random(1, 50));
+    setCircleCountAndURL(random(1, 3));
+    setStarSizeAndURL(random(10, 150));
+    setStarColourAndURL(`#${Math.floor(Math.random()*16777215).toString(16)}`);
+    setRotationAngleAndURL(random(0, 360));
+    setSelectedShapeAndURL(randomShape);
+    setSelectedPatternAndURL(randomPattern);
+    setSelectedAmountAndURL(randomAmount);
+    setPointAwayAndURL(Math.random() < 0.5);
+    setOutlineOnlyAndURL(Math.random() < 0.5);
+    setOutlineWeightAndURL(random(1, 15));
+    setStarRotationAndURL(random(0, 360));
+    setShapeConfigurationAndURL(Math.random() < 0.5 ? 'circle' : 'square');
+    setCrossSaltireSize(random(1, 60));
+  
+    const newBackColours = Array(16).fill().map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`);
+    setBackColours(newBackColours);
+    setUserSetColours(newBackColours);
+  
+    if (randomPattern === 'Horizontal' || randomPattern === 'Vertical') {
+      setStripeCount(random(2, 16));
+    }
+  
+    // Randomize overlays
+    const newOverlays = Array(random(0, MAX_OVERLAYS)).fill().map(() => ({
+      shape: overlaySymbols[Math.floor(Math.random() * overlaySymbols.length)].value,
+      size: random(10, 800),
+      offsetX: random(-300, 300),
+      offsetY: random(-300, 300),
+      rotation: random(0, 360),
+      color: `#${Math.floor(Math.random()*16777215).toString(16)}`
+    }));
+    setOverlays(newOverlays);
+  
+    updateURL();
   };
 
   const getRelevantColors = () => {
@@ -507,6 +550,10 @@ const App = () => {
                   ))}
                 </select>
               </div>
+              <button onClick={randomizeAll} className="random-button">
+                <FontAwesomeIcon icon={faShuffle} className="random-icon" />
+                Randomise All
+              </button>
             </div>
           </div>
           <div className="Slider-content">
