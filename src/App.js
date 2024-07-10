@@ -19,6 +19,7 @@ import { CustomToggle } from './components/CustomToggle';
 import { CountryList } from './components/CountryURLList';
 import FilterableSelect from './components/FilterableSelect';
 import ColourPicker from './components/ColourPicker';
+import Tooltip from './components/Tooltip';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
@@ -52,6 +53,7 @@ const App = () => {
   const [crossSaltireSize, setCrossSaltireSize] = useState(11);
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverItem, setDragOverItem] = useState(null);
+  const [gridRotation, setGridRotation] = useState(0);
 
   const handleDragStart = (e, index) => {
     setDraggedItem(index);
@@ -132,6 +134,7 @@ const App = () => {
     setStarRotationAndURL(random(0, 360));
     setShapeConfigurationAndURL(Math.random() < 0.5 ? 'circle' : 'square');
     setCrossSaltireSize(random(1, 60));
+    setGridRotationAndURL(random(0, 360));
   
     const newBackColours = Array(16).fill().map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`);
     setBackColours(newBackColours);
@@ -233,7 +236,7 @@ const App = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const formatClass = containerFormat === 'flag' || isSmallScreen ? 'old-format' : 'new-format';
+  const formatClass = isSmallScreen ? 'old-format' : 'new-format';
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -258,6 +261,7 @@ const App = () => {
     setOutlineWeight(getParamOrDefault('outlineWeight', 2, parseInt));
     setStarRotation(getParamOrDefault('starRotation', 0, parseInt));
     setShapeConfiguration(getParamOrDefault('shapeConfiguration', 'circle'));
+    setGridRotation(getParamOrDefault('gridRotation', 0, parseInt));
 
     // Handle background colours
     const urlBackColors = params.get('backColours');
@@ -315,7 +319,8 @@ const App = () => {
     params.set('shapeConfiguration', shapeConfiguration);
     params.set('backColours', backColours.join(','));
     params.set('crossSaltireSize', crossSaltireSize);
-  
+    params.set('gridRotation', gridRotation);
+    
     params.set('pattern', selectedPattern);
     if (selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') {
       params.set('stripeCount', stripeCount);
@@ -369,6 +374,7 @@ const App = () => {
   const setOutlineWeightAndURL = setStateAndUpdateURL(setOutlineWeight);
   const setStarRotationAndURL = setStateAndUpdateURL(setStarRotation);
   const setShapeConfigurationAndURL = setStateAndUpdateURL(setShapeConfiguration);
+  const setGridRotationAndURL = setStateAndUpdateURL(setGridRotation);
 
   const handleBackColourChange = (colour, index) => {
     const newColours = [...backColours];
@@ -526,6 +532,7 @@ const App = () => {
                 overlays={overlays}
                 containerFormat={containerFormat}
                 crossSaltireSize={crossSaltireSize}
+                gridRotation={gridRotation}
               />
             </div>
             <div className="custom-toggle-container">
@@ -586,18 +593,21 @@ const App = () => {
             {activeSection === 'Format' && (
               <div className="toolbar-segment">
                 <div className="Shape-selector">
-                  <div className="Shape-container">
-                    <label htmlFor="configurationSelector" className="shape-label">Configuration</label>
-                    <select 
-                      id="configurationSelector" 
-                      value={shapeConfiguration} 
-                      onChange={handleShapeConfigurationChange}
-                      className="shape-dropdown"
-                    >
-                      <option value="circle">EU Format</option>
-                      <option value="square">USA Format</option>
-                    </select>
-                  </div>
+                  <Tooltip text="'EU' arranges the shapes in a circle, while 'USA' displays them in a rectangular grid.">
+                    <div className="Shape-container">
+                      <label htmlFor="configurationSelector" className="shape-label">Configuration</label>
+                      <select 
+                        id="configurationSelector" 
+                        value={shapeConfiguration} 
+                        onChange={handleShapeConfigurationChange}
+                        className="shape-dropdown"
+                      >
+                        <option value="circle">EU Format</option>
+                        <option value="square">USA Format</option>
+                      </select>
+                   
+                    </div>
+                  </Tooltip>
                 </div>
                 <Slider
                   value={starCount}
@@ -628,6 +638,17 @@ const App = () => {
                     />
                   </>
                 )}
+                {shapeConfiguration === 'square' && (
+                  <Slider
+                    value={gridRotation}
+                    onChange={setGridRotationAndURL}
+                    min={0}
+                    max={360}
+                    unit="°"
+                    label="Grid Rotation"
+                    icon={faRotate}
+                  />
+                )}
               </div>
             )}
             {activeSection === 'Shape' && (
@@ -642,13 +663,15 @@ const App = () => {
                   <>
                     <Divider text="or" />
                     <div className="Shape-selector">
-                      <CustomShapeDropdown
-                        options={shapeOptions}
-                        value={selectedShape}
-                        onChange={setSelectedShapeAndURL}
-                        shapePaths={shapePaths}
-                        title={"Shape"}
-                      />
+                      <Tooltip text="Select a shape for the field on your flag.">
+                        <CustomShapeDropdown
+                          options={shapeOptions}
+                          value={selectedShape}
+                          onChange={setSelectedShapeAndURL}
+                          shapePaths={shapePaths}
+                          title={"Shape"}
+                        />
+                      </Tooltip>
                     </div>
                     <div className="Shape-colour">
                       <ColourPicker
@@ -663,23 +686,26 @@ const App = () => {
                 )}
                 {shapeConfiguration === 'circle' && (
                   <div className="custom-toggle-container">
-                    <CustomToggle 
-                      option1="Pointing Up"
-                      option2="Pointing Outward"
-                      isActive={pointAway}
-                      onChange={() => setPointAwayAndURL(!pointAway)}
-                    />
+                    <Tooltip text="Shape orientation; 'Up' aligns shapes vertically, 'Outward' orients shapes radially from the center.">                      <CustomToggle 
+                        option1="Pointing Up"
+                        option2="Pointing Outward"
+                        isActive={pointAway}
+                        onChange={() => setPointAwayAndURL(!pointAway)}
+                      />
+                    </Tooltip>
                   </div>
                 )}
                 {!customImage && (
                   <>
                     <div className="custom-toggle-container">
-                      <CustomToggle 
-                        option1="Filled"
-                        option2="Outline Only"
-                        isActive={outlineOnly}
-                        onChange={() => setOutlineOnlyAndURL(!outlineOnly)}
-                      />
+                      <Tooltip text="'Filled' shows solid shapes, while 'Outline' displays just the shape's border.">
+                        <CustomToggle 
+                          option1="Filled"
+                          option2="Outline Only"
+                          isActive={outlineOnly}
+                          onChange={() => setOutlineOnlyAndURL(!outlineOnly)}
+                        />
+                      </Tooltip>
                     </div>
                     {outlineOnly && (
                       <div className="outline-weight">
@@ -720,12 +746,14 @@ const App = () => {
               <div className="toolbar-segment">
                 {overlays.length < MAX_OVERLAYS && (
                   <div>
-                    <div className="add-button-container">
-                      <button className="download-button" onClick={addOverlay}>
-                        <FontAwesomeIcon icon={faPlus} className="download-icon" />
-                        Add New
-                      </button>
-                    </div>
+                    <Tooltip text="Add a new design element to the flag.">
+                      <div className="add-button-container">
+                        <button className="download-button" onClick={addOverlay}>
+                          <FontAwesomeIcon icon={faPlus} className="download-icon" />
+                          Add New
+                        </button>
+                      </div>
+                    </Tooltip>
                     {overlays.length >= 2 && (
                       <p className='image-disclaimer'>Drag/Move overlays up or down to change their stacking order.</p>
                     )}
@@ -850,37 +878,38 @@ const App = () => {
             )}
             {activeSection === 'Background' && (
               <div className="toolbar-segment">
-                <div className='background-image'>
-                  <ImageUpload
-                    onImageUpload={handleBackgroundImageUpload}
-                    onImageRemove={() => setBackgroundImage(null)}
-                    hasImage={!!backgroundImage}
-                    label="Upload Background Image"
-                  />
-                  <p className='image-disclaimer'>Images cannot be shared via link.</p>
-                  {!backgroundImage && (
-                    <span className="tooltiptext">2:3 Aspect Ratio optimal for downloading</span>
-                  )}
+                <Tooltip text="2:3 Aspect Ratio optimal for downloading">
+                  <div className='background-image'>
+                    <ImageUpload
+                      onImageUpload={handleBackgroundImageUpload}
+                      onImageRemove={() => setBackgroundImage(null)}
+                      hasImage={!!backgroundImage}
+                      label="Upload Background Image"
+                    />
+                    <p className='image-disclaimer'>Images cannot be shared via link.</p>
                   </div>
+                </Tooltip>
                 {!backgroundImage && (
                   <>
                   <Divider text="or" />
                   <div className="Shape-selector">
-                    <div className="Shape-container">
-                      <label htmlFor="patternSelector" className="shape-label">Pattern</label>
-                      <select 
-                        id="patternSelector" 
-                        value={selectedPattern} 
-                        onChange={handlePatternChange} 
-                        className="shape-dropdown"
-                      >
-                        {patternOptions.map((pattern) => (
-                          <option key={pattern} value={pattern} className="optionWithSpacing">
-                            {patternIcons[pattern]} {' '} {pattern}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <Tooltip text="Select the background pattern of your flag design.">
+                      <div className="Shape-container">
+                        <label htmlFor="patternSelector" className="shape-label">Pattern</label>
+                        <select 
+                          id="patternSelector" 
+                          value={selectedPattern} 
+                          onChange={handlePatternChange} 
+                          className="shape-dropdown"
+                        >
+                          {patternOptions.map((pattern) => (
+                            <option key={pattern} value={pattern} className="optionWithSpacing">
+                              {patternIcons[pattern]} {' '} {pattern}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </Tooltip>
                     {(selectedPattern === 'Cross' || selectedPattern === 'Saltire') && (
                       <Slider
                         value={crossSaltireSize}
@@ -903,21 +932,23 @@ const App = () => {
                       />
                     ) : (
                       selectedPattern !== 'Single' && selectedPattern !== 'Quadrants' && selectedPattern !== 'Saltire' && selectedPattern !== 'Cross' && (
-                        <div className="Shape-container">
-                          <label htmlFor="amountSelector" className="shape-label">Amount</label>
-                          <select 
-                            id="amountSelector" 
-                            value={selectedAmount} 
-                            onChange={handleAmountChange} 
-                            className="shape-dropdown"
-                          >
-                            {amountOptions[selectedPattern] && amountOptions[selectedPattern].map((amount) => (
-                              <option key={amount} value={amount} className="optionWithSpacing">
-                                {amountIcons[amount]} {' '} {amount}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                        <Tooltip text="Select the particular style of your pattern.">
+                          <div className="Shape-container">
+                            <label htmlFor="amountSelector" className="shape-label">Format</label>
+                            <select 
+                              id="amountSelector" 
+                              value={selectedAmount} 
+                              onChange={handleAmountChange} 
+                              className="shape-dropdown"
+                            >
+                              {amountOptions[selectedPattern] && amountOptions[selectedPattern].map((amount) => (
+                                <option key={amount} value={amount} className="optionWithSpacing">
+                                  {amountIcons[amount]} {' '} {amount}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </Tooltip>
                       )
                     )}
                     <p className="colours-header">Colours</p>
@@ -986,6 +1017,7 @@ const App = () => {
               stripeCount={stripeCount}
               crossSaltireSize={crossSaltireSize}
               containerFormat={containerFormat}
+              gridRotation={gridRotation}
             />
           </div>
         </div>

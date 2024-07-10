@@ -31,6 +31,7 @@ body {
 
 .App-header {
   background-color: #002080;
+  border-bottom: 3px solid #FFDD00;
   padding: 20px;
   text-align: center;
   display: flex;
@@ -56,7 +57,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 100%;
+  width: 100%;
+  max-width: 100vw;
   overflow: hidden;
 }
 
@@ -64,7 +66,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 0 5px 20px 5px;
 }
 
 .toolbar-segment {
@@ -107,20 +109,16 @@ input[type="range"] {
 
 /* New Format */
 
+.new-format .App-main {
+  padding-top: 100px;
+  padding-bottom: 80px;
+}
+
 .new-format h1 {
   margin: 0;
   color: #FFDD00;
   font: 1.4em 'Montserrat', sans-serif;
   font-weight: bold;
-}
-
-.new-format .App-header {
-  background-color: #002080;
-  padding: 20px 10%;
-  text-align: center;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .new-format .App-content {
@@ -138,6 +136,12 @@ input[type="range"] {
   justify-content: center;
   max-width: 100%;
   overflow: hidden;
+  position: fixed;
+  left: 0;
+  top: 100px;
+  width: 50%;
+  height: calc(100vh - 180px);
+  overflow-y: auto;
 }
 
 .new-format .Slider-content {
@@ -147,6 +151,38 @@ input[type="range"] {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-left: 50%;
+  width: 50%;
+}
+
+.new-format .App-header {
+  background-color: #002080;
+  padding: 10px 10%;
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.new-format .App-footer {
+  flex-shrink: 0;
+  background-color: #002080;
+  padding: 10px 0;
+  color: #FFDD00;
+  font: 1em 'Montserrat', sans-serif;
+  border-top: 3px solid #FFDD00;
+  text-align: center;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 /* Toggle Container */
@@ -453,7 +489,7 @@ input[type='color']::-webkit-color-swatch {
 
 .image-disclaimer {
   margin-top: 15px;
-  font-style: italic;
+  font: italic 15px 'Montserrat', sans-serif;
 }
 
 .image-upload-container {
@@ -488,40 +524,6 @@ input[type='color']::-webkit-color-swatch {
   position: relative;
   display: inline-block;
   cursor: pointer;
-}
-
-.background-image .tooltiptext {
-  visibility: hidden;
-  width: 200px;
-  background-color: #d6bb02;
-  color: #003399;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
-  position: absolute;
-  z-index: 1;
-  bottom: 100%;
-  left: 50%;
-  margin-left: -100px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.background-image .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #d6bb02 transparent transparent transparent;
-}
-
-.background-image:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
 }
 
 /* Divider */
@@ -606,22 +608,25 @@ input[type='color']::-webkit-color-swatch {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
 }
 
 .overlay-topcontent {
   cursor: move;
+  width: 100%;
 }
 
 .overlay-full-container.drag-over {
   border: 2px dashed #FFDD00;
 }
 
-.overlay-first-line {
+.new-format .overlay-first-line {
   display: flex;
-  justify-content: space-between;
+  justify-content:center;
   align-items: center;
+}
+
+.overlay-first-line {
+  display: block;
 }
 
 .overlay-content {
@@ -643,11 +648,22 @@ input[type='color']::-webkit-color-swatch {
   align-items: center;
 }
 
-.overlay-arrows {
+.new-format .overlay-arrows {
   display: flex;
   justify-content: space-between;
   width: 70px;
   margin-right: 10px;
+}
+
+.overlay-arrows {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-right: 10px;
+}
+
+.new-format .arrow-button {
+  padding: 5px;
 }
 
 .arrow-button {
@@ -656,7 +672,7 @@ input[type='color']::-webkit-color-swatch {
   color: #FFDD00;
   font-size: 1.2em;
   cursor: pointer;
-  padding: 5px;
+  padding: 20px 10px 5px;
 }
 
 .arrow-button:disabled {
@@ -678,9 +694,9 @@ input[type='color']::-webkit-color-swatch {
 .App-footer {
   flex-shrink: 0;
   background-color: #002080;
-  padding: 20px 0;
+  padding: 10px 0;
   color: #FFDD00;
-  font-size: 1em;
+  font: 1em 'Montserrat', sans-serif;
   border-top: 3px solid #FFDD00;
   text-align: center;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);

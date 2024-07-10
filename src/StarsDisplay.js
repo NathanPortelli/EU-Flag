@@ -3,7 +3,7 @@ import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation }) => {
    
   const renderOverlays = () => {
     return overlays.map((overlay, index) => {
@@ -153,6 +153,22 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
       }
     }
 
+    if (shapeConfiguration === 'square') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            transform: `rotate(${gridRotation}deg)`,
+            transformOrigin: 'center',
+          }}
+        >
+          {shapes}
+        </div>
+      );
+    }
+
     return shapes;
   };
   
@@ -269,38 +285,65 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
 
   if (count === 1) {
     return (
-      <div id="stars-container" className="stars-container" style={generateBackgroundStyle()}>
-        <svg
-          className="shape"
-          viewBox="0 0 100 100"
+      <div 
+        id="stars-container" 
+        className={`stars-container ${containerFormat === 'flag' ? 'flag' : ''}`}
+        style={{
+          ...generateBackgroundStyle(),
+          ...(containerFormat === 'flag' ? {
+            borderRadius: '0',
+          } : {
+            borderRadius: '100%',
+          })
+        }}
+        data-has-background-image={!!backgroundImage}
+      >
+        <div 
+          id="stars-only-container" 
+          className="stars-only-container"
           style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: `translate(-50%, -50%) rotate(${starRotation}deg)`,
-            width: `${size}px`,
-            height: `${size}px`,
-            overflow: 'visible',
+            ...(containerFormat === 'flag' ? {
+              position: 'absolute',
+              top: '0',
+              left: '0',
+              right: '0',
+              bottom: '0',
+            } : {})
           }}
         >
-          {customImage ? (
-            <image
-              href={customImage}
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMid meet"
-            />
-          ) : (
-            <path
-              d={shapePaths[shape]}
-              fill={outlineOnly ? 'none' : starColour}
-              stroke={starColour}
-              strokeWidth={outlineOnly ? outlineWeight : '0'}
-            />
-          )}
-        </svg>
+          <svg
+            className="shape"
+            viewBox="0 0 100 100"
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: `translate(-50%, -50%) rotate(${starRotation}deg)`,
+              width: `${size}px`,
+              height: `${size}px`,
+              overflow: 'visible',
+            }}
+          >
+            {customImage ? (
+              <image
+                href={customImage}
+                x="0"
+                y="0"
+                width="100"
+                height="100"
+                preserveAspectRatio="xMidYMid meet"
+              />
+            ) : (
+              <path
+                d={shapePaths[shape]}
+                fill={outlineOnly ? 'none' : starColour}
+                stroke={starColour}
+                strokeWidth={outlineOnly ? outlineWeight : '0'}
+              />
+            )}
+          </svg>
+        </div>
+        {renderOverlays()}
       </div>
     );
   }

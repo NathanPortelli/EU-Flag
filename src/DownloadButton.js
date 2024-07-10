@@ -6,7 +6,7 @@ import { faDownload, faFileExport } from '@fortawesome/free-solid-svg-icons';
 import './styles/DownloadButton.css';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat }) => {
+const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   const sortOverlays = (overlays) => {
@@ -79,6 +79,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       foreignObject.setAttribute("width", "100%");
       foreignObject.setAttribute("height", "100%");
       foreignObject.setAttribute("x", "0");
+      foreignObject.setAttribute("transform", `rotate(${gridRotation} 300 200)`);
     }
 
     const starsClone = starsOnlyContainer.cloneNode(true);
@@ -416,7 +417,6 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     }
 
     function drawStars() {
-      // Converting stars-only container to image and draw on canvas
       htmlToImage.toPng(starsContainer)
       .then(function (starsDataUrl) {
         const starsImg = new Image();
@@ -424,7 +424,20 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           const offsetX = (canvasWidth - starsWidth) / 2;
           const offsetY = (canvasHeight - starsHeight) / 2;
     
+          // Apply rotation if 'square'
+          if (containerFormat === 'square') {
+            ctx.save();
+            ctx.translate(canvasWidth / 2, canvasHeight / 2);
+            ctx.rotate(gridRotation * Math.PI / 180);
+            ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
+          }
+    
           ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
+    
+          // Restore canvas state if rotation was applied
+          if (containerFormat === 'square') {
+            ctx.restore();
+          }
     
           // Draw overlays
           const sortedOverlays = sortOverlays(overlays);
