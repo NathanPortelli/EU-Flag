@@ -1,5 +1,6 @@
 export const overlaySymbols = [
     { value: 'circle', label: '⬤', unicode: '⬤', displayName: 'Circle' },
+    { value: 'rightHalfBlackCircle', label: '◗', unicode: '◗', displayName: 'Filled Half Circle' },
     { value: 'blackSunWithRays', label: '☀', unicode: '☀', displayName: 'Sun' },
     { value: 'cloud', label: '☁', unicode: '☁', displayName: 'Cloud' },
     { value: 'umbrella', label: '☂', unicode: '☂', displayName: 'Umbrella' },
@@ -99,6 +100,7 @@ export const overlaySymbols = [
     { value: 'heavyGreekCross', label: '✚', unicode: '✚', displayName: 'Heavy Greek Cross' },
     { value: 'openCentreCross', label: '✛', unicode: '✛', displayName: 'Open Centre Cross' },
     { value: 'heavyOpenCentreCross', label: '✜', unicode: '✜', displayName: 'Heavy Open Centre Cross' },
+    { value: 'latinCross', label: '✝', unicode: '✝', displayName: 'Latin Cross' },
     { value: 'shadowedWhiteLatinCross', label: '✞', unicode: '✞', displayName: 'Shadowed Latin Cross' },
     { value: 'outlinedLatinCross', label: '✟', unicode: '✟', displayName: 'Outlined Latin Cross' },
     { value: 'starAndCrescent', label: '☪', unicode: '☪', displayName: 'Star and Crescent' },

@@ -836,8 +836,8 @@ const App = () => {
                       <Slider
                         value={overlay.offsetY}
                         onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
-                        min={-300}
-                        max={300}
+                        min={-350}
+                        max={350}
                         // unit="↕"
                         label="Vertical Position"
                         icon={faUpDown}
@@ -845,8 +845,8 @@ const App = () => {
                       <Slider
                         value={overlay.offsetX}
                         onChange={(value) => updateOverlayProperty(index, 'offsetX', value)}
-                        min={-300}
-                        max={300}
+                        min={-350}
+                        max={350}
                         // unit="↔"
                         label="Horizontal Position"
                         icon={faLeftRight}
@@ -857,7 +857,7 @@ const App = () => {
                         value={overlay.size}
                         onChange={(value) => updateOverlayProperty(index, 'size', value)}
                         min={10}
-                        max={800}
+                        max={999}
                         // unit="%"
                         label="Size"
                         icon={faMaximize}
