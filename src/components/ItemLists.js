@@ -40,6 +40,7 @@ export const patternOptions = [
   'Single', 
   'Horizontal', 
   'Vertical', 
+  'Checkered',
   'Bends', 
   'Quadrants', 
   'Cross', 
@@ -50,6 +51,7 @@ export const patternIcons = {
   'Single': '☐',
   'Vertical': '║',
   'Horizontal': '═',
+  'Checkered': '▦',
   'Bends': '⫽',
   'Quadrants': '✚',
   'Cross': '╬',
@@ -59,6 +61,7 @@ export const patternIcons = {
 export const amountOptions = {
   'Horizontal': [],
   'Vertical': [],
+  'Checkered': [],
   'Bends': ['Forwards', 'Backwards', 'Both Ways'],
   'Quadrants': [],
   'Saltire': [],

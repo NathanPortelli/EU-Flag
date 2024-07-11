@@ -136,6 +136,7 @@ export const overlaySymbols = [
     { value: 'saturn', label: '♄', unicode: '♄', displayName: 'Saturn' },
     { value: 'uranus', label: '♅', unicode: '♅', displayName: 'Uranus' },
     { value: 'neptune', label: '♆', unicode: '♆', displayName: 'Neptune' },
+    { value: 'fleurDeLis', label: '⚜', unicode: '⚜', displayName: 'Fleur-De-Lis' },
     { value: 'pluto', label: '♇', unicode: '♇', displayName: 'Pluto' },
     { value: 'aries', label: '♈', unicode: '♈', displayName: 'Aries' },
     { value: 'taurus', label: '♉', unicode: '♉', displayName: 'Taurus' },

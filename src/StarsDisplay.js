@@ -3,7 +3,7 @@ import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize }) => {
    
   const renderOverlays = () => {
     return overlays.map((overlay, index) => {
@@ -186,6 +186,18 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
       switch (pattern) {
         case 'Single':
           backgroundStyle = { background: backColours[0] };
+          break;
+        case 'Checkered':
+          const checkerSizePercentage = 200 / checkerSize
+          backgroundStyle = {
+            backgroundImage: `
+              repeating-conic-gradient(
+                ${backColours[0]} 0deg 90deg,
+                ${backColours[1]} 90deg 180deg
+              )
+            `,
+            backgroundSize: `${checkerSizePercentage}% ${checkerSizePercentage}%`,
+          };
           break;
         case 'Horizontal':
         case 'Vertical':
@@ -406,14 +418,26 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
             left: '0',
             right: '0',
             bottom: '0',
-          } : {})
+          } : {}),
+          zIndex: starsOnTop ? 2 : 1,
         }}
       >
         {circles}
       </div>
-      {renderOverlays()}
+      <div 
+        id="overlays-container" 
+        style={{
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          width: '100%',
+          height: '100%',
+          zIndex: starsOnTop ? 1 : 2,
+        }}
+      >
+        {renderOverlays()}
+      </div>
     </div>
   );
 };
-
 export default StarsDisplay;

@@ -6,7 +6,7 @@ import { faDownload, faFileExport } from '@fortawesome/free-solid-svg-icons';
 import './styles/DownloadButton.css';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation }) => {
+const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   const sortOverlays = (overlays) => {
@@ -69,6 +69,9 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     svg.setAttribute("viewBox", "0 0 600 400");
     createBackground(svg);
   
+    const starsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const overlaysGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
     // Contain the stars
     const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
     if (containerFormat === 'circle') {
@@ -94,7 +97,8 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
 
     wrapper.appendChild(starsClone);
     foreignObject.appendChild(wrapper);
-    svg.appendChild(foreignObject);
+    // svg.appendChild(foreignObject);
+    starsGroup.appendChild(foreignObject);
 
     // Add overlays
     const sortedOverlays = sortOverlays(overlays);
@@ -110,8 +114,18 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
         rotate(${overlay.rotation})
       `);
       text.textContent = overlaySymbol.unicode;
-      svg.appendChild(text);
+      // svg.appendChild(text);
+      overlaysGroup.appendChild(text);
     });
+
+    // Append groups based on starsOnTop
+    if (starsOnTop) {
+      svg.appendChild(overlaysGroup);
+      svg.appendChild(starsGroup);
+    } else {
+      svg.appendChild(starsGroup);
+      svg.appendChild(overlaysGroup);
+    }
   
     const svgData = new XMLSerializer().serializeToString(svg);
     const svgBlob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
@@ -128,6 +142,9 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     switch (selectedPattern) {
       case 'Single':
         createSolidBackground(svg, backColours[0]);
+        break;
+      case 'Checkered':
+        createCheckeredBackground(svg, checkerSize);
         break;
       case 'Vertical':
         createVerticalStripes(svg);
@@ -158,6 +175,21 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     rect.setAttribute("height", "100%");
     rect.setAttribute("fill", color);
     svg.appendChild(rect);
+  };
+  
+  const createCheckeredBackground = (svg, checkerSize) => {
+    const rectSize = 100 / checkerSize;
+    for (let i = 0; i < checkerSize; i++) {
+      for (let j = 0; j < checkerSize; j++) {
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", `${i * rectSize}%`);
+        rect.setAttribute("y", `${j * rectSize}%`);
+        rect.setAttribute("width", `${rectSize}%`);
+        rect.setAttribute("height", `${rectSize}%`);
+        rect.setAttribute("fill", (i + j) % 2 === 0 ? backColours[1] : backColours[0]);
+        svg.appendChild(rect);
+      }
+    }
   };
   
   const createVerticalStripes = (svg) => {
@@ -332,6 +364,20 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       if (selectedPattern === 'Single') {
         ctx.fillStyle = backColours[0];
         ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      } else if (selectedPattern === 'Checkered') {
+        const horizontalSquareSize = canvasWidth / checkerSize;
+        const verticalSquareSize = canvasHeight / checkerSize;
+        for (let i = 0; i < checkerSize; i++) {
+          for (let j = 0; j < checkerSize; j++) {
+            ctx.fillStyle = (i + j) % 2 === 0 ? backColours[1] : backColours[0];
+            ctx.fillRect(
+              i * horizontalSquareSize, 
+              j * verticalSquareSize, 
+              horizontalSquareSize, 
+              verticalSquareSize
+            );
+          }
+        }
       } else if (selectedPattern === 'Cross') {
         ctx.fillStyle = backColours[1];
         ctx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -416,6 +462,23 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       }
     }
 
+    function drawOverlays() {
+      const sortedOverlays = sortOverlays(overlays);
+      sortedOverlays.forEach((overlay) => {
+        const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
+        ctx.save();
+        ctx.font = `${overlay.size}px Arial`;
+        ctx.fillStyle = overlay.color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.translate(canvasWidth / 2, canvasHeight / 2);
+        ctx.translate(overlay.offsetX - 10, overlay.offsetY + 35);
+        ctx.rotate(overlay.rotation * Math.PI / 180);
+        ctx.fillText(overlaySymbol.unicode, 0, 0);
+        ctx.restore();
+      });
+    }
+
     function drawStars() {
       htmlToImage.toPng(starsContainer)
       .then(function (starsDataUrl) {
@@ -449,12 +512,21 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.translate(canvasWidth / 2, canvasHeight / 2);
-            ctx.translate(overlay.offsetX, overlay.offsetY);
+            ctx.translate(overlay.offsetX - 10, overlay.offsetY + 35);
             ctx.rotate(overlay.rotation * Math.PI / 180);
             ctx.fillText(overlaySymbol.unicode, 0, 0);
             ctx.restore();
           });
     
+          // Draw overlays or stars based on starsOnTop
+          if (starsOnTop) {
+            drawOverlays();
+            ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
+          } else {
+            ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
+            drawOverlays();
+          }
+
           // Downloading composite image
           canvas.toBlob(function (blob) {
             download(blob, 'eu-flag.png');

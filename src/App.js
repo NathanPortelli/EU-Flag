@@ -4,7 +4,7 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
+import { faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 import { random } from 'lodash';
 
@@ -18,6 +18,7 @@ import Notification from './components/Notification';
 import { CustomToggle } from './components/CustomToggle';
 import { CountryList } from './components/CountryURLList';
 import FilterableSelect from './components/FilterableSelect';
+import CountryFilterableSelect from './components/CountryFilterableSelect';
 import ColourPicker from './components/ColourPicker';
 import Tooltip from './components/Tooltip';
 
@@ -54,6 +55,14 @@ const App = () => {
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverItem, setDragOverItem] = useState(null);
   const [gridRotation, setGridRotation] = useState(0);
+  const [starsOnTop, setStarsOnTop] = useState(false);
+  const [checkerSize, setCheckerSize] = useState(4);
+  const [selectedCountry, setSelectedCountry] = useState('');
+
+  const handleCheckerSizeChange = (value) => {
+    setCheckerSize(value);
+    updateURL();
+  };
 
   const handleDragStart = (e, index) => {
     setDraggedItem(index);
@@ -135,6 +144,7 @@ const App = () => {
     setShapeConfigurationAndURL(Math.random() < 0.5 ? 'circle' : 'square');
     setCrossSaltireSize(random(1, 60));
     setGridRotationAndURL(random(0, 360));
+    setCheckerSize(random(1, 16));
   
     const newBackColours = Array(16).fill().map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`);
     setBackColours(newBackColours);
@@ -167,18 +177,14 @@ const App = () => {
         return backColours.slice(0, stripeCount);
       case 'Bends':
         switch (selectedAmount) {
-          case 'Bicolour':
-            return backColours.slice(0, 2);
-          case 'Thirds':
-            return backColours.slice(0, 3);
-          case 'Quarters':
           case 'Both Ways':
             return backColours.slice(0, 4);
           default:
-            return backColours.slice(0, 2);
+            return backColours.slice(0, 16);
         }
       case 'Cross':
       case 'Saltire':
+      case 'Checkered':
         return backColours.slice(0, 2);
       case 'Quadrants':
         return backColours.slice(0, 4);
@@ -262,6 +268,8 @@ const App = () => {
     setStarRotation(getParamOrDefault('starRotation', 0, parseInt));
     setShapeConfiguration(getParamOrDefault('shapeConfiguration', 'circle'));
     setGridRotation(getParamOrDefault('gridRotation', 0, parseInt));
+    setStarsOnTop(getParamOrDefault('starsOnTop', true, (v) => v === 'false'));
+    setCheckerSize(getParamOrDefault('checkerSize', 4, parseInt));
 
     // Handle background colours
     const urlBackColors = params.get('backColours');
@@ -320,6 +328,8 @@ const App = () => {
     params.set('backColours', backColours.join(','));
     params.set('crossSaltireSize', crossSaltireSize);
     params.set('gridRotation', gridRotation);
+    params.set('starsOnTop', starsOnTop);
+    params.set('checkerSize', checkerSize);
     
     params.set('pattern', selectedPattern);
     if (selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') {
@@ -375,6 +385,7 @@ const App = () => {
   const setStarRotationAndURL = setStateAndUpdateURL(setStarRotation);
   const setShapeConfigurationAndURL = setStateAndUpdateURL(setShapeConfiguration);
   const setGridRotationAndURL = setStateAndUpdateURL(setGridRotation);
+  const setStarsOnTopAndURL = setStateAndUpdateURL(setStarsOnTop);
 
   const handleBackColourChange = (colour, index) => {
     const newColours = [...backColours];
@@ -437,6 +448,9 @@ const App = () => {
 
     if (pattern === 'Horizontal' || pattern === 'Vertical') {
       setStripeCount(2);
+      setBackColours(userSetColours.slice(0, 2));
+    } else if (pattern === 'Checkered') {
+      setCheckerSize(4);
       setBackColours(userSetColours.slice(0, 2));
     } else {
       if (['Quadrants', 'Saltire', 'Cross', 'Single'].includes(pattern)) {
@@ -533,6 +547,8 @@ const App = () => {
                 containerFormat={containerFormat}
                 crossSaltireSize={crossSaltireSize}
                 gridRotation={gridRotation}
+                starsOnTop={starsOnTop}
+                checkerSize={checkerSize}
               />
             </div>
             <div className="custom-toggle-container">
@@ -546,16 +562,12 @@ const App = () => {
             <div className="Shape-selector">
               <div className="Shape-container">
                 <label htmlFor="countrySelector" className="shape-label">Samples</label>
-                <select 
-                  id="countrySelector" 
-                  className="shape-dropdown"
-                  onChange={(e) => window.location.href = CountryList.find(country => country.value === e.target.value).link}
-                >
-                  <option value="">Select a Country</option>
-                  {CountryList.map((country) => (
-                    <option key={country.value} value={country.value}>{country.label}</option>
-                  ))}
-                </select>
+                <CountryFilterableSelect
+                  options={CountryList}
+                  value={selectedCountry}
+                  onChange={setSelectedCountry}
+                  placeholder="Select a Country"
+                />
               </div>
               <button onClick={randomizeAll} className="random-button">
                 <FontAwesomeIcon icon={faShuffle} className="random-icon" />
@@ -746,6 +758,17 @@ const App = () => {
               <div className="toolbar-segment">
                 {overlays.length < MAX_OVERLAYS && (
                   <div>
+                    <div className="custom-toggle-container">
+                      <Tooltip text="Place the shapes over or under the overlays.">
+                        <CustomToggle 
+                          option1="Shapes Under"
+                          option2="Shapes On Top"
+                          isActive={starsOnTop}
+                          onChange={() => setStarsOnTopAndURL(!starsOnTop)}
+                        />
+                      </Tooltip>
+                    </div>
+                    <Divider text="" />
                     <Tooltip text="Add a new design element to the flag.">
                       <div className="add-button-container">
                         <button className="download-button" onClick={addOverlay}>
@@ -762,6 +785,7 @@ const App = () => {
                 {overlays.map((overlay, index) => (
                   <div 
                     className={`overlay-full-container ${dragOverItem === index ? 'drag-over' : ''}`}
+                    key={index}
                   >
                     <div className="overlay-handle">
                       <div 
@@ -910,6 +934,16 @@ const App = () => {
                         </select>
                       </div>
                     </Tooltip>
+                    {selectedPattern === 'Checkered' && (
+                      <Slider
+                        value={checkerSize}
+                        onChange={handleCheckerSizeChange}
+                        min={2}
+                        max={32}
+                        label="Checker Size"
+                        icon={faChessBoard}
+                      />
+                    )}
                     {(selectedPattern === 'Cross' || selectedPattern === 'Saltire') && (
                       <Slider
                         value={crossSaltireSize}
@@ -931,7 +965,7 @@ const App = () => {
                         label="Number of Stripes"
                       />
                     ) : (
-                      selectedPattern !== 'Single' && selectedPattern !== 'Quadrants' && selectedPattern !== 'Saltire' && selectedPattern !== 'Cross' && (
+                      !['Single', 'Checkered', 'Quadrants', 'Saltire', 'Cross'].includes(selectedPattern) && (
                         <Tooltip text="Select the particular style of your pattern.">
                           <div className="Shape-container">
                             <label htmlFor="amountSelector" className="shape-label">Format</label>
@@ -1018,6 +1052,8 @@ const App = () => {
               crossSaltireSize={crossSaltireSize}
               containerFormat={containerFormat}
               gridRotation={gridRotation}
+              starsOnTop={starsOnTop}
+              checkerSize={checkerSize}
             />
           </div>
         </div>
