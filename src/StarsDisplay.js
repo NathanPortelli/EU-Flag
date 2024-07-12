@@ -3,7 +3,7 @@ import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount }) => {
  
   const renderOverlays = () => {
     return overlays.map((overlay, index) => {
@@ -20,6 +20,10 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
               fontFamily: overlay.font,
               zIndex: overlays.length - index,
               color: overlay.color,
+              width: `${overlay.width}px`,
+              textAlign: 'center',
+              whiteSpace: 'normal',
+              wordWrap: 'break-word',
             }}
           >
             {overlay.text}
@@ -227,6 +231,18 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           ).join(', ');
           backgroundStyle = {
             background: `linear-gradient(${gradientDirection}, ${gradientStops})`
+          };
+          break;
+        case 'Sunburst':
+          const stripeAngle = 360 / sunburstStripeCount;
+          const sunburstGradientStops = [];
+          for (let i = 0; i < sunburstStripeCount; i++) {
+            const startAngle = i * stripeAngle;
+            const endAngle = (i + 1) * stripeAngle;
+            sunburstGradientStops.push(`${backColours[i % 2]} ${startAngle}deg ${endAngle}deg`);
+          }
+          backgroundStyle = {
+            background: `conic-gradient(from 0deg at 50% 50%, ${sunburstGradientStops.join(', ')})`
           };
           break;
         case 'Bends':

@@ -4,7 +4,7 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
+import { faClone, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 import { random } from 'lodash';
 
@@ -58,47 +58,56 @@ const App = () => {
   const [starsOnTop, setStarsOnTop] = useState(false);
   const [checkerSize, setCheckerSize] = useState(4);
   const [selectedCountry, setSelectedCountry] = useState('');
+  const [sunburstStripeCount, setSunburstStripeCount] = useState(8);
   const [fonts, setFonts] = useState([
-    'Arial', 
-    'Arial Black', 
-    'Book Antiqua', 
-    'Candara', 
-    'Century Gothic', 
-    'Comic Sans MS', 
-    'Consolas', 
-    'Copperplate', 
-    'Courier New', 
-    'Franklin Gothic Medium', 
-    'Garamond', 
-    'Georgia', 
-    'Gill Sans', 
-    'Helvetica', 
-    'Impact', 
-    'Lucida Console', 
-    'Lucida Sans', 
-    'Monaco', 
-    'Palatino Linotype', 
-    'Segoe UI', 
-    'Tahoma', 
-    'Times New Roman', 
-    'Trebuchet MS', 
-    'Verdana', 
-    'Montserrat',
-    'Oswald',
-    'Raleway', 
-    'Roboto',
-    'Bebas Neue',
-    'Lobster'
+    { name: 'Arial', value: 'Arial, sans-serif' },
+    { name: 'Arial Black', value: '"Arial Black", sans-serif' },
+    { name: 'Book Antiqua', value: '"Book Antiqua", serif' },
+    { name: 'Candara', value: 'Candara, sans-serif' },
+    { name: 'Century Gothic', value: '"Century Gothic", sans-serif' },
+    { name: 'Comic Sans MS', value: '"Comic Sans MS", cursive' },
+    { name: 'Consolas', value: 'Consolas, monospace' },
+    { name: 'Copperplate', value: 'Copperplate, fantasy' },
+    { name: 'Courier New', value: '"Courier New", monospace' },
+    { name: 'Franklin Gothic Medium', value: '"Franklin Gothic Medium", sans-serif' },
+    { name: 'Garamond', value: 'Garamond, serif' },
+    { name: 'Georgia', value: 'Georgia, serif' },
+    { name: 'Gill Sans', value: '"Gill Sans", sans-serif' },
+    { name: 'Helvetica', value: 'Helvetica, sans-serif' },
+    { name: 'Impact', value: 'Impact, sans-serif' },
+    { name: 'Lucida Console', value: '"Lucida Console", monospace' },
+    { name: 'Lucida Sans', value: '"Lucida Sans", sans-serif' },
+    { name: 'Monaco', value: 'Monaco, monospace' },
+    { name: 'Palatino Linotype', value: '"Palatino Linotype", serif' },
+    { name: 'Segoe UI', value: '"Segoe UI", sans-serif' },
+    { name: 'Tahoma', value: 'Tahoma, sans-serif' },
+    { name: 'Times New Roman', value: '"Times New Roman", serif' },
+    { name: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
+    { name: 'Verdana', value: 'Verdana, sans-serif' },
+    { name: 'Montserrat', value: 'Montserrat, sans-serif' },
+    { name: 'Oswald', value: 'Oswald, sans-serif' },
+    { name: 'Raleway', value: 'Raleway, sans-serif' },
+    { name: 'Roboto', value: 'Roboto, sans-serif' },
+    { name: 'Bebas Neue', value: '"Bebas Neue", sans-serif' },
+    { name: 'Lobster', value: 'Lobster, cursive' }
   ]);
   
+  const cloneOverlay = (index) => {
+    if (overlays.length < MAX_OVERLAYS) {
+      const clonedOverlay = JSON.parse(JSON.stringify(overlays[index]));
+      setOverlays(prevOverlays => [clonedOverlay, ...prevOverlays]);
+      updateURL();
+    }
+  };
 
   const addTextOverlay = () => {
     if (overlays.length < MAX_OVERLAYS) {
       setOverlays(prevOverlays => [{
         type: 'text',
         text: 'New Text',
-        font: 'Arial',
+        font: 'Arial, sans-serif',
         size: 48,
+        width: 200,
         offsetX: 0,
         offsetY: 0,
         rotation: 0,
@@ -109,6 +118,11 @@ const App = () => {
 
   const handleCheckerSizeChange = (value) => {
     setCheckerSize(value);
+    updateURL();
+  };
+
+  const handleSunburstStripeCountChange = (value) => {
+    setSunburstStripeCount(value);
     updateURL();
   };
 
@@ -167,7 +181,12 @@ const App = () => {
   const updateOverlayProperty = (index, property, value) => {
     setOverlays(prevOverlays => {
       const newOverlays = [...prevOverlays];
-      newOverlays[index][property] = value;
+      if (property === 'font') {
+        const selectedFont = fonts.find(font => font.value === value);
+        newOverlays[index][property] = selectedFont ? selectedFont.value : value;
+      } else {
+        newOverlays[index][property] = value;
+      }
       return newOverlays;
     });
   };
@@ -193,6 +212,8 @@ const App = () => {
     setCrossSaltireSize(random(1, 60));
     setGridRotationAndURL(random(0, 360));
     setCheckerSize(random(1, 16));
+    setStarsOnTopAndURL(Math.random() < 0.5);
+    setSunburstStripeCount(random(2, 16));
   
     const newBackColours = Array(16).fill().map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`);
     setBackColours(newBackColours);
@@ -233,6 +254,7 @@ const App = () => {
       case 'Cross':
       case 'Saltire':
       case 'Checkered':
+      case 'Sunburst':
         return backColours.slice(0, 2);
       case 'Quadrants':
         return backColours.slice(0, 4);
@@ -343,12 +365,13 @@ const App = () => {
       const parsedOverlays = overlayData.split(';').map(overlayString => {
         const [type, ...rest] = overlayString.split(',');
         if (type === 'text') {
-          const [text, font, size, offsetX, offsetY, rotation, color] = rest;
+          const [text, font, size, width, offsetX, offsetY, rotation, color] = rest;
           return {
             type: 'text',
             text: decodeURIComponent(text),
             font,
             size: parseFloat(size),
+            width: parseFloat(width),
             offsetX: parseFloat(offsetX),
             offsetY: parseFloat(offsetY),
             rotation: parseFloat(rotation),
@@ -393,6 +416,7 @@ const App = () => {
     params.set('gridRotation', gridRotation);
     params.set('starsOnTop', starsOnTop);
     params.set('checkerSize', checkerSize);
+    params.set('sunburstStripeCount', sunburstStripeCount);
     
     params.set('pattern', selectedPattern);
     if (selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') {
@@ -404,7 +428,7 @@ const App = () => {
     if (overlays.length > 0) {
       const overlayData = overlays.map(overlay => {
         if (overlay.type === 'text') {
-          return `text,${encodeURIComponent(overlay.text)},${overlay.font},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`;
+          return `text,${encodeURIComponent(overlay.text)},${overlay.font},${overlay.size},${overlay.width},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`;
         } else {
           return `shape,${overlay.shape},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`;
         }
@@ -519,6 +543,9 @@ const App = () => {
     } else if (pattern === 'Checkered') {
       setCheckerSize(4);
       setBackColours(userSetColours.slice(0, 2));
+    } else if (pattern === 'Sunburst') {
+      setSunburstStripeCount(8);
+      setBackColours(userSetColours.slice(0, 2));
     } else {
       if (['Quadrants', 'Saltire', 'Cross', 'Single'].includes(pattern)) {
         setSelectedAmountAndURL('');
@@ -616,6 +643,7 @@ const App = () => {
                 gridRotation={gridRotation}
                 starsOnTop={starsOnTop}
                 checkerSize={checkerSize}
+                sunburstStripeCount={sunburstStripeCount}
               />
             </div>
             <div className="custom-toggle-container">
@@ -805,7 +833,7 @@ const App = () => {
                   value={starSize}
                   onChange={setStarSizeAndURL}
                   min={10}
-                  max={150}
+                  max={300}
                   unit="px"
                   label="Star Size"
                   icon={faMaximize}
@@ -913,7 +941,9 @@ const App = () => {
                                       className="shape-dropdown"
                                     >
                                       {fonts.map((font) => (
-                                        <option key={font} value={font}>{font}</option>
+                                        <option key={font.name} value={font.value} style={{ fontFamily: font.value }}>
+                                          {font.name}
+                                        </option>
                                       ))}
                                     </select>
                                   </div>
@@ -930,6 +960,11 @@ const App = () => {
                                 </div>
                               )}
                               <div className="overlay-container">
+                                {overlays.length < MAX_OVERLAYS && (
+                                  <button className="clone-overlay" onClick={() => cloneOverlay(index)}>
+                                    <i className="fas fa-clone"></i>
+                                  </button>
+                                )}
                                 <button className="remove-image" onClick={() => removeOverlay(index)}>
                                   <i className="fas fa-trash"></i>
                                 </button>
@@ -1001,6 +1036,18 @@ const App = () => {
                         icon={faRotate}
                       />
                     </div>
+                    {overlay.type === 'text' && (
+                      <div className="overlay-sliders">
+                        <Slider
+                          value={overlay.width}
+                          onChange={(value) => updateOverlayProperty(index, 'width', value)}
+                          min={50}
+                          max={800}
+                          label="Text Width"
+                          icon={faLeftRight}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1049,6 +1096,16 @@ const App = () => {
                         icon={faChessBoard}
                       />
                     )}
+                    {selectedPattern === 'Sunburst' && (
+                      <Slider
+                        value={sunburstStripeCount}
+                        onChange={handleSunburstStripeCountChange}
+                        min={4}
+                        max={32}
+                        label="Sunburst Stripes"
+                        unit="stripes"
+                      />
+                    )}
                     {(selectedPattern === 'Cross' || selectedPattern === 'Saltire') && (
                       <Slider
                         value={crossSaltireSize}
@@ -1070,7 +1127,7 @@ const App = () => {
                         label="Number of Stripes"
                       />
                     ) : (
-                      !['Single', 'Checkered', 'Quadrants', 'Saltire', 'Cross'].includes(selectedPattern) && (
+                      !['Single', 'Checkered', 'Sunburst', 'Quadrants', 'Saltire', 'Cross'].includes(selectedPattern) && (
                         <Tooltip text="Select the particular style of your pattern.">
                           <div className="Shape-container">
                             <label htmlFor="amountSelector" className="shape-label">Format</label>
@@ -1159,6 +1216,7 @@ const App = () => {
               gridRotation={gridRotation}
               starsOnTop={starsOnTop}
               checkerSize={checkerSize}
+              sunburstStripeCount={sunburstStripeCount}
             />
           </div>
         </div>

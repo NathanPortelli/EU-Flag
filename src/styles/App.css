@@ -69,6 +69,10 @@ body {
   margin: 0 5px 20px 5px;
 }
 
+.tooltip-container {
+  margin-left: 10px;
+}
+
 .toolbar-segment {
   margin-bottom: 30px;
   padding: 20px;
@@ -572,6 +576,32 @@ input[type='color']::-webkit-color-swatch {
 
 /* Overlays */
 
+.font-dropdown {
+  font-size: 16px;
+}
+
+.font-dropdown option {
+  font-size: 14px;
+  padding: 5px;
+}
+
+.clone-overlay {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #007bff;
+  margin: 0 5px 20px 5px;
+}
+
+.new-format .clone-overlay {
+  margin-right: 10px;
+}
+
+.clone-overlay:hover {
+  color: #0056b3;
+}
+
 .overlay-font-content {
   display: flex;
   flex-direction: column;
@@ -634,7 +664,6 @@ input[type='color']::-webkit-color-swatch {
   cursor: pointer;
   font-weight: bold;
   font-size: 18px;
-  margin-left: 10px;
 }
 
 .overlay-handle {

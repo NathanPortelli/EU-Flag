@@ -6,7 +6,7 @@ import { faDownload, faFileExport } from '@fortawesome/free-solid-svg-icons';
 import './styles/DownloadButton.css';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize }) => {
+const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize, sunburstStripeCount }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   const sortOverlays = (overlays) => {
@@ -107,16 +107,46 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("font-size", `${overlay.size}px`);
         text.setAttribute("font-family", overlay.font);
+        text.setAttribute("fill", overlay.color);
         text.setAttribute("text-anchor", "middle");
         text.setAttribute("dominant-baseline", "central");
-        text.setAttribute("fill", overlay.color);
         text.setAttribute("transform", `
           translate(${300 + overlay.offsetX}, ${200 + overlay.offsetY})
           rotate(${overlay.rotation})
         `);
-        text.textContent = overlay.text;
+      
+        const words = overlay.text.split(' ');
+        let lines = [];
+        let currentLine = words[0];
+      
+        for (let i = 1; i < words.length; i++) {
+          const word = words[i];
+          const testLine = currentLine + " " + word;
+          const testWidth = testLine.length * (overlay.size / 2); // Rough estimate of text width
+          if (testWidth <= overlay.width) {
+            currentLine = testLine;
+          } else {
+            lines.push(currentLine);
+            currentLine = word;
+          }
+        }
+        lines.push(currentLine);
+      
+        const lineHeight = overlay.size * 1.2;
+        const totalHeight = lines.length * lineHeight;
+        const startY = -totalHeight / 2 + lineHeight / 2;
+      
+        lines.forEach((line, index) => {
+          const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+          tspan.setAttribute("x", "0");
+          tspan.setAttribute("y", (startY + index * lineHeight).toString());
+          tspan.textContent = line;
+          text.appendChild(tspan);
+        });
+      
         overlaysGroup.appendChild(text);
       } else {
+        // Handle symbol overlay
         const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("font-size", `${overlay.size}px`);
@@ -159,6 +189,9 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
         break;
       case 'Checkered':
         createCheckeredBackground(svg, checkerSize);
+        break;
+      case 'Sunburst':
+        createSunburstBackground(svg);
         break;
       case 'Vertical':
         createVerticalStripes(svg);
@@ -206,6 +239,29 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     }
   };
   
+  const createSunburstBackground = (svg) => {
+    const width = 600;
+    const height = 400;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.sqrt(width * width + height * height) / 2;
+  
+    for (let i = 0; i < sunburstStripeCount; i++) {
+      const startAngle = (i / sunburstStripeCount) * 360;
+      const endAngle = ((i + 1) / sunburstStripeCount) * 360;
+  
+      const startX = centerX + radius * Math.cos(startAngle * Math.PI / 180);
+      const startY = centerY + radius * Math.sin(startAngle * Math.PI / 180);
+      const endX = centerX + radius * Math.cos(endAngle * Math.PI / 180);
+      const endY = centerY + radius * Math.sin(endAngle * Math.PI / 180);
+  
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", `M${centerX},${centerY} L${startX},${startY} A${radius},${radius} 0 0,1 ${endX},${endY} Z`);
+      path.setAttribute("fill", backColours[i % backColours.length]);
+      svg.appendChild(path);
+    }
+  };
+
   const createVerticalStripes = (svg) => {
     const stripeWidth = 600 / stripeCount;
     for (let i = 0; i < stripeCount; i++) {
@@ -473,6 +529,23 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           ctx.fillStyle = backColours[i] || backColours[backColours.length - 1];
           ctx.fillRect(0, i * stripeHeight, canvasWidth, stripeHeight);
         }
+      } else if (selectedPattern === 'Sunburst') {
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
+        const radius = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight) / 2;
+    
+        for (let i = 0; i < sunburstStripeCount; i++) {
+          const startAngle = (i / sunburstStripeCount) * Math.PI * 2;
+          const endAngle = ((i + 1) / sunburstStripeCount) * Math.PI * 2;
+    
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+          ctx.closePath();
+    
+          ctx.fillStyle = backColours[i % backColours.length];
+          ctx.fill();
+        }
       }
     }
 
@@ -481,7 +554,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       sortedOverlays.forEach((overlay) => {
         ctx.save();
         ctx.translate(canvasWidth / 2, canvasHeight / 2);
-        ctx.translate(overlay.offsetX - 10, overlay.offsetY + 35);
+        ctx.translate(overlay.offsetX, overlay.offsetY);
         ctx.rotate(overlay.rotation * Math.PI / 180);
     
         if (overlay.type === 'text') {
@@ -490,9 +563,20 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           ctx.fillStyle = overlay.color;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(overlay.text, 0, 0);
+    
+          // Calculate text lines and total height
+          const lines = calculateTextLines(ctx, overlay.text, overlay.width);
+          const totalHeight = lines.length * overlay.size * 1.2;
+    
+          // Adjust starting Y position to center the text block
+          let startY = -totalHeight / 2;
+    
+          // Draw each line of text
+          lines.forEach((line, index) => {
+            ctx.fillText(line, 0, startY + (index + 0.5) * overlay.size * 1.2);
+          });
         } else {
-          // Handle symbol overlay
+          // Handle symbol overlay (unchanged)
           const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
           if (overlaySymbol) {
             ctx.font = `${overlay.size}px Arial`;
@@ -502,9 +586,27 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
             ctx.fillText(overlaySymbol.unicode, 0, 0);
           }
         }
-    
         ctx.restore();
       });
+    }
+    
+    function calculateTextLines(context, text, maxWidth) {
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = words[0];
+    
+      for (let i = 1; i < words.length; i++) {
+        const word = words[i];
+        const width = context.measureText(currentLine + " " + word).width;
+        if (width < maxWidth) {
+          currentLine += " " + word;
+        } else {
+          lines.push(currentLine);
+          currentLine = word;
+        }
+      }
+      lines.push(currentLine);
+      return lines;
     }
 
     function drawStars() {
@@ -530,36 +632,6 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
             ctx.restore();
           }
     
-          // Draw overlays
-          const sortedOverlays = sortOverlays(overlays);
-          sortedOverlays.forEach((overlay) => {
-            ctx.save();
-            ctx.translate(canvasWidth / 2, canvasHeight / 2);
-            ctx.translate(overlay.offsetX - 10, overlay.offsetY + 35);
-            ctx.rotate(overlay.rotation * Math.PI / 180);
-
-            if (overlay.type === 'text') {
-              // Handle text overlay
-              ctx.font = `${overlay.size}px ${overlay.font}`;
-              ctx.fillStyle = overlay.color;
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
-              ctx.fillText(overlay.text, 0, 0);
-            } else {
-              // Handle symbol overlay
-              const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
-              if (overlaySymbol) {
-                ctx.font = `${overlay.size}px Arial`;
-                ctx.fillStyle = overlay.color;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(overlaySymbol.unicode, 0, 0);
-              }
-            }
-
-            ctx.restore();
-          });
-    
           // Draw overlays or stars based on starsOnTop
           if (starsOnTop) {
             drawOverlays();
@@ -568,7 +640,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
             ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
             drawOverlays();
           }
-
+    
           // Downloading composite image
           canvas.toBlob(function (blob) {
             download(blob, 'eu-flag.png');

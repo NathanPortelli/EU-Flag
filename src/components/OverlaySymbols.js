@@ -61,6 +61,7 @@ export const overlaySymbols = [
     { value: 'whiteEightPointedStar', label: '✹', unicode: '✹', displayName: 'Twelve Pointed Star' },
     { value: 'blackFourDiamondStar', label: '❖', unicode: '❖', displayName: 'Four Diamond Star' },
     { value: 'saltire', label: '☓', unicode: '☓', displayName: 'Saltire' },
+    { value: 'infinity', label: '∞', unicode: '∞', displayName: 'Infinity' },
     { value: 'umbrellaWithRainDrops', label: '☔', unicode: '☔', displayName: 'Umbrella with Rain Drops' },
     { value: 'hotBeverage', label: '☕', unicode: '☕', displayName: 'Coffee' },
     { value: 'whiteShogiPiece', label: '☖', unicode: '☖', displayName: 'Outlined Shogi Piece' },

@@ -44,7 +44,8 @@ export const patternOptions = [
   'Bends', 
   'Quadrants', 
   'Cross', 
-  'Saltire'
+  'Saltire',
+  'Sunburst',
 ];
 
 export const patternIcons = {
@@ -55,7 +56,8 @@ export const patternIcons = {
   'Bends': '⫽',
   'Quadrants': '✚',
   'Cross': '╬',
-  'Saltire': 'X'
+  'Saltire': 'X',
+  'Sunburst': '☀'
 };
 
 export const amountOptions = {
@@ -66,7 +68,8 @@ export const amountOptions = {
   'Quadrants': [],
   'Saltire': [],
   'Cross': [],
-  'Single': []
+  'Single': [],
+  'Sunburst': [],
 };
 
 export const amountIcons = {
