@@ -1,35 +1,59 @@
-# EU Flag Editor
+# EU Flag Maker
 
-EU Flag Editor is a React application that allows you to create and customize an EU flag with a specified number of stars, shapes, sizes, formats, and more.
+EU Flag Maker is an interactive React application that allows you to create and customise your own flag as easily as possible. 
+
+**Site:** **[euflag.vercel.app](https://euflag.vercel.app/)**.
 
 ## Features
-- Modify star count
-- Adjust circle count
-- Resize stars
-- Rotate stars
-- Toggle between horizontal and vertical layouts
+- Choose from various shapes *(e.g., stars, circles, squares, hexagons etc.)*
+- Modify stars/shapes count, size, rotation, orientation or format
+- Outline the stars/shapes
+- Adjust the circle count
+- Toggle EU *(circle)* format or USA *(square)* format for the stars/shapes
 
-![eu-flag-1](https://github.com/NathanPortelli/EU-Flag/assets/61872215/3825f415-3ec2-4feb-9e3a-87f9b99ac7a5)
+![eu-flag-6](https://github.com/user-attachments/assets/3f5a38ca-a615-41a6-ad87-9997ae2cdd09)
 
-- Choose from various star shapes (e.g., circles, squares, hexagons)
-- Toggle star direction (inward/outward)
-- Outline stars with colour
-- Adjust outline size
+### Background
 
-![eu-flag-2](https://github.com/NathanPortelli/EU-Flag/assets/61872215/9aaacfdf-df35-460d-929a-511a7f98d1bf)
+- Adjust background patterns *(Single, Horizontal, Vertical, Checkered, Bends [Forwards, Backwards, Both Ways], Quadrants, Cross, Saltire)*
+- Adjust background colours, number of stripes etc.
 
-- Customise star and background colours
-- Select flag patterns (single, bi-colour, thirds, quadrants ; horizontal, vertical)
-- Download the customised flag
+![eu-flag-5](https://github.com/user-attachments/assets/36a23bb5-889c-4b83-bb6c-ed527dff1056)
 
-![eu-flag-3](https://github.com/NathanPortelli/EU-Flag/assets/61872215/953925e5-2418-431d-ba37-2ca37d06d66c)
+### Images
 
+- Add your own image instead of the stars/shapes (Up to 1MB)
+- Change the image's count, size, rotation, orientation or format
+- Add your own background instead of the default patterns
 
+![eu-flag-4](https://github.com/user-attachments/assets/4321c52c-880f-4730-9e77-371d6fcc54dd)
 
-#### To-dos:
-- Optimise for mobile usage
-- Additional customisability (feel free to contact me with any ideas)
-- _Fix: Issue with background when downloading flag with three/four colour pattern_
+### Overlays
+
+- Add up to 16 symbols/designs from over a 100 different options
+- Change their colour, size, orientation and position on the flag
+- Add text to the flag *(not recommended by Vexillologists worldwide)*
+- Change the texts' font, colour, size, width position, and orientation
+- Layer your overlays in any order
+- Position the stars/shapes over or under your overlays
+
+![eu-flag-3](https://github.com/user-attachments/assets/8e771fe5-7629-4395-958a-3ff9662329d7)
+
+### Export
+
+- Download your customised flag in `PNG` or `SVG` format
+
+### Extra
+- Share or save an editable version flag by copying the URL *(does not save images)*
+- Toggle the flag display between a Circle or a 2:3 format rectangle.
+- Over a 100 sample flags of countries and regions to give you a better idea of how you can use this web app
+- ${\color{red}R\color{blue}a\color{green}n\color{purple}d\color{orange}o\color{brown}m\color{lightblue}i\color{gray}z\color{hotpink}e}$ button to create flags that look like they were made by someone going through a trip
+
+![eu-flag-2](https://github.com/user-attachments/assets/dcb9b28b-533a-4ad2-b364-46ca63aeef2c)
+
+... and other things that I forgot to mention, or implemented after writing this README.
+
+If you have any suggestion or ideas for further customisations or additions, feel free to contact me! 
 
 ## Usage
 This application is deployed online through Vercel and accessible via: **[euflag.vercel.app](https://euflag.vercel.app/)**.
