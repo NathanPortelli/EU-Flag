@@ -4,7 +4,7 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
+import { faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 import { random } from 'lodash';
 
@@ -58,6 +58,54 @@ const App = () => {
   const [starsOnTop, setStarsOnTop] = useState(false);
   const [checkerSize, setCheckerSize] = useState(4);
   const [selectedCountry, setSelectedCountry] = useState('');
+  const [fonts, setFonts] = useState([
+    'Arial', 
+    'Arial Black', 
+    'Book Antiqua', 
+    'Candara', 
+    'Century Gothic', 
+    'Comic Sans MS', 
+    'Consolas', 
+    'Copperplate', 
+    'Courier New', 
+    'Franklin Gothic Medium', 
+    'Garamond', 
+    'Georgia', 
+    'Gill Sans', 
+    'Helvetica', 
+    'Impact', 
+    'Lucida Console', 
+    'Lucida Sans', 
+    'Monaco', 
+    'Palatino Linotype', 
+    'Segoe UI', 
+    'Tahoma', 
+    'Times New Roman', 
+    'Trebuchet MS', 
+    'Verdana', 
+    'Montserrat',
+    'Oswald',
+    'Raleway', 
+    'Roboto',
+    'Bebas Neue',
+    'Lobster'
+  ]);
+  
+
+  const addTextOverlay = () => {
+    if (overlays.length < MAX_OVERLAYS) {
+      setOverlays(prevOverlays => [{
+        type: 'text',
+        text: 'New Text',
+        font: 'Arial',
+        size: 48,
+        offsetX: 0,
+        offsetY: 0,
+        rotation: 0,
+        color: `#${Math.floor(Math.random()*16777215).toString(16)}`
+      }, ...prevOverlays]);
+    }
+  };
 
   const handleCheckerSizeChange = (value) => {
     setCheckerSize(value);
@@ -273,15 +321,15 @@ const App = () => {
 
     // Handle background colours
     const urlBackColors = params.get('backColours');
-  if (urlBackColors) {
-    const colors = urlBackColors.split(',');
-    setBackColours(colors);
-    setUserSetColours(colors);
-    setStripeCount(colors.length);
-  } else {
-    setBackColours(defaultBackColours);
-    setUserSetColours(defaultBackColours);
-  }
+    if (urlBackColors) {
+      const colors = urlBackColors.split(',');
+      setBackColours(colors);
+      setUserSetColours(colors);
+      setStripeCount(colors.length);
+    } else {
+      setBackColours(defaultBackColours);
+      setUserSetColours(defaultBackColours);
+    }
 
     setSelectedPattern(getParamOrDefault('pattern', 'Single'));
     if (params.get('pattern') === 'Horizontal' || params.get('pattern') === 'Vertical') {
@@ -293,19 +341,34 @@ const App = () => {
     const overlayData = params.get('overlays');
     if (overlayData) {
       const parsedOverlays = overlayData.split(';').map(overlayString => {
-        const [shape, size, offsetX, offsetY, rotation, color] = overlayString.split(',');
-        return {
-          shape,
-          size: parseFloat(size),
-          offsetX: parseFloat(offsetX),
-          offsetY: parseFloat(offsetY),
-          rotation: parseFloat(rotation),
-          color: `#${color}`
-        };
+        const [type, ...rest] = overlayString.split(',');
+        if (type === 'text') {
+          const [text, font, size, offsetX, offsetY, rotation, color] = rest;
+          return {
+            type: 'text',
+            text: decodeURIComponent(text),
+            font,
+            size: parseFloat(size),
+            offsetX: parseFloat(offsetX),
+            offsetY: parseFloat(offsetY),
+            rotation: parseFloat(rotation),
+            color: `#${color}`
+          };
+        } else {
+          const [shape, size, offsetX, offsetY, rotation, color] = rest;
+          return {
+            type: 'shape',
+            shape,
+            size: parseFloat(size),
+            offsetX: parseFloat(offsetX),
+            offsetY: parseFloat(offsetY),
+            rotation: parseFloat(rotation),
+            color: `#${color}`
+          };
+        }
       });
       setOverlays(parsedOverlays);
     }
-
   }, []);
 
   const updateURL = () => {
@@ -339,9 +402,13 @@ const App = () => {
     }
 
     if (overlays.length > 0) {
-      const overlayData = overlays.map(overlay => 
-        `${overlay.shape},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`
-      ).join(';');
+      const overlayData = overlays.map(overlay => {
+        if (overlay.type === 'text') {
+          return `text,${encodeURIComponent(overlay.text)},${overlay.font},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`;
+        } else {
+          return `shape,${overlay.shape},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`;
+        }
+      }).join(';');
       params.set('overlays', overlayData);
     }
   
@@ -769,14 +836,20 @@ const App = () => {
                       </Tooltip>
                     </div>
                     <Divider text="" />
-                    <Tooltip text="Add a new design element to the flag.">
-                      <div className="add-button-container">
+                    <div className="add-buttons-container">
+                      <Tooltip text="Add a new design element to the flag.">
                         <button className="download-button" onClick={addOverlay}>
                           <FontAwesomeIcon icon={faPlus} className="download-icon" />
-                          Add New
+                          New Overlay
                         </button>
-                      </div>
-                    </Tooltip>
+                      </Tooltip>
+                      <Tooltip text="Add the cardinal sin of vexillology to your flag.">
+                        <button className="download-button" onClick={addTextOverlay}>
+                          <FontAwesomeIcon icon={faFont} className="download-icon" />
+                          New Text
+                        </button>
+                      </Tooltip>
+                    </div>
                     {overlays.length >= 2 && (
                       <p className='image-disclaimer'>Drag/Move overlays up or down to change their stacking order.</p>
                     )}
@@ -815,15 +888,47 @@ const App = () => {
                           </div>
                           <div className="overlay-sliders">
                             <div className="overlay-content">
-                              <div className="Shape-container">
-                                <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
-                                <FilterableSelect
-                                  options={overlaySymbols}
-                                  value={overlay.shape} 
-                                  onChange={(value) => updateOverlayProperty(index, 'shape', value)}
-                                  placeholder="Select or type to filter..."
-                                />
-                              </div>
+                              {overlay.type === 'text' ? (
+                                <div className="overlay-font-content">
+                                  <div className="Text-container">
+                                    <label htmlFor={`overlayText-${index}`} className="shape-label">Text</label>
+                                    <input
+                                      type="text"
+                                      id={`overlayText-${index}`}
+                                      value={overlay.text}
+                                      onChange={(e) => {
+                                        const newText = e.target.value.slice(0, 50);
+                                        updateOverlayProperty(index, 'text', newText);
+                                      }}
+                                      placeholder="Enter text..."
+                                      className="shape-input"
+                                    />
+                                  </div>
+                                  <div className="Shape-container">
+                                    <label htmlFor={`overlayFont-${index}`} className="shape-label">Font</label>
+                                    <select
+                                      id={`overlayFont-${index}`}
+                                      value={overlay.font}
+                                      onChange={(e) => updateOverlayProperty(index, 'font', e.target.value)}
+                                      className="shape-dropdown"
+                                    >
+                                      {fonts.map((font) => (
+                                        <option key={font} value={font}>{font}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="Shape-container">
+                                  <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
+                                  <FilterableSelect
+                                    options={overlaySymbols}
+                                    value={overlay.shape} 
+                                    onChange={(value) => updateOverlayProperty(index, 'shape', value)}
+                                    placeholder="Select or type to filter..."
+                                  />
+                                </div>
+                              )}
                               <div className="overlay-container">
                                 <button className="remove-image" onClick={() => removeOverlay(index)}>
                                   <i className="fas fa-trash"></i>
@@ -902,17 +1007,17 @@ const App = () => {
             )}
             {activeSection === 'Background' && (
               <div className="toolbar-segment">
-                <Tooltip text="2:3 Aspect Ratio optimal for downloading">
-                  <div className='background-image'>
+                <div className='background-image'>
+                  <Tooltip text="2:3 Aspect Ratio optimal for downloading">
                     <ImageUpload
                       onImageUpload={handleBackgroundImageUpload}
                       onImageRemove={() => setBackgroundImage(null)}
                       hasImage={!!backgroundImage}
                       label="Upload Background Image"
                     />
-                    <p className='image-disclaimer'>Images cannot be shared via link.</p>
-                  </div>
-                </Tooltip>
+                  </Tooltip>
+                  <p className='image-disclaimer'>Images cannot be shared via link.</p>
+                </div>
                 {!backgroundImage && (
                   <>
                   <Divider text="or" />

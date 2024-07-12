@@ -103,19 +103,33 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     // Add overlays
     const sortedOverlays = sortOverlays(overlays);
     sortedOverlays.forEach((overlay, index) => {
-      const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
-      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      text.setAttribute("font-size", `${overlay.size}px`);
-      text.setAttribute("text-anchor", "middle");
-      text.setAttribute("dominant-baseline", "central");
-      text.setAttribute("fill", overlay.color);
-      text.setAttribute("transform", `
-        translate(${300 + overlay.offsetX}, ${200 + overlay.offsetY})
-        rotate(${overlay.rotation})
-      `);
-      text.textContent = overlaySymbol.unicode;
-      // svg.appendChild(text);
-      overlaysGroup.appendChild(text);
+      if (overlay.type === 'text') {
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("font-size", `${overlay.size}px`);
+        text.setAttribute("font-family", overlay.font);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "central");
+        text.setAttribute("fill", overlay.color);
+        text.setAttribute("transform", `
+          translate(${300 + overlay.offsetX}, ${200 + overlay.offsetY})
+          rotate(${overlay.rotation})
+        `);
+        text.textContent = overlay.text;
+        overlaysGroup.appendChild(text);
+      } else {
+        const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("font-size", `${overlay.size}px`);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "central");
+        text.setAttribute("fill", overlay.color);
+        text.setAttribute("transform", `
+          translate(${300 + overlay.offsetX}, ${200 + overlay.offsetY})
+          rotate(${overlay.rotation})
+        `);
+        text.textContent = overlaySymbol.unicode;
+        overlaysGroup.appendChild(text);
+      }
     });
 
     // Append groups based on starsOnTop
@@ -465,16 +479,30 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     function drawOverlays() {
       const sortedOverlays = sortOverlays(overlays);
       sortedOverlays.forEach((overlay) => {
-        const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
         ctx.save();
-        ctx.font = `${overlay.size}px Arial`;
-        ctx.fillStyle = overlay.color;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
         ctx.translate(canvasWidth / 2, canvasHeight / 2);
         ctx.translate(overlay.offsetX - 10, overlay.offsetY + 35);
         ctx.rotate(overlay.rotation * Math.PI / 180);
-        ctx.fillText(overlaySymbol.unicode, 0, 0);
+    
+        if (overlay.type === 'text') {
+          // Handle text overlay
+          ctx.font = `${overlay.size}px ${overlay.font}`;
+          ctx.fillStyle = overlay.color;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(overlay.text, 0, 0);
+        } else {
+          // Handle symbol overlay
+          const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
+          if (overlaySymbol) {
+            ctx.font = `${overlay.size}px Arial`;
+            ctx.fillStyle = overlay.color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(overlaySymbol.unicode, 0, 0);
+          }
+        }
+    
         ctx.restore();
       });
     }
@@ -505,16 +533,30 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           // Draw overlays
           const sortedOverlays = sortOverlays(overlays);
           sortedOverlays.forEach((overlay) => {
-            const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
             ctx.save();
-            ctx.font = `${overlay.size}px Arial`;
-            ctx.fillStyle = overlay.color;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
             ctx.translate(canvasWidth / 2, canvasHeight / 2);
             ctx.translate(overlay.offsetX - 10, overlay.offsetY + 35);
             ctx.rotate(overlay.rotation * Math.PI / 180);
-            ctx.fillText(overlaySymbol.unicode, 0, 0);
+
+            if (overlay.type === 'text') {
+              // Handle text overlay
+              ctx.font = `${overlay.size}px ${overlay.font}`;
+              ctx.fillStyle = overlay.color;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(overlay.text, 0, 0);
+            } else {
+              // Handle symbol overlay
+              const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
+              if (overlaySymbol) {
+                ctx.font = `${overlay.size}px Arial`;
+                ctx.fillStyle = overlay.color;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(overlaySymbol.unicode, 0, 0);
+              }
+            }
+
             ctx.restore();
           });
     

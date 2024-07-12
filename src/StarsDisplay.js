@@ -4,26 +4,46 @@ import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
 const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize }) => {
-   
+ 
   const renderOverlays = () => {
     return overlays.map((overlay, index) => {
-      const symbol = overlaySymbols.find(s => s.value === overlay.shape);
-      return (
-        <div
-          key={`overlay-${index}`}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: `translate(calc(-50% + ${overlay.offsetX}px), calc(-50% + ${overlay.offsetY}px)) rotate(${overlay.rotation}deg)`,
-            fontSize: `${overlay.size}px`,
-            zIndex: overlays.length - index,
-            color: overlay.color,
-          }}
-        >
-          {symbol.unicode}
-        </div>
-      );
+      if (overlay.type === 'text') {
+        return (
+          <div
+            key={`overlay-${index}`}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: `translate(calc(-50% + ${overlay.offsetX}px), calc(-50% + ${overlay.offsetY}px)) rotate(${overlay.rotation}deg)`,
+              fontSize: `${overlay.size}px`,
+              fontFamily: overlay.font,
+              zIndex: overlays.length - index,
+              color: overlay.color,
+            }}
+          >
+            {overlay.text}
+          </div>
+        );
+      } else {
+        const symbol = overlaySymbols.find(s => s.value === overlay.shape);
+        return (
+          <div
+            key={`overlay-${index}`}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: `translate(calc(-50% + ${overlay.offsetX}px), calc(-50% + ${overlay.offsetY}px)) rotate(${overlay.rotation}deg)`,
+              fontSize: `${overlay.size}px`,
+              zIndex: overlays.length - index,
+              color: overlay.color,
+            }}
+          >
+            {symbol ? symbol.unicode : ''}
+          </div>
+        );
+      }
     });
   };
 
