@@ -385,13 +385,13 @@ const App = () => {
           return {
             type: 'text',
             text: decodeURIComponent(text),
-            font,
+            font: decodeURIComponent(font),
             size: parseFloat(size),
             width: parseFloat(width),
             offsetX: parseFloat(offsetX),
             offsetY: parseFloat(offsetY),
             rotation: parseFloat(rotation),
-            color: `#${color}`
+            color: decodeURIComponent(color)
           };
         } else {
           const [shape, size, offsetX, offsetY, rotation, color] = rest;
@@ -402,7 +402,7 @@ const App = () => {
             offsetX: parseFloat(offsetX),
             offsetY: parseFloat(offsetY),
             rotation: parseFloat(rotation),
-            color: `#${color}`
+            color: decodeURIComponent(color)
           };
         }
       });
@@ -450,9 +450,9 @@ const App = () => {
     if (overlays.length > 0) {
       const overlayData = overlays.map(overlay => {
         if (overlay.type === 'text') {
-          return `text,${encodeURIComponent(overlay.text)},${overlay.font},${overlay.size},${overlay.width},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`;
+          return `text,${encodeURIComponent(overlay.text)},${encodeURIComponent(overlay.font)},${overlay.size},${overlay.width},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${encodeURIComponent(overlay.color)}`;
         } else {
-          return `shape,${overlay.shape},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${overlay.color.substring(1)}`;
+          return `shape,${overlay.shape},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${encodeURIComponent(overlay.color)}`;
         }
       }).join(';');
       params.set('overlays', overlayData);
@@ -514,7 +514,6 @@ const App = () => {
 
     updateURL();
   };
-
   
   const handleStarColourChange = (colour) => {
     setStarColourAndURL(colour);

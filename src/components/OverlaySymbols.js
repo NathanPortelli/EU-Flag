@@ -151,6 +151,7 @@ export const overlaySymbols = [
     { value: 'capricorn', label: '♑', unicode: '♑', displayName: 'Capricorn' },
     { value: 'aquarius', label: '♒', unicode: '♒', displayName: 'Aquarius' },
     { value: 'pisces', label: '♓', unicode: '♓', displayName: 'Pisces' },
+    { value: 'tree', label: '🌲', unicode: '🌲', displayName: 'Tree' },
     { value: 'whiteChessKing', label: '♔', unicode: '♔', displayName: 'Outlined Chess King' },
     { value: 'whiteChessQueen', label: '♕', unicode: '♕', displayName: 'Outlined Chess Queen' },
     { value: 'whiteChessRook', label: '♖', unicode: '♖', displayName: 'Outlined Chess Rook' },
