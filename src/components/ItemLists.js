@@ -46,10 +46,11 @@ export const patternOptions = [
   'Cross', 
   'Saltire',
   'Sunburst',
+  'Border',
 ];
 
 export const patternIcons = {
-  'Single': '☐',
+  'Single': '▉',
   'Vertical': '║',
   'Horizontal': '═',
   'Checkered': '▦',
@@ -57,14 +58,15 @@ export const patternIcons = {
   'Quadrants': '✚',
   'Cross': '╬',
   'Saltire': 'X',
-  'Sunburst': '☀'
+  'Sunburst': '☀',
+  'Border': '⬚',
 };
 
 export const amountOptions = {
   'Horizontal': [],
   'Vertical': [],
   'Checkered': [],
-  'Bends': ['Forwards', 'Backwards', 'Both Ways'],
+  'Bends': ['Forwards', 'Backwards', 'Both Ways', 'Forward Stripe', 'Backward Stripe'],
   'Quadrants': [],
   'Saltire': [],
   'Cross': [],
@@ -75,5 +77,7 @@ export const amountOptions = {
 export const amountIcons = {
   'Forwards': '/',
   'Backwards': '\\',
-  'Both Ways': '𝕏'
+  'Both Ways': '𝕏',
+  'Forward Stripe': '⫽',
+  'Backward Stripe': '\\\\'
 };

@@ -3,7 +3,7 @@ import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth }) => {
  
   const renderOverlays = () => {
     return overlays.map((overlay, index) => {
@@ -285,6 +285,32 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
                 )`
               };
               break;
+            case 'Forward Stripe':
+              backgroundStyle = {
+                background: `linear-gradient(
+                  to bottom right,
+                  ${backColours[0]} 0%,
+                  ${backColours[0]} calc(50% - ${stripeWidth/2}px),
+                  ${backColours[2]} calc(50% - ${stripeWidth/2}px),
+                  ${backColours[2]} calc(50% + ${stripeWidth/2}px),
+                  ${backColours[1]} calc(50% + ${stripeWidth/2}px),
+                  ${backColours[1]} 100%
+                )`
+              };
+              break;
+            case 'Backward Stripe':
+              backgroundStyle = {
+                background: `linear-gradient(
+                  to bottom left,
+                  ${backColours[0]} 0%,
+                  ${backColours[0]} calc(50% - ${stripeWidth/2}px),
+                  ${backColours[2]} calc(50% - ${stripeWidth/2}px),
+                  ${backColours[2]} calc(50% + ${stripeWidth/2}px),
+                  ${backColours[1]} calc(50% + ${stripeWidth/2}px),
+                  ${backColours[1]} 100%
+                )`
+              };
+              break;
           }
           break;
         case 'Quadrants':
@@ -300,6 +326,13 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
               ${backColours[3]} 270deg,
               ${backColours[3]} 360deg
             )`
+          };
+          break;
+        case 'Border':
+          backgroundStyle = {
+            background: backColours[1] || '#FFFFFF', 
+            border: `${borderWidth}px solid ${backColours[0]}`,
+            boxSizing: 'border-box'
           };
           break;
         case 'Cross':
@@ -342,7 +375,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
             borderRadius: '0',
           } : {
             borderRadius: '100%',
-          })
+          }), 
         }}
         data-has-background-image={!!backgroundImage}
       >
@@ -350,13 +383,12 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           id="stars-only-container" 
           className="stars-only-container"
           style={{
-            ...(containerFormat === 'flag' ? {
-              position: 'absolute',
-              top: '0',
-              left: '0',
-              right: '0',
-              bottom: '0',
-            } : {})
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            zIndex: starsOnTop ? 10 : 1,
           }}
         >
           <svg
@@ -455,7 +487,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
             right: '0',
             bottom: '0',
           } : {}),
-          zIndex: starsOnTop ? 2 : 1,
+          zIndex: starsOnTop ? 10 : 1,
         }}
       >
         {circles}
@@ -468,7 +500,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           left: '0',
           width: '100%',
           height: '100%',
-          zIndex: starsOnTop ? 1 : 2,
+          zIndex: starsOnTop ? 1 : 10,
         }}
       >
         {renderOverlays()}

@@ -4,7 +4,7 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faClone, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
+import { faBorderStyle, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 import { random } from 'lodash';
 
@@ -58,7 +58,9 @@ const App = () => {
   const [starsOnTop, setStarsOnTop] = useState(false);
   const [checkerSize, setCheckerSize] = useState(4);
   const [selectedCountry, setSelectedCountry] = useState('');
+  const [borderWidth, setBorderWidth] = useState(10);
   const [sunburstStripeCount, setSunburstStripeCount] = useState(8);
+  const [stripeWidth, setStripeWidth] = useState(10);
   const [fonts, setFonts] = useState([
     { name: 'Arial', value: 'Arial, sans-serif' },
     { name: 'Arial Black', value: '"Arial Black", sans-serif' },
@@ -191,6 +193,11 @@ const App = () => {
     });
   };
 
+  const handleStripeWidthChange = (value) => {
+    setStripeWidth(value);
+    updateURL();
+  };
+
   const randomizeAll = () => {
     const randomPattern = patternOptions[Math.floor(Math.random() * patternOptions.length)];
     const randomShape = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
@@ -248,9 +255,13 @@ const App = () => {
         switch (selectedAmount) {
           case 'Both Ways':
             return backColours.slice(0, 4);
+          case 'Forward Stripe':
+          case 'Backward Stripe':
+            return backColours.slice(0, 3);
           default:
-            return backColours.slice(0, 16);
+            return backColours.slice(0, 2);
         }
+      case 'Border':
       case 'Cross':
       case 'Saltire':
       case 'Checkered':
@@ -340,6 +351,8 @@ const App = () => {
     setGridRotation(getParamOrDefault('gridRotation', 0, parseInt));
     setStarsOnTop(getParamOrDefault('starsOnTop', true, (v) => v === 'false'));
     setCheckerSize(getParamOrDefault('checkerSize', 4, parseInt));
+    setSunburstStripeCount(getParamOrDefault('sunburstStripeCount', 8, parseInt));
+    setBorderWidth(getParamOrDefault('borderWidth', 10, parseInt));
 
     // Handle background colours
     const urlBackColors = params.get('backColours');
@@ -356,6 +369,9 @@ const App = () => {
     setSelectedPattern(getParamOrDefault('pattern', 'Single'));
     if (params.get('pattern') === 'Horizontal' || params.get('pattern') === 'Vertical') {
       setStripeCount(getParamOrDefault('stripeCount', 2, parseInt));
+    } else if (params.get('pattern') === 'Bends' && 
+      (params.get('amount') === 'Forward Stripe' || params.get('amount') === 'Backward Stripe')) {
+      setStripeWidth(getParamOrDefault('stripeWidth', 10, parseInt));
     } else {
       setSelectedAmount(getParamOrDefault('amount', ''));
     }
@@ -417,10 +433,16 @@ const App = () => {
     params.set('starsOnTop', starsOnTop);
     params.set('checkerSize', checkerSize);
     params.set('sunburstStripeCount', sunburstStripeCount);
+    params.set('borderWidth', borderWidth);
     
     params.set('pattern', selectedPattern);
     if (selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') {
       params.set('stripeCount', stripeCount);
+    } else if (selectedPattern === 'Border') {
+      params.set('borderWidth', borderWidth);    
+    } else if (selectedPattern === 'Bends' && 
+      (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe')) {
+      params.set('stripeWidth', stripeWidth);    
     } else {
       params.set('amount', selectedAmount);
     }
@@ -543,6 +565,9 @@ const App = () => {
     } else if (pattern === 'Checkered') {
       setCheckerSize(4);
       setBackColours(userSetColours.slice(0, 2));
+    } else if (pattern === 'Border') {
+      setBackColours(userSetColours.slice(0, 2));
+      setBorderWidth(10);
     } else if (pattern === 'Sunburst') {
       setSunburstStripeCount(8);
       setBackColours(userSetColours.slice(0, 2));
@@ -582,16 +607,15 @@ const App = () => {
     const amount = event.target.value;
     setSelectedAmountAndURL(amount);
     let coloursCount = 2;
-    if (amount === 'Thirds') {
+    if (amount === 'Forward Stripe' || amount === 'Backward Stripe') {
       coloursCount = 3;
-    } else if (amount === 'Quarters' || amount === 'Both Ways') {
+    } else if (amount === 'Both Ways') {
       coloursCount = 4;
     }
     const newColours = userSetColours.slice(0, coloursCount);
     setBackColours(newColours);
     updateURL();
   };
-
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href)
     .then(() => {
@@ -644,18 +668,20 @@ const App = () => {
                 starsOnTop={starsOnTop}
                 checkerSize={checkerSize}
                 sunburstStripeCount={sunburstStripeCount}
-              />
-            </div>
-            <div className="custom-toggle-container">
-              <CustomToggle 
-                option1="Circle"
-                option2="Flag"
-                isActive={containerFormat === 'flag'}
-                onChange={() => setContainerFormat(containerFormat === 'circle' ? 'flag' : 'circle')}
+                borderWidth={borderWidth}
+                stripeWidth={stripeWidth}
               />
             </div>
             <div className="Shape-selector">
-              <div className="Shape-container">
+              <div className="custom-toggle-container">
+                <CustomToggle 
+                  option1="Circle"
+                  option2="Flag"
+                  isActive={containerFormat === 'flag'}
+                  onChange={() => setContainerFormat(containerFormat === 'circle' ? 'flag' : 'circle')}
+                />
+              </div>
+              <div className="Shape-container" id="country-selector">
                 <label htmlFor="countrySelector" className="shape-label">Samples</label>
                 <CountryFilterableSelect
                   options={CountryList}
@@ -1096,6 +1122,20 @@ const App = () => {
                         icon={faChessBoard}
                       />
                     )}
+                    {selectedPattern === 'Border' && (
+                      <Slider
+                        value={borderWidth}
+                        onChange={(value) => {
+                          setBorderWidth(value);
+                          updateURL();
+                        }}
+                        min={1}
+                        max={50}
+                        label="Border Width"
+                        unit="px"
+                        icon={faBorderStyle}
+                      />
+                    )}
                     {selectedPattern === 'Sunburst' && (
                       <Slider
                         value={sunburstStripeCount}
@@ -1127,7 +1167,7 @@ const App = () => {
                         label="Number of Stripes"
                       />
                     ) : (
-                      !['Single', 'Checkered', 'Sunburst', 'Quadrants', 'Saltire', 'Cross'].includes(selectedPattern) && (
+                      !['Single', 'Border', 'Checkered', 'Sunburst', 'Quadrants', 'Saltire', 'Cross'].includes(selectedPattern) && (
                         <Tooltip text="Select the particular style of your pattern.">
                           <div className="Shape-container">
                             <label htmlFor="amountSelector" className="shape-label">Format</label>
@@ -1146,6 +1186,18 @@ const App = () => {
                           </div>
                         </Tooltip>
                       )
+                    )}
+                    {selectedPattern === 'Bends' && 
+                    (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe') && (
+                      <Slider
+                        value={stripeWidth}
+                        onChange={handleStripeWidthChange}
+                        min={1}
+                        max={300}
+                        label="Stripe Width"
+                        unit="px"
+                        icon={faMaximize}
+                      />
                     )}
                     <p className="colours-header">Colours</p>
                     {selectedPattern === 'Single' ? (
@@ -1217,6 +1269,8 @@ const App = () => {
               starsOnTop={starsOnTop}
               checkerSize={checkerSize}
               sunburstStripeCount={sunburstStripeCount}
+              borderWidth={borderWidth}
+              stripeWidth={stripeWidth}
             />
           </div>
         </div>

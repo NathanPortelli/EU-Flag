@@ -6,7 +6,7 @@ import { faDownload, faFileExport } from '@fortawesome/free-solid-svg-icons';
 import './styles/DownloadButton.css';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize, sunburstStripeCount }) => {
+const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
 
   const sortOverlays = (overlays) => {
@@ -193,6 +193,9 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       case 'Sunburst':
         createSunburstBackground(svg);
         break;
+      case 'Border':
+        createBorderBackground(svg);
+        break;
       case 'Vertical':
         createVerticalStripes(svg);
         break;
@@ -287,6 +290,26 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       svg.appendChild(rect);
     }
   };
+
+  const createBorderBackground = (svg) => {
+    // Main background rectangle
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("width", "100%");
+    rect.setAttribute("height", "100%");
+    rect.setAttribute("fill", backColours[1]);
+    svg.appendChild(rect);
+  
+    // Border rectangle
+    const border = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    border.setAttribute("x", "0");
+    border.setAttribute("y", "0");
+    border.setAttribute("width", "100%");
+    border.setAttribute("height", "100%");
+    border.setAttribute("fill", "none");
+    border.setAttribute("stroke", backColours[0] || "#000000");
+    border.setAttribute("stroke-width", borderWidth);
+    svg.appendChild(border);
+  };
   
   const createCrossBackground = (svg) => {
     // Background
@@ -364,20 +387,54 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     } else if (selectedAmount === 'Both Ways') {
       const width = svg.getAttribute("width");
       const height = svg.getAttribute("height");
-  
       const paths = [
         { d: `M0,0 L${width/2},${height/2} L0,${height} Z`, color: backColours[2] }, 
         { d: `M0,0 L${width},0 L${width/2},${height/2} Z`, color: backColours[3] }, 
         { d: `M${width},0 L${width},${height} L${width/2},${height/2} Z`, color: backColours[0] }, 
         { d: `M0,${height} L${width/2},${height/2} L${width},${height} Z`, color: backColours[1] } 
       ];
-  
       paths.forEach(({ d, color }) => {
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", d);
         path.setAttribute("fill", color);
         svg.appendChild(path);
       });
+    } else if (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe') {
+      const isForward = selectedAmount === 'Forward Stripe';
+      const linearGradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+      linearGradient.setAttribute("id", "bendsGradient");
+      linearGradient.setAttribute("x1", isForward ? "0%" : "100%");
+      linearGradient.setAttribute("y1", "0%");
+      linearGradient.setAttribute("x2", isForward ? "100%" : "0%");
+      linearGradient.setAttribute("y2", "100%");
+  
+      const stripeWidthRatio = stripeWidth / Math.sqrt(600 * 600 + 400 * 400); // Assuming SVG dimensions of 600x400
+  
+      const stops = [
+        { offset: "0%", color: backColours[0] },
+        { offset: `${50 - (stripeWidthRatio * 50)}%`, color: backColours[0] },
+        { offset: `${50 - (stripeWidthRatio * 50)}%`, color: backColours[2] },
+        { offset: `${50 + (stripeWidthRatio * 50)}%`, color: backColours[2] },
+        { offset: `${50 + (stripeWidthRatio * 50)}%`, color: backColours[1] },
+        { offset: "100%", color: backColours[1] }
+      ];
+  
+      stops.forEach(stop => {
+        const stopElement = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        stopElement.setAttribute("offset", stop.offset);
+        stopElement.setAttribute("stop-color", stop.color);
+        linearGradient.appendChild(stopElement);
+      });
+  
+      const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      defs.appendChild(linearGradient);
+      svg.appendChild(defs);
+  
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("width", "100%");
+      rect.setAttribute("height", "100%");
+      rect.setAttribute("fill", "url(#bendsGradient)");
+      svg.appendChild(rect);
     }
   };
 
@@ -466,6 +523,15 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       
         // Draw the saltire using a custom function
         drawSaltire(ctx, 0, 0, canvasWidth, canvasHeight, saltireWidth);
+      } else if (selectedPattern === 'Border') {
+        // Draw the main background
+        ctx.fillStyle = backColours[1];
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    
+        // Draw the border
+        ctx.strokeStyle = backColours[0] || "#000000";
+        ctx.lineWidth = borderWidth;
+        ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvasWidth - borderWidth, canvasHeight - borderWidth);
       } else if (selectedPattern === 'Quadrants') {
         const halfWidth = canvasWidth / 2;
         const halfHeight = canvasHeight / 2;
@@ -514,6 +580,27 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           gradient.addColorStop(0.75, backColours[3]);
           gradient.addColorStop(0.75, backColours[0]);
           gradient.addColorStop(1, backColours[0]);
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        } else if (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe') {
+          const isForward = selectedAmount === 'Forward Stripe';
+          const diagonalLength = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight);
+          const stripeWidthRatio = stripeWidth / diagonalLength;
+          
+          const gradient = ctx.createLinearGradient(
+            isForward ? 0 : canvasWidth,
+            0,
+            isForward ? canvasWidth : 0,
+            canvasHeight
+          );
+          
+          gradient.addColorStop(0, backColours[0]);
+          gradient.addColorStop(0.5 - stripeWidthRatio / 2, backColours[0]);
+          gradient.addColorStop(0.5 - stripeWidthRatio / 2, backColours[2]);
+          gradient.addColorStop(0.5 + stripeWidthRatio / 2, backColours[2]);
+          gradient.addColorStop(0.5 + stripeWidthRatio / 2, backColours[1]);
+          gradient.addColorStop(1, backColours[1]);
+          
           ctx.fillStyle = gradient;
           ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         }
@@ -567,8 +654,6 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
           // Calculate text lines and total height
           const lines = calculateTextLines(ctx, overlay.text, overlay.width);
           const totalHeight = lines.length * overlay.size * 1.2;
-    
-          // Adjust starting Y position to center the text block
           let startY = -totalHeight / 2;
     
           // Draw each line of text
@@ -576,7 +661,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
             ctx.fillText(line, 0, startY + (index + 0.5) * overlay.size * 1.2);
           });
         } else {
-          // Handle symbol overlay (unchanged)
+          // Handle symbol overlay
           const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
           if (overlaySymbol) {
             ctx.font = `${overlay.size}px Arial`;

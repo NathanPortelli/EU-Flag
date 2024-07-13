@@ -6,7 +6,17 @@ const CountryFilterableSelect = ({ options, value, onChange, placeholder }) => {
   const [inputPlaceholder, setInputPlaceholder] = useState(placeholder);
   const wrapperRef = useRef(null);
   const inputRef = useRef(null);
+  const optionsRef = useRef(null);
 
+  useEffect(() => {
+    if (isOpen && optionsRef.current) {
+      const optionsHeight = optionsRef.current.offsetHeight;
+      document.getElementById('country-selector').style.height = `${optionsHeight + 30}px`;
+    } else {
+      document.getElementById('country-selector').style.height = '';
+    }
+  }, [isOpen]);
+  
   useEffect(() => {
     if (value) {
       setInputPlaceholder(options.find(option => option.value === value)?.label || placeholder);
@@ -73,7 +83,7 @@ const CountryFilterableSelect = ({ options, value, onChange, placeholder }) => {
         ref={inputRef}
       />
       {isOpen && (
-        <ul className="filterable-select-options">
+        <ul className="filterable-select-options" ref={optionsRef}>
           {filteredOptions.map(option => (
             <li 
               key={option.value} 
