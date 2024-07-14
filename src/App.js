@@ -378,8 +378,8 @@ const App = () => {
     
     const overlayData = params.get('overlays');
     if (overlayData) {
-      const parsedOverlays = overlayData.split(';').map(overlayString => {
-        const [type, ...rest] = overlayString.split(',');
+      const parsedOverlays = overlayData.split(';;').map(overlayString => {
+        const [type, ...rest] = overlayString.split('|');
         if (type === 'text') {
           const [text, font, size, width, offsetX, offsetY, rotation, color] = rest;
           return {
@@ -450,11 +450,11 @@ const App = () => {
     if (overlays.length > 0) {
       const overlayData = overlays.map(overlay => {
         if (overlay.type === 'text') {
-          return `text,${encodeURIComponent(overlay.text)},${encodeURIComponent(overlay.font)},${overlay.size},${overlay.width},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${encodeURIComponent(overlay.color)}`;
+          return `text|${encodeURIComponent(overlay.text)}|${encodeURIComponent(overlay.font)}|${overlay.size}|${overlay.width}|${overlay.offsetX}|${overlay.offsetY}|${overlay.rotation}|${encodeURIComponent(overlay.color)}`;
         } else {
-          return `shape,${overlay.shape},${overlay.size},${overlay.offsetX},${overlay.offsetY},${overlay.rotation},${encodeURIComponent(overlay.color)}`;
+          return `shape|${overlay.shape}|${overlay.size}|${overlay.offsetX}|${overlay.offsetY}|${overlay.rotation}|${encodeURIComponent(overlay.color)}`;
         }
-      }).join(';');
+      }).join(';;');
       params.set('overlays', overlayData);
     }
   
