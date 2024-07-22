@@ -49,7 +49,7 @@ const App = () => {
   const [shapeConfiguration, setShapeConfiguration] = useState('circle');
   const [overlays, setOverlays] = useState([]);
   const [stripeCount, setStripeCount] = useState(2);
-  const [containerFormat, setContainerFormat] = useState('circle');
+  const [containerFormat, setContainerFormat] = useState('flag');
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [crossSaltireSize, setCrossSaltireSize] = useState(11);
   const [draggedItem, setDraggedItem] = useState(null);
@@ -413,40 +413,83 @@ const App = () => {
   const updateURL = () => {
     const params = new URLSearchParams();
     
-    params.set('starCount', starCount);
-    params.set('circleCount', circleCount);
-    params.set('starSize', starSize);
-    params.set('starRadius', starRadius);
-    params.set('starColour', starColour);
-    params.set('rotationAngle', rotationAngle);
-    params.set('shape', selectedShape);
-    params.set('pattern', selectedPattern);
-    params.set('amount', selectedAmount);
-    params.set('pointAway', pointAway.toString());
-    params.set('outlineOnly', outlineOnly.toString());
-    params.set('outlineWeight', outlineWeight);
-    params.set('starRotation', starRotation);
-    params.set('shapeConfiguration', shapeConfiguration);
-    params.set('backColours', backColours.join(','));
-    params.set('crossSaltireSize', crossSaltireSize);
-    params.set('gridRotation', gridRotation);
-    params.set('starsOnTop', starsOnTop);
-    params.set('checkerSize', checkerSize);
-    params.set('sunburstStripeCount', sunburstStripeCount);
-    params.set('borderWidth', borderWidth);
-    
-    params.set('pattern', selectedPattern);
+    // Define default values
+    const defaults = {
+      starCount: 12,
+      circleCount: 1,
+      starSize: 55,
+      starRadius: window.innerWidth < 1000 ? 80 : 90,
+      starColour: '#FFDD00',
+      rotationAngle: 0,
+      shape: 'Star',
+      pattern: 'Single',
+      amount: '',
+      pointAway: false,
+      outlineOnly: false,
+      outlineWeight: 2,
+      starRotation: 0,
+      shapeConfiguration: 'circle',
+      crossSaltireSize: 11,
+      gridRotation: 0,
+      starsOnTop: false,
+      checkerSize: 4,
+      sunburstStripeCount: 8,
+      borderWidth: 10,
+      stripeWidth: 10,
+      // Add more default values as needed
+    };
+  
+    // Helper function to check if value is different from default
+    const isDifferent = (key, value) => {
+      if (key === 'backColours') {
+        return JSON.stringify(value) !== JSON.stringify(defaultBackColours);
+      }
+      return value !== defaults[key];
+    };
+  
+    // Helper function to add param if different from default
+    const addParamIfDifferent = (key, value) => {
+      if (isDifferent(key, value)) {
+        params.set(key, value);
+      }
+    };
+  
+    // Add parameters only if they differ from defaults
+    addParamIfDifferent('starCount', starCount);
+    addParamIfDifferent('circleCount', circleCount);
+    addParamIfDifferent('starSize', starSize);
+    addParamIfDifferent('starRadius', starRadius);
+    addParamIfDifferent('starColour', starColour);
+    addParamIfDifferent('rotationAngle', rotationAngle);
+    addParamIfDifferent('shape', selectedShape);
+    addParamIfDifferent('pattern', selectedPattern);
+    addParamIfDifferent('amount', selectedAmount);
+    addParamIfDifferent('pointAway', pointAway.toString());
+    addParamIfDifferent('outlineOnly', outlineOnly.toString());
+    addParamIfDifferent('outlineWeight', outlineWeight);
+    addParamIfDifferent('starRotation', starRotation);
+    addParamIfDifferent('shapeConfiguration', shapeConfiguration);
+    addParamIfDifferent('crossSaltireSize', crossSaltireSize);
+    addParamIfDifferent('gridRotation', gridRotation);
+    addParamIfDifferent('starsOnTop', starsOnTop);
+    addParamIfDifferent('checkerSize', checkerSize);
+    addParamIfDifferent('sunburstStripeCount', sunburstStripeCount);
+    addParamIfDifferent('borderWidth', borderWidth);
+  
+    // Handle background colours
+    if (isDifferent('backColours', backColours)) {
+      params.set('backColours', backColours.join(','));
+    }
+  
+    // Handle pattern-specific parameters
     if (selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') {
-      params.set('stripeCount', stripeCount);
-    } else if (selectedPattern === 'Border') {
-      params.set('borderWidth', borderWidth);    
+      addParamIfDifferent('stripeCount', stripeCount);
     } else if (selectedPattern === 'Bends' && 
       (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe')) {
-      params.set('stripeWidth', stripeWidth);    
-    } else {
-      params.set('amount', selectedAmount);
+      addParamIfDifferent('stripeWidth', stripeWidth);
     }
-
+  
+    // Handle overlays
     if (overlays.length > 0) {
       const overlayData = overlays.map(overlay => {
         if (overlay.type === 'text') {
@@ -458,7 +501,9 @@ const App = () => {
       params.set('overlays', overlayData);
     }
   
-    window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
+    // Update the URL
+    const newUrl = params.toString() ? `${window.location.pathname}?${params}` : window.location.pathname;
+    window.history.replaceState({}, '', newUrl);
   };
 
   const debouncedUpdateURL = debounce(updateURL, 300);
@@ -876,18 +921,18 @@ const App = () => {
             )}
             {activeSection === 'Overlays' && (
               <div className="toolbar-segment">
+                <div className="custom-toggle-container">
+                  <Tooltip text="Place the shapes over or under the overlays.">
+                    <CustomToggle 
+                      option1="Shapes Under"
+                      option2="Shapes On Top"
+                      isActive={starsOnTop}
+                      onChange={() => setStarsOnTopAndURL(!starsOnTop)}
+                    />
+                  </Tooltip>
+                </div>
                 {overlays.length < MAX_OVERLAYS && (
                   <div>
-                    <div className="custom-toggle-container">
-                      <Tooltip text="Place the shapes over or under the overlays.">
-                        <CustomToggle 
-                          option1="Shapes Under"
-                          option2="Shapes On Top"
-                          isActive={starsOnTop}
-                          onChange={() => setStarsOnTopAndURL(!starsOnTop)}
-                        />
-                      </Tooltip>
-                    </div>
                     <Divider text="" />
                     <div className="add-buttons-container">
                       <Tooltip text="Add a new design element to the flag.">
@@ -1077,6 +1122,7 @@ const App = () => {
                 ))}
               </div>
             )}
+
             {activeSection === 'Background' && (
               <div className="toolbar-segment">
                 <div className='background-image'>
@@ -1198,6 +1244,7 @@ const App = () => {
                         icon={faMaximize}
                       />
                     )}
+                    <Divider />
                     <p className="colours-header">Colours</p>
                     {selectedPattern === 'Single' ? (
                       <div className="single-colour-container">

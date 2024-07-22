@@ -73,6 +73,7 @@ export const overlaySymbols = [
     { value: 'whiteLeftPointingIndex', label: '☜', unicode: '☜', displayName: 'Outlined Left Pointing Index' },
     { value: 'whiteRightPointingIndex', label: '☞', unicode: '☞', displayName: 'Outlined Pointing Index' },
     { value: 'whiteUpPointingIndex', label: '☝', unicode: '☝', displayName: 'Pointing Index' },
+    { value: 'raisedHand', label: '🖑', unicode: '🖑', displayName: 'Raised Hand' },
     { value: 'skullAndCrossbones', label: '☠', unicode: '☠', displayName: 'Skull and Crossbones' },
     { value: 'pi', label: 'π', unicode: '\u03C0', displayName: 'Pi' },
     { value: 'translingual', label: '☡', unicode: '☡', displayName: 'Translingual' },

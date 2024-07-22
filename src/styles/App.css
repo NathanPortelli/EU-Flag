@@ -29,6 +29,12 @@ body {
   min-height: 100vh;
 }
 
+@media (min-width: 1000px) and (max-width: 1500px) { 
+  .Stars-display {
+    margin-top: 200px;
+  }
+}
+
 .App-header {
   background-color: #002080;
   border-bottom: 3px solid #FFDD00;
@@ -246,7 +252,7 @@ input[type="range"] {
   margin-bottom: 20px;
   color: #FFDD00;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 21px;
 }
 
 .Shape-colour {
@@ -654,6 +660,10 @@ input[type='color']::-webkit-color-swatch {
   margin-top: 20px;
   margin-bottom: 20px;
   padding: 0 20px 20px;
+}
+
+.overlay-container {
+  margin-left: 5px;
 }
 
 .overlay-container button {

@@ -10,17 +10,12 @@ export const shapePaths = {
   Triangle: "M50,0 L100,100 H0 Z",
   Cross: "M35,0 V35 H0 V65 H35 V100 H65 V65 H100 V35 H65 V0 Z",
   Shield: "M 50 0 L 90 20 Q 95 25 90 50 Q 50 140 10 50 Q 5 25 10 20 Z",
+  Heart: "M50 15 C25 -10 0 20 50 50 C100 20 75 -10 50 15 Z",
+  Arrow: "M 38 0 L 75 50 H 50 V 100 H 25 V 50 H 0 Z",
+  Trapezoid: "M 24 68 H 75 L 100 100 H 0 Z",
+  Parallelogram: "M 25 0 H 100 L 75 100 H 0 Z",
+  Chevron: "M 25 0 L 75 0 L 50 50 L 75 100 H 25 L 0 50 Z",
 };
-
-// export const formatOptions = [
-//   'Circle', 
-//   'Square', 
-// ];
-
-// export const formatIcons = {
-//   'Square': '☐',
-//   'Circle': '○',
-// };
 
 export const shapeOptions = [
   'Star', 
@@ -34,7 +29,22 @@ export const shapeOptions = [
   'Crescent', 
   'Triangle', 
   'Cross', 
+  'Heart',
+  'Arrow',
+  'Trapezoid',
+  'Parallelogram',
+  'Chevron',
 ];
+
+// export const formatOptions = [
+//   'Circle', 
+//   'Square', 
+// ];
+
+// export const formatIcons = {
+//   'Square': '☐',
+//   'Circle': '○',
+// };
 
 export const patternOptions = [
   'Single', 

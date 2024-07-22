@@ -5,53 +5,35 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFileExport } from '@fortawesome/free-solid-svg-icons';
 import './styles/DownloadButton.css';
 import { overlaySymbols } from './components/OverlaySymbols';
+import Tooltip from './components/Tooltip';
 
 const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth }) => {
-  const [buttonClicked, setButtonClicked] = useState(false);
+  const [buttonClicked] = useState(false);
+  const canDownloadSvg = !customImage && !backgroundImage;
+
+  // PNG DOWNLOAD
+
+  const handlePngDownload = () => {
+    const starsContainer = document.getElementById('stars-container');
+    if (!starsContainer) {
+      console.error('Stars container not found.');
+      return;
+    }
+
+    htmlToImage.toPng(starsContainer, { quality: 1 })
+      .then(function (dataUrl) {
+        download(dataUrl, 'eu-flag.png');
+      })
+      .catch(function (error) {
+        console.error('Error generating PNG:', error);
+      });
+  };
+
+  // SVG DOWNLOAD
 
   const sortOverlays = (overlays) => {
     return [...overlays].sort((a, b) => overlays.indexOf(b) - overlays.indexOf(a));
   };
-
-  function drawCross(ctx, x, y, width, height, strokeWidth) {
-    ctx.save();
-    ctx.strokeStyle = backColours[0];
-    ctx.lineWidth = strokeWidth * (crossSaltireSize / 11);
-    ctx.beginPath();
-    
-    // Horizontal line
-    ctx.moveTo(x, y + height / 2);
-    ctx.lineTo(x + width, y + height / 2);
-    
-    // Vertical line
-    ctx.moveTo(x + width / 2, y);
-    ctx.lineTo(x + width / 2, y + height);
-    
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  function drawSaltire(ctx, x, y, width, height, strokeWidth) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.translate(x + width / 2, y + height / 2);
-    const angle = Math.atan2(height, width);
-    const length = Math.sqrt(width * width + height * height);
-  
-    ctx.lineWidth = strokeWidth * (crossSaltireSize / 11);
-    ctx.strokeStyle = backColours[0];
-  
-    ctx.rotate(angle);
-    ctx.moveTo(-length / 2, 0);
-    ctx.lineTo(length / 2, 0);
-    ctx.stroke();
-  
-    ctx.rotate(-2 * angle);
-    ctx.moveTo(-length / 2, 0);
-    ctx.lineTo(length / 2, 0);
-    ctx.stroke();
-    ctx.restore();
-  }
   
   const handleSvgDownload = () => {
     const starsContainer = document.getElementById('stars-container');
@@ -408,7 +390,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       linearGradient.setAttribute("x2", isForward ? "100%" : "0%");
       linearGradient.setAttribute("y2", "100%");
   
-      const stripeWidthRatio = stripeWidth / Math.sqrt(600 * 600 + 400 * 400); // Assuming SVG dimensions of 600x400
+      const stripeWidthRatio = stripeWidth / Math.sqrt(600 * 600 + 400 * 400);
   
       const stops = [
         { offset: "0%", color: backColours[0] },
@@ -438,321 +420,22 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     }
   };
 
-  const canDownloadSvg = !customImage && !backgroundImage;
-
-  const handleDownload = () => {
-    const starsContainerBackground = document.getElementById('stars-container');
-    const starsContainer = document.getElementById('stars-only-container') || document.getElementById('stars-container');
-    if (!starsContainer || !starsContainerBackground) {
-      console.error('Stars container not found.');
-      return;
-    }
-
-    const hasBackgroundImage = starsContainerBackground.dataset.hasBackgroundImage === 'true';
-
-    // Setting dimensions of stars container
-    const computedStyle = window.getComputedStyle(starsContainerBackground);
-    let starsWidth = parseInt(computedStyle.width, 10);
-    let starsHeight = parseInt(computedStyle.height, 10);
-    // Canvas dimensions -- 2:3 aspect ratio
-    const aspectRatio = 3 / 2;
-    let canvasWidth, canvasHeight;
-
-    canvasWidth = starsHeight * aspectRatio;
-    canvasHeight = starsHeight;
-
-    // New canvas element
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-
-    if (hasBackgroundImage) {
-      // Draw background image
-      const bgImg = new Image();
-      bgImg.onload = function() {
-        ctx.drawImage(bgImg, 0, 0, canvasWidth, canvasHeight);
-        drawStars();
-      };
-      bgImg.src = backgroundImage;
-    } else {
-      // Draw pattern background
-      drawPatternBackground();
-      drawStars();
-    }
-
-    function drawPatternBackground() {
-      const angle = Math.PI / 4; // 50 degrees in radians
-      const diagonalLength = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight);
-      const dx = Math.cos(angle) * diagonalLength - 150;
-      const dy = Math.sin(angle) * diagonalLength + 120;
-
-      if (selectedPattern === 'Single') {
-        ctx.fillStyle = backColours[0];
-        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-      } else if (selectedPattern === 'Checkered') {
-        const horizontalSquareSize = canvasWidth / checkerSize;
-        const verticalSquareSize = canvasHeight / checkerSize;
-        for (let i = 0; i < checkerSize; i++) {
-          for (let j = 0; j < checkerSize; j++) {
-            ctx.fillStyle = (i + j) % 2 === 0 ? backColours[1] : backColours[0];
-            ctx.fillRect(
-              i * horizontalSquareSize, 
-              j * verticalSquareSize, 
-              horizontalSquareSize, 
-              verticalSquareSize
-            );
-          }
-        }
-      } else if (selectedPattern === 'Cross') {
-        ctx.fillStyle = backColours[1];
-        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-        // Cross
-        const crossWidth = Math.min(canvasWidth, canvasHeight) * 0.109;
-        drawCross(ctx, 0, 0, canvasWidth, canvasHeight, crossWidth);
-      } else if (selectedPattern === 'Saltire') {
-        ctx.fillStyle = backColours[1];
-        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-      
-        // Saltire
-        ctx.strokeStyle = backColours[0];
-        const saltireWidth = canvasWidth * 0.1;
-        ctx.lineWidth = saltireWidth;
-      
-        // Draw the saltire using a custom function
-        drawSaltire(ctx, 0, 0, canvasWidth, canvasHeight, saltireWidth);
-      } else if (selectedPattern === 'Border') {
-        // Draw the main background
-        ctx.fillStyle = backColours[1];
-        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-    
-        // Draw the border
-        ctx.strokeStyle = backColours[0] || "#000000";
-        ctx.lineWidth = borderWidth;
-        ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvasWidth - borderWidth, canvasHeight - borderWidth);
-      } else if (selectedPattern === 'Quadrants') {
-        const halfWidth = canvasWidth / 2;
-        const halfHeight = canvasHeight / 2;
-    
-        // Top-left quadrant
-        ctx.fillStyle = backColours[3];
-        ctx.fillRect(0, 0, halfWidth, halfHeight);
-      
-        // Top-right quadrant
-        ctx.fillStyle = backColours[0];
-        ctx.fillRect(halfWidth, 0, halfWidth, halfHeight);
-      
-        // Bottom-left quadrant
-        ctx.fillStyle = backColours[2];
-        ctx.fillRect(0, halfHeight, halfWidth, halfHeight);
-      
-        // Bottom-right quadrant
-        ctx.fillStyle = backColours[1];
-        ctx.fillRect(halfWidth, halfHeight, halfWidth, halfHeight);
-      } else if (selectedPattern === 'Bends') {
-        if (selectedAmount === 'Forwards') {
-          const gradient = ctx.createLinearGradient(-50, -50, dx, dy);
-          gradient.addColorStop(0, backColours[0]);
-          gradient.addColorStop(0.5, backColours[0]);
-          gradient.addColorStop(0.5, backColours[1]);
-          gradient.addColorStop(1, backColours[1]);
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-        } else if (selectedAmount === 'Backwards') {
-          const gradient = ctx.createLinearGradient(canvasWidth, -30, canvasWidth - dx, dy - 50);
-          gradient.addColorStop(0, backColours[0]);
-          gradient.addColorStop(0.5, backColours[0]);
-          gradient.addColorStop(0.5, backColours[1]);
-          gradient.addColorStop(1, backColours[1]);
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-        } else if (selectedAmount === 'Both Ways') {
-          const centerX = canvasWidth / 2;
-          const centerY = canvasHeight / 2;
-          const gradient = ctx.createConicGradient((Math.PI / 4), centerX, centerY);
-          gradient.addColorStop(0, backColours[1]);
-          gradient.addColorStop(0.25, backColours[1]);
-          gradient.addColorStop(0.25, backColours[2]);
-          gradient.addColorStop(0.5, backColours[2]);
-          gradient.addColorStop(0.5, backColours[3]);
-          gradient.addColorStop(0.75, backColours[3]);
-          gradient.addColorStop(0.75, backColours[0]);
-          gradient.addColorStop(1, backColours[0]);
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-        } else if (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe') {
-          const isForward = selectedAmount === 'Forward Stripe';
-          const diagonalLength = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight);
-          const stripeWidthRatio = stripeWidth / diagonalLength;
-          
-          const gradient = ctx.createLinearGradient(
-            isForward ? 0 : canvasWidth,
-            0,
-            isForward ? canvasWidth : 0,
-            canvasHeight
-          );
-          
-          gradient.addColorStop(0, backColours[0]);
-          gradient.addColorStop(0.5 - stripeWidthRatio / 2, backColours[0]);
-          gradient.addColorStop(0.5 - stripeWidthRatio / 2, backColours[2]);
-          gradient.addColorStop(0.5 + stripeWidthRatio / 2, backColours[2]);
-          gradient.addColorStop(0.5 + stripeWidthRatio / 2, backColours[1]);
-          gradient.addColorStop(1, backColours[1]);
-          
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-        }
-      } else if (selectedPattern === 'Vertical') {
-        const stripeWidth = canvasWidth / stripeCount;
-        for (let i = 0; i < stripeCount; i++) {
-          ctx.fillStyle = backColours[i] || backColours[backColours.length - 1];
-          ctx.fillRect(i * stripeWidth, 0, stripeWidth, canvasHeight);
-        }
-      } else if (selectedPattern === 'Horizontal') {
-        const stripeHeight = canvasHeight / stripeCount;
-        for (let i = 0; i < stripeCount; i++) {
-          ctx.fillStyle = backColours[i] || backColours[backColours.length - 1];
-          ctx.fillRect(0, i * stripeHeight, canvasWidth, stripeHeight);
-        }
-      } else if (selectedPattern === 'Sunburst') {
-        const centerX = canvasWidth / 2;
-        const centerY = canvasHeight / 2;
-        const radius = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight) / 2;
-    
-        for (let i = 0; i < sunburstStripeCount; i++) {
-          const startAngle = (i / sunburstStripeCount) * Math.PI * 2;
-          const endAngle = ((i + 1) / sunburstStripeCount) * Math.PI * 2;
-    
-          ctx.beginPath();
-          ctx.moveTo(centerX, centerY);
-          ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-          ctx.closePath();
-    
-          ctx.fillStyle = backColours[i % backColours.length];
-          ctx.fill();
-        }
-      }
-    }
-
-    function drawOverlays() {
-      const sortedOverlays = sortOverlays(overlays);
-      sortedOverlays.forEach((overlay) => {
-        ctx.save();
-        ctx.translate(canvasWidth / 2, canvasHeight / 2);
-        ctx.translate(overlay.offsetX, overlay.offsetY);
-        ctx.rotate(overlay.rotation * Math.PI / 180);
-    
-        if (overlay.type === 'text') {
-          // Handle text overlay
-          ctx.font = `${overlay.size}px ${overlay.font}`;
-          ctx.fillStyle = overlay.color;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-    
-          // Calculate text lines and total height
-          const lines = calculateTextLines(ctx, overlay.text, overlay.width);
-          const totalHeight = lines.length * overlay.size * 1.2;
-          let startY = -totalHeight / 2;
-    
-          // Draw each line of text
-          lines.forEach((line, index) => {
-            ctx.fillText(line, 0, startY + (index + 0.5) * overlay.size * 1.2);
-          });
-        } else {
-          // Handle symbol overlay
-          const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
-          if (overlaySymbol) {
-            ctx.font = `${overlay.size}px Arial`;
-            ctx.fillStyle = overlay.color;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(overlaySymbol.unicode, 0, 0);
-          }
-        }
-        ctx.restore();
-      });
-    }
-    
-    function calculateTextLines(context, text, maxWidth) {
-      const words = text.split(' ');
-      const lines = [];
-      let currentLine = words[0];
-    
-      for (let i = 1; i < words.length; i++) {
-        const word = words[i];
-        const width = context.measureText(currentLine + " " + word).width;
-        if (width < maxWidth) {
-          currentLine += " " + word;
-        } else {
-          lines.push(currentLine);
-          currentLine = word;
-        }
-      }
-      lines.push(currentLine);
-      return lines;
-    }
-
-    function drawStars() {
-      htmlToImage.toPng(starsContainer)
-      .then(function (starsDataUrl) {
-        const starsImg = new Image();
-        starsImg.onload = function () {
-          const offsetX = (canvasWidth - starsWidth) / 2;
-          const offsetY = (canvasHeight - starsHeight) / 2;
-    
-          // Apply rotation if 'square'
-          if (containerFormat === 'square') {
-            ctx.save();
-            ctx.translate(canvasWidth / 2, canvasHeight / 2);
-            ctx.rotate(gridRotation * Math.PI / 180);
-            ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
-          }
-    
-          ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
-    
-          // Restore canvas state if rotation was applied
-          if (containerFormat === 'square') {
-            ctx.restore();
-          }
-    
-          // Draw overlays or stars based on starsOnTop
-          if (starsOnTop) {
-            drawOverlays();
-            ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
-          } else {
-            ctx.drawImage(starsImg, offsetX, offsetY, starsWidth, starsHeight);
-            drawOverlays();
-          }
-    
-          // Downloading composite image
-          canvas.toBlob(function (blob) {
-            download(blob, 'eu-flag.png');
-          });
-        };
-        starsImg.src = starsDataUrl;
-      })
-      .catch(function (error) {
-        console.error('Error generating flag: ', error);
-      });
-    }
-
-    setButtonClicked(true);
-  };
-
   return (
     <div>
       <div className="download-button-container">
-        <button className="download-button" onClick={handleDownload}>
-          <FontAwesomeIcon icon={faDownload} className="download-icon" />
-          Export PNG
-        </button>
-        {canDownloadSvg && (
-          <button className="download-button svg-button" onClick={handleSvgDownload}>
-            <FontAwesomeIcon icon={faFileExport} className="download-icon" />
-            Export SVG
+        <Tooltip text="Set configuration to 'Circle' or 'Flag' based on your preferred output.">
+          <button className="download-button" onClick={handlePngDownload}>
+            <FontAwesomeIcon icon={faDownload} className="download-icon" />
+            Export PNG
           </button>
+        </Tooltip>
+        {canDownloadSvg && (
+          <Tooltip text="SVG output may not exactly match the displayed flag.">
+            <button className="download-button svg-button" onClick={handleSvgDownload}>
+              <FontAwesomeIcon icon={faFileExport} className="download-icon" />
+              Export SVG
+            </button>
+          </Tooltip>
         )}
       </div>
       {buttonClicked && (
