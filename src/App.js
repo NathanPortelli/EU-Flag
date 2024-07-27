@@ -61,7 +61,7 @@ const App = () => {
   const [borderWidth, setBorderWidth] = useState(10);
   const [sunburstStripeCount, setSunburstStripeCount] = useState(8);
   const [stripeWidth, setStripeWidth] = useState(10);
-  const [fonts, setFonts] = useState([
+  const [fonts] = useState([
     { name: 'Arial', value: 'Arial, sans-serif' },
     { name: 'Arial Black', value: '"Arial Black", sans-serif' },
     { name: 'Book Antiqua', value: '"Book Antiqua", serif' },
@@ -349,7 +349,7 @@ const App = () => {
     setStarRotation(getParamOrDefault('starRotation', 0, parseInt));
     setShapeConfiguration(getParamOrDefault('shapeConfiguration', 'circle'));
     setGridRotation(getParamOrDefault('gridRotation', 0, parseInt));
-    setStarsOnTop(getParamOrDefault('starsOnTop', true, (v) => v === 'false'));
+    setStarsOnTop(getParamOrDefault('starsOnTop', false, (v) => v === 'true'));
     setCheckerSize(getParamOrDefault('checkerSize', 4, parseInt));
     setSunburstStripeCount(getParamOrDefault('sunburstStripeCount', 8, parseInt));
     setBorderWidth(getParamOrDefault('borderWidth', 10, parseInt));
@@ -436,10 +436,8 @@ const App = () => {
       sunburstStripeCount: 8,
       borderWidth: 10,
       stripeWidth: 10,
-      // Add more default values as needed
     };
   
-    // Helper function to check if value is different from default
     const isDifferent = (key, value) => {
       if (key === 'backColours') {
         return JSON.stringify(value) !== JSON.stringify(defaultBackColours);
@@ -522,7 +520,7 @@ const App = () => {
 
   useEffect(() => {
     debouncedUpdateURL();
-  }, [starCount, circleCount, starSize, starRadius, starColour, rotationAngle, selectedShape, selectedPattern, selectedAmount, pointAway, outlineOnly, outlineWeight, starRotation, shapeConfiguration, backColours, overlays]);
+  }, [starCount, circleCount, starSize, starRadius, starColour, rotationAngle, selectedShape, selectedPattern, selectedAmount, pointAway, outlineOnly, outlineWeight, starRotation, shapeConfiguration, backColours, overlays, debouncedUpdateURL]);
 
   const setStateAndUpdateURL = (setter) => (value) => {
     setter(value);
@@ -863,7 +861,8 @@ const App = () => {
                 )}
                 {shapeConfiguration === 'circle' && (
                   <div className="custom-toggle-container">
-                    <Tooltip text="Shape orientation; 'Up' aligns shapes vertically, 'Outward' orients shapes radially from the center.">                      <CustomToggle 
+                    <Tooltip text="Shape orientation; 'Up' aligns shapes vertically, 'Outward' orients shapes radially from the center.">                      
+                      <CustomToggle 
                         option1="Pointing Up"
                         option2="Pointing Outward"
                         isActive={pointAway}

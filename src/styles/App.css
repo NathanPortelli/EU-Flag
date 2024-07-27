@@ -203,7 +203,7 @@ input[type="range"] {
   height: 45px;
   background-color: #003399;
   border-radius: 20px;
-  border: 1px solid #FFDD00;
+  border: 2px solid #FFDD00;
   overflow: hidden;
   cursor: pointer;
   user-select: none;
@@ -216,6 +216,7 @@ input[type="range"] {
   align-items: center;
   justify-content: center;
   color: #FFDD00;
+  background-color: #002080;
   font-weight: bold;
   transition: background-color 0.3s ease;
 }
@@ -415,7 +416,7 @@ input[type='color']::-webkit-color-swatch {
   top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #003399;
+  background-color: #002080;
   padding: 0 10px;
   border-radius: 20px;
   color: #FFDD00;
@@ -428,7 +429,7 @@ input[type='color']::-webkit-color-swatch {
   padding: 10px;
   border: 2px solid #FFDD00;
   border-radius: 20px;
-  background-color: #003399;
+  background-color: #002080;
   color: #FFDD00;
   font-size: 16px;
   cursor: pointer;
@@ -818,7 +819,7 @@ input[type='color']::-webkit-color-swatch {
   padding: 10px;
   border: 2px solid #FFDD00;
   border-radius: 20px;
-  background-color: #003399;
+  background-color: #002080;
   color: #FFDD00;
   font-size: 16px;
   cursor: pointer;

@@ -1,7 +1,21 @@
+.download-segment {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid #FFDD00;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.download-segment h2 {
+  color: #ffffff;
+  font-size: 25px;
+  margin-bottom: 30px;
+}
+
 .download-button-container {
-  display: flex;
+  /* display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; */
 }
 
 .download-button {

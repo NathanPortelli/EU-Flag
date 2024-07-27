@@ -4,7 +4,6 @@ import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
 const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth }) => {
- 
   const renderOverlays = () => {
     return overlays.map((overlay, index) => {
       if (overlay.type === 'text') {

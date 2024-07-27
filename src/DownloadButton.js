@@ -8,7 +8,7 @@ import { overlaySymbols } from './components/OverlaySymbols';
 import Tooltip from './components/Tooltip';
 
 const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth }) => {
-  const [buttonClicked] = useState(false);
+  const [buttonClicked, setButtonClicked] = useState(false);
   const canDownloadSvg = !customImage && !backgroundImage;
 
   // PNG DOWNLOAD
@@ -21,12 +21,14 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     }
 
     htmlToImage.toPng(starsContainer, { quality: 1 })
-      .then(function (dataUrl) {
-        download(dataUrl, 'eu-flag.png');
-      })
-      .catch(function (error) {
-        console.error('Error generating PNG:', error);
-      });
+    .then(function (dataUrl) {
+      download(dataUrl, 'eu-flag.png');
+    })
+    .catch(function (error) {
+      console.error('Error generating PNG:', error);
+    });
+
+    setButtonClicked(true);
   };
 
   // SVG DOWNLOAD
@@ -162,6 +164,8 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+
+    setButtonClicked(true);
   };
   
   const createBackground = (svg) => {
@@ -421,7 +425,8 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
   };
 
   return (
-    <div>
+    <div class="download-segment">
+      <h2>Download</h2>
       <div className="download-button-container">
         <Tooltip text="Set configuration to 'Circle' or 'Flag' based on your preferred output.">
           <button className="download-button" onClick={handlePngDownload}>

@@ -10,11 +10,18 @@ export const shapePaths = {
   Triangle: "M50,0 L100,100 H0 Z",
   Cross: "M35,0 V35 H0 V65 H35 V100 H65 V65 H100 V35 H65 V0 Z",
   Shield: "M 50 0 L 90 20 Q 95 25 90 50 Q 50 140 10 50 Q 5 25 10 20 Z",
-  Heart: "M50 15 C25 -10 0 20 50 50 C100 20 75 -10 50 15 Z",
+  Heart: "M 50 15 C 23 -11 -28 28 50 83 C 130 23 75 -10 50 15 Z",
   Arrow: "M 38 0 L 75 50 H 50 V 100 H 25 V 50 H 0 Z",
   Trapezoid: "M 24 68 H 75 L 100 100 H 0 Z",
   Parallelogram: "M 25 0 H 100 L 75 100 H 0 Z",
   Chevron: "M 25 0 L 75 0 L 50 50 L 75 100 H 25 L 0 50 Z",
+  Wave: "M0,50 Q25,0 50,50 T100,50",
+  Hourglass: "M25,0 H75 L50,50 L75,100 H25 L50,50 Z",
+  Rectangle: "M0,0 H100 V50 H0 Z",
+  Raindrop: "M50,0 Q75,50 50,100 Q25,50 50,0 Z",
+  Isotoxal: "M50,0 L60,40 L100,50 L60,60 L50,100 L40,60 L0,50 L40,40 Z",
+  Fish: "M 13 68 C 20 30 50 20 73 51 C 50 80 20 70 13 33 M 50 50 A 10 10 0 1 1 50 50",
+  Semicircle: "M50,0 A50,50 0 0,0 50,100 Z",
 };
 
 export const shapeOptions = [
@@ -34,6 +41,13 @@ export const shapeOptions = [
   'Trapezoid',
   'Parallelogram',
   'Chevron',
+  'Wave',
+  'Hourglass',
+  'Rectangle',
+  'Raindrop',
+  'Isotoxal',
+  'Fish',
+  'Semicircle',
 ];
 
 // export const formatOptions = [
@@ -89,5 +103,5 @@ export const amountIcons = {
   'Backwards': '\\',
   'Both Ways': '𝕏',
   'Forward Stripe': '⫽',
-  'Backward Stripe': '\\\\'
+  'Backward Stripe': '\\\\',
 };
