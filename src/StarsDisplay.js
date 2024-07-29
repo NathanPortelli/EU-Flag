@@ -3,7 +3,7 @@ import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, circleSpacing, gridSpacing }) => {
   const renderOverlays = () => {
     return overlays.map((overlay, index) => {
       if (overlay.type === 'text') {
@@ -77,9 +77,12 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   
         for (let col = 0; col < starsInThisRow; col++) {
           if (starIndex >= count) break;
+
+          const baseX = offsetX + (col + 1) * horizontalGap;
+          const baseY = (row + 1) * verticalGap;
   
-          const x = offsetX + (col + 1) * horizontalGap;
-          const y = (row + 1) * verticalGap;
+          const x = 50 + (baseX - 50) * (gridSpacing / 100);
+          const y = 50 + (baseY - 50) * (gridSpacing / 100);
   
           let shapeRotation = pointAway ? 0 : starRotation;
   
@@ -428,9 +431,9 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   }
 
   const circleConfigurations = [
-    { circleIndex: 1, countRatio: { 1: 1, 2: 2/3, 3: 4/9 }, radiusFactor: 2 },
-    { circleIndex: 2, countRatio: { 2: 1/3, 3: 3/9 }, radiusFactor: 2.5 },
-    { circleIndex: 3, countRatio: { 3: 2/9 }, radiusFactor: 4 },
+    { circleIndex: 1, countRatio: { 1: 1, 2: 2/3, 3: 4/9 }, radiusFactor: 2 * (circleSpacing / 100) },
+    { circleIndex: 2, countRatio: { 2: 1/3, 3: 3/9 }, radiusFactor: 2.5 * (circleSpacing / 100) },
+    { circleIndex: 3, countRatio: { 3: 2/9 }, radiusFactor: 4 * (circleSpacing / 100) },
   ];
   
   let remainingStars = count;

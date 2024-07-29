@@ -149,7 +149,6 @@ export const overlaySymbols = [
     { value: 'checkMark', label: '✔', unicode: '✔', displayName: 'Check Mark' },
     { value: 'crossMark', label: '✖', unicode: '✖', displayName: 'Cross Mark' },
     { value: 'recyclingSymbol', label: '♻', unicode: '♻', displayName: 'Recycling Symbol' },
-    { value: 'yinYang', label: '☯', unicode: '☯', displayName: 'Yin Yang' },
     { value: 'trigramForHeaven', label: '☰', unicode: '☰', displayName: 'Trigram for Heaven' },
     { value: 'trigramForLake', label: '☱', unicode: '☱', displayName: 'Trigram for Lake' },
     { value: 'trigramForFire', label: '☲', unicode: '☲', displayName: 'Trigram for Fire' },

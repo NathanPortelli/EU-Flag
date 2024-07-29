@@ -4,7 +4,7 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faBorderStyle, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
+import { faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 import { random } from 'lodash';
 
@@ -21,6 +21,7 @@ import FilterableSelect from './components/FilterableSelect';
 import CountryFilterableSelect from './components/CountryFilterableSelect';
 import ColourPicker from './components/ColourPicker';
 import Tooltip from './components/Tooltip';
+import { fonts } from './components/OverlayFonts';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
@@ -61,38 +62,8 @@ const App = () => {
   const [borderWidth, setBorderWidth] = useState(10);
   const [sunburstStripeCount, setSunburstStripeCount] = useState(8);
   const [stripeWidth, setStripeWidth] = useState(10);
-  const [fonts] = useState([
-    { name: 'Arial', value: 'Arial, sans-serif' },
-    { name: 'Arial Black', value: '"Arial Black", sans-serif' },
-    { name: 'Book Antiqua', value: '"Book Antiqua", serif' },
-    { name: 'Candara', value: 'Candara, sans-serif' },
-    { name: 'Century Gothic', value: '"Century Gothic", sans-serif' },
-    { name: 'Comic Sans MS', value: '"Comic Sans MS", cursive' },
-    { name: 'Consolas', value: 'Consolas, monospace' },
-    { name: 'Copperplate', value: 'Copperplate, fantasy' },
-    { name: 'Courier New', value: '"Courier New", monospace' },
-    { name: 'Franklin Gothic Medium', value: '"Franklin Gothic Medium", sans-serif' },
-    { name: 'Garamond', value: 'Garamond, serif' },
-    { name: 'Georgia', value: 'Georgia, serif' },
-    { name: 'Gill Sans', value: '"Gill Sans", sans-serif' },
-    { name: 'Helvetica', value: 'Helvetica, sans-serif' },
-    { name: 'Impact', value: 'Impact, sans-serif' },
-    { name: 'Lucida Console', value: '"Lucida Console", monospace' },
-    { name: 'Lucida Sans', value: '"Lucida Sans", sans-serif' },
-    { name: 'Monaco', value: 'Monaco, monospace' },
-    { name: 'Palatino Linotype', value: '"Palatino Linotype", serif' },
-    { name: 'Segoe UI', value: '"Segoe UI", sans-serif' },
-    { name: 'Tahoma', value: 'Tahoma, sans-serif' },
-    { name: 'Times New Roman', value: '"Times New Roman", serif' },
-    { name: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
-    { name: 'Verdana', value: 'Verdana, sans-serif' },
-    { name: 'Montserrat', value: 'Montserrat, sans-serif' },
-    { name: 'Oswald', value: 'Oswald, sans-serif' },
-    { name: 'Raleway', value: 'Raleway, sans-serif' },
-    { name: 'Roboto', value: 'Roboto, sans-serif' },
-    { name: 'Bebas Neue', value: '"Bebas Neue", sans-serif' },
-    { name: 'Lobster', value: 'Lobster, cursive' }
-  ]);
+  const [circleSpacing, setCircleSpacing] = useState(100);
+  const [gridSpacing, setGridSpacing] = useState(100);
   
   const cloneOverlay = (index) => {
     if (overlays.length < MAX_OVERLAYS) {
@@ -198,7 +169,7 @@ const App = () => {
     updateURL();
   };
 
-  const randomizeAll = () => {
+  const randomizeAll = (includeOverlays = true) => {
     const randomPattern = patternOptions[Math.floor(Math.random() * patternOptions.length)];
     const randomShape = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
     const randomAmount = amountOptions[randomPattern] ? amountOptions[randomPattern][Math.floor(Math.random() * amountOptions[randomPattern].length)] : '';
@@ -221,6 +192,8 @@ const App = () => {
     setCheckerSize(random(1, 16));
     setStarsOnTopAndURL(Math.random() < 0.5);
     setSunburstStripeCount(random(2, 16));
+    setBorderWidth(random(1, 30));
+    setCircleSpacingAndURL(random(80, 200));
   
     const newBackColours = Array(16).fill().map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`);
     setBackColours(newBackColours);
@@ -231,15 +204,19 @@ const App = () => {
     }
   
     // Randomize overlays
-    const newOverlays = Array(random(0, MAX_OVERLAYS)).fill().map(() => ({
-      shape: overlaySymbols[Math.floor(Math.random() * overlaySymbols.length)].value,
-      size: random(10, 800),
-      offsetX: random(-300, 300),
-      offsetY: random(-300, 300),
-      rotation: random(0, 360),
-      color: `#${Math.floor(Math.random()*16777215).toString(16)}`
-    }));
-    setOverlays(newOverlays);
+    if (includeOverlays) {
+      const newOverlays = Array(random(0, MAX_OVERLAYS)).fill().map(() => ({
+        shape: overlaySymbols[Math.floor(Math.random() * overlaySymbols.length)].value,
+        size: random(10, 800),
+        offsetX: random(-300, 300),
+        offsetY: random(-300, 300),
+        rotation: random(0, 360),
+        color: `#${Math.floor(Math.random()*16777215).toString(16)}`
+      }));
+      setOverlays(newOverlays);
+    } else {
+      setOverlays([]);
+    }
   
     updateURL();
   };
@@ -353,6 +330,8 @@ const App = () => {
     setCheckerSize(getParamOrDefault('checkerSize', 4, parseInt));
     setSunburstStripeCount(getParamOrDefault('sunburstStripeCount', 8, parseInt));
     setBorderWidth(getParamOrDefault('borderWidth', 10, parseInt));
+    setCircleSpacing(getParamOrDefault('circleSpacing', 100, parseInt));
+    setGridSpacing(getParamOrDefault('gridSpacing', 100, parseInt));
 
     // Handle background colours
     const urlBackColors = params.get('backColours');
@@ -473,6 +452,8 @@ const App = () => {
     addParamIfDifferent('checkerSize', checkerSize);
     addParamIfDifferent('sunburstStripeCount', sunburstStripeCount);
     addParamIfDifferent('borderWidth', borderWidth);
+    addParamIfDifferent('circleSpacing', circleSpacing);
+    addParamIfDifferent('gridSpacing', gridSpacing);
   
     // Handle background colours
     if (isDifferent('backColours', backColours)) {
@@ -542,6 +523,8 @@ const App = () => {
   const setShapeConfigurationAndURL = setStateAndUpdateURL(setShapeConfiguration);
   const setGridRotationAndURL = setStateAndUpdateURL(setGridRotation);
   const setStarsOnTopAndURL = setStateAndUpdateURL(setStarsOnTop);
+  const setCircleSpacingAndURL = setStateAndUpdateURL(setCircleSpacing);
+  const setGridSpacingAndURL = setStateAndUpdateURL(setGridSpacing);
 
   const handleBackColourChange = (colour, index) => {
     const newColours = [...backColours];
@@ -712,6 +695,8 @@ const App = () => {
                 sunburstStripeCount={sunburstStripeCount}
                 borderWidth={borderWidth}
                 stripeWidth={stripeWidth}
+                circleSpacing={circleSpacing}
+                gridSpacing={gridSpacing}
               />
             </div>
             <div className="Shape-selector">
@@ -732,10 +717,17 @@ const App = () => {
                   placeholder="Select a Country"
                 />
               </div>
-              <button onClick={randomizeAll} className="random-button">
-                <FontAwesomeIcon icon={faShuffle} className="random-icon" />
-                Randomise All
-              </button>
+              <div className="randomize-buttons-container">
+                <button onClick={() => randomizeAll(true)} className="random-button random-button-large">
+                  <FontAwesomeIcon icon={faShuffle} className="random-icon" />
+                  Randomise All
+                </button>
+                <Tooltip text="Randomise all settings except for the overlays.">
+                  <button onClick={() => randomizeAll(false)} className="random-button random-button-small">
+                    <FontAwesomeIcon icon={faBan} />
+                  </button>
+                </Tooltip>
+              </div>
             </div>
           </div>
           <div className="Slider-content">
@@ -811,18 +803,38 @@ const App = () => {
                       label="Rotation Angle"
                       icon={faRotate}
                     />
+                    <Slider
+                      value={circleSpacing}
+                      onChange={setCircleSpacingAndURL}
+                      min={80}
+                      max={200}
+                      unit="%"
+                      label="Circle Spacing"
+                      icon={faArrowsAltH}
+                    />
                   </>
                 )}
                 {shapeConfiguration === 'square' && (
-                  <Slider
-                    value={gridRotation}
-                    onChange={setGridRotationAndURL}
-                    min={0}
-                    max={360}
-                    unit="°"
-                    label="Grid Rotation"
-                    icon={faRotate}
-                  />
+                  <>
+                    <Slider
+                      value={gridRotation}
+                      onChange={setGridRotationAndURL}
+                      min={0}
+                      max={360}
+                      unit="°"
+                      label="Grid Rotation"
+                      icon={faRotate}
+                    />
+                    <Slider
+                      value={gridSpacing}
+                      onChange={setGridSpacingAndURL}
+                      min={20}
+                      max={200}
+                      unit="%"
+                      label="Grid Spacing"
+                      icon={faArrowsAltH}
+                    />
+                  </>
                 )}
               </div>
             )}

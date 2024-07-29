@@ -425,7 +425,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
   };
 
   return (
-    <div class="download-segment">
+    <div className="download-segment">
       <h2>Download</h2>
       <div className="download-button-container">
         <Tooltip text="Set configuration to 'Circle' or 'Flag' based on your preferred output.">
