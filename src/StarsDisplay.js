@@ -1,29 +1,72 @@
-import React from 'react';
+import React, {useState, useRef} from 'react';
 import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, circleSpacing, gridSpacing }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, circleSpacing, gridSpacing, updateOverlayPosition }) => {
+  const [draggedOverlay, setDraggedOverlay] = useState(null);
+  const dragStartPosRef = useRef({ x: 0, y: 0 });
+  const initialOverlayPosRef = useRef({ x: 0, y: 0 });
+
+  const handleDragStart = (e, index, overlay) => {
+    setDraggedOverlay(index);
+    const container = document.getElementById('stars-container');
+    const rect = container.getBoundingClientRect();
+    dragStartPosRef.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+    initialOverlayPosRef.current = {
+      x: overlay.offsetX,
+      y: overlay.offsetY
+    };
+  };
+
+  const handleDragEnd = (e) => {
+    if (draggedOverlay !== null) {
+      const container = document.getElementById('stars-container');
+      const rect = container.getBoundingClientRect();
+      const endX = e.clientX - rect.left;
+      const endY = e.clientY - rect.top;
+      
+      const deltaX = endX - dragStartPosRef.current.x;
+      const deltaY = endY - dragStartPosRef.current.y;
+      
+      const newX = initialOverlayPosRef.current.x + deltaX;
+      const newY = initialOverlayPosRef.current.y + deltaY;
+      
+      updateOverlayPosition(draggedOverlay, newX, newY);
+    }
+    setDraggedOverlay(null);
+  };
+
   const renderOverlays = () => {
     return overlays.map((overlay, index) => {
+      const commonStyle = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: `translate(calc(-50% + ${overlay.offsetX}px), calc(-50% + ${overlay.offsetY}px)) rotate(${overlay.rotation}deg)`,
+        cursor: 'move',
+      };
+
       if (overlay.type === 'text') {
         return (
           <div
             key={`overlay-${index}`}
             style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: `translate(calc(-50% + ${overlay.offsetX}px), calc(-50% + ${overlay.offsetY}px)) rotate(${overlay.rotation}deg)`,
+              ...commonStyle,
               fontSize: `${overlay.size}px`,
               fontFamily: overlay.font,
-              zIndex: overlays.length - index,
               color: overlay.color,
               width: `${overlay.width}px`,
               textAlign: 'center',
               whiteSpace: 'normal',
               wordWrap: 'break-word',
             }}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index, overlay)}
+            onDragEnd={handleDragEnd}
           >
             {overlay.text}
           </div>
@@ -34,14 +77,13 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           <div
             key={`overlay-${index}`}
             style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: `translate(calc(-50% + ${overlay.offsetX}px), calc(-50% + ${overlay.offsetY}px)) rotate(${overlay.rotation}deg)`,
+              ...commonStyle,
               fontSize: `${overlay.size}px`,
-              zIndex: overlays.length - index,
               color: overlay.color,
             }}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index, overlay)}
+            onDragEnd={handleDragEnd}
           >
             {symbol ? symbol.unicode : ''}
           </div>
@@ -341,7 +383,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           const crossWidth = `${crossSaltireSize}%`;
           backgroundStyle = {
             background: `
-              linear-gradient(to right, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
+              linear-gradient(to right, transparent calc(50% - ${crossWidth}/2.5), ${backColours[0]} calc(50% - ${crossWidth}/2.5), ${backColours[0]} calc(50% + ${crossWidth}/2.5), transparent calc(50% + ${crossWidth}/2.5)),
               linear-gradient(to bottom, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
               ${backColours[1]}
             `
@@ -477,6 +519,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         })
       }}
       data-has-background-image={!!backgroundImage}
+      onDragOver={(e) => e.preventDefault()}
     >
       <div 
         id="stars-only-container" 

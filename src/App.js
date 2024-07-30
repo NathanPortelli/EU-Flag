@@ -4,7 +4,7 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
+import { faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 import { random } from 'lodash';
 
@@ -22,6 +22,9 @@ import CountryFilterableSelect from './components/CountryFilterableSelect';
 import ColourPicker from './components/ColourPicker';
 import Tooltip from './components/Tooltip';
 import { fonts } from './components/OverlayFonts';
+
+import ChangelogPopup from './components/ChangelogPopup';
+import Popup from './components/Popup';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
@@ -65,6 +68,25 @@ const App = () => {
   const [circleSpacing, setCircleSpacing] = useState(100);
   const [gridSpacing, setGridSpacing] = useState(100);
   
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+
+  const toggleChangelog = () => {
+    setIsChangelogOpen(!isChangelogOpen);
+  };
+
+  useEffect(() => {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content > div');
+  
+    tabButtons.forEach((button, index) => {
+      button.addEventListener('click', () => {
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.style.display = 'none');
+        button.classList.add('active');
+      });
+    });
+  }, [isChangelogOpen]);
+
   const cloneOverlay = (index) => {
     if (overlays.length < MAX_OVERLAYS) {
       const clonedOverlay = JSON.parse(JSON.stringify(overlays[index]));
@@ -194,6 +216,7 @@ const App = () => {
     setSunburstStripeCount(random(2, 16));
     setBorderWidth(random(1, 30));
     setCircleSpacingAndURL(random(80, 200));
+    setGridSpacingAndURL(random(20, 200));
   
     const newBackColours = Array(16).fill().map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`);
     setBackColours(newBackColours);
@@ -661,6 +684,18 @@ const App = () => {
     window.location.reload();
   };
 
+  const updateOverlayPosition = (index, x, y) => {
+    setOverlays(prevOverlays => {
+      const newOverlays = [...prevOverlays];
+      newOverlays[index] = {
+        ...newOverlays[index],
+        offsetX: x,
+        offsetY: y,
+      };
+      return newOverlays;
+    });
+  };
+
   return (
     <div className={`App ${formatClass}`}>
       <Header handleShare={handleShare} handleRefresh={handleRefresh} />
@@ -697,6 +732,7 @@ const App = () => {
                 stripeWidth={stripeWidth}
                 circleSpacing={circleSpacing}
                 gridSpacing={gridSpacing}
+                updateOverlayPosition={updateOverlayPosition}
               />
             </div>
             <div className="Shape-selector">
@@ -959,8 +995,11 @@ const App = () => {
                         </button>
                       </Tooltip>
                     </div>
+                    {overlays.length >= 1 && (
+                      <p className='image-disclaimer'>You can move the overlays by dragging them on the flag itself.</p>
+                    )}
                     {overlays.length >= 2 && (
-                      <p className='image-disclaimer'>Drag/Move overlays up or down to change their stacking order.</p>
+                      <p className='image-disclaimer'>Drag/Move overlay options up or down to change their stacking order.</p>
                     )}
                   </div>
                 )}
@@ -1083,7 +1122,6 @@ const App = () => {
                         onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
                         min={-350}
                         max={350}
-                        // unit="↕"
                         label="Vertical Position"
                         icon={faUpDown}
                       />
@@ -1092,7 +1130,6 @@ const App = () => {
                         onChange={(value) => updateOverlayProperty(index, 'offsetX', value)}
                         min={-350}
                         max={350}
-                        // unit="↔"
                         label="Horizontal Position"
                         icon={faLeftRight}
                       />
@@ -1103,7 +1140,6 @@ const App = () => {
                         onChange={(value) => updateOverlayProperty(index, 'size', value)}
                         min={10}
                         max={999}
-                        // unit="%"
                         label="Size"
                         icon={faMaximize}
                       />
@@ -1338,7 +1374,15 @@ const App = () => {
           <a href="https://github.com/NathanPortelli/" target="_blank" rel="noopener noreferrer">
             Nathan Portelli
           </a>
+          <button onClick={toggleChangelog} className="changelog-button" aria-label="Open Changelog">
+            <FontAwesomeIcon icon={faClipboardList} />
+          </button>
         </div>
+        {isChangelogOpen && (
+          <Popup onClose={toggleChangelog}>
+            <ChangelogPopup />
+          </Popup>
+        )}
       </footer>
       {notification && (
         <Notification message={notification} onClose={clearNotification} />

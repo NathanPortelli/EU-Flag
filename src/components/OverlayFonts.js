@@ -1,8 +1,11 @@
 const OverlayFonts = [
+    { name: 'Alfa Slab One', value: '"Alfa Slab One", display' },
+    { name: 'Amatic SC', value: '"Amatic SC", cursive' },
+    { name: 'Anton', value: 'Anton, sans-serif' },
     { name: 'Arial', value: 'Arial, sans-serif' },
     { name: 'Arial Black', value: '"Arial Black", sans-serif' },
-    { name: 'Anton', value: 'Anton, sans-serif' },
     { name: 'Avenir', value: 'Avenir, sans-serif' },
+    { name: 'Bangers', value: 'Bangers, display' },
     { name: 'Baskerville', value: 'Baskerville, serif' },
     { name: 'Bebas Neue', value: '"Bebas Neue", sans-serif' },
     { name: 'Book Antiqua', value: '"Book Antiqua", serif' },
@@ -13,9 +16,11 @@ const OverlayFonts = [
     { name: 'Consolas', value: 'Consolas, monospace' },
     { name: 'Copperplate', value: 'Copperplate, fantasy' },
     { name: 'Courier New', value: '"Courier New", monospace' },
+    { name: 'Creepster', value: 'Creepster, display' },
     { name: 'Dosis', value: 'Dosis, sans-serif' },
     { name: 'Droid Serif', value: '"Droid Serif", serif' },
     { name: 'Franklin Gothic Medium', value: '"Franklin Gothic Medium", sans-serif' },
+    { name: 'Fredericka the Great', value: '"Fredericka the Great", display' },
     { name: 'Futura', value: 'Futura, sans-serif' },
     { name: 'Garamond', value: 'Garamond, serif' },
     { name: 'Georgia', value: 'Georgia, serif' },
@@ -33,16 +38,19 @@ const OverlayFonts = [
     { name: 'Open Sans', value: '"Open Sans", sans-serif' },
     { name: 'Oswald', value: 'Oswald, sans-serif' },
     { name: 'Palatino Linotype', value: '"Palatino Linotype", serif' },
+    { name: 'Papyrus', value: 'Papyrus, fantasy' },
     { name: 'Playfair Display', value: '"Playfair Display", serif' },
     { name: 'PT Sans', value: '"PT Sans", sans-serif' },
     { name: 'Raleway', value: 'Raleway, sans-serif' },
     { name: 'Roboto', value: 'Roboto, sans-serif' },
+    { name: 'Rock Salt', value: '"Rock Salt", cursive' },
     { name: 'Segoe UI', value: '"Segoe UI", sans-serif' },
     { name: 'Tahoma', value: 'Tahoma, sans-serif' },
     { name: 'Times New Roman', value: '"Times New Roman", serif' },
     { name: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
     { name: 'Ubuntu', value: 'Ubuntu, sans-serif' },
-    { name: 'Verdana', value: 'Verdana, sans-serif' }
+    { name: 'Verdana', value: 'Verdana, sans-serif' },
+    { name: 'Zilla Slab', value: '"Zilla Slab", serif' }
 ];
 
 export const fonts = OverlayFonts;
