@@ -122,6 +122,7 @@ export const overlaySymbols = [
     { value: 'crossingLanes', label: '⛌', unicode: '⛌', displayName: 'Crossing Lanes' },
     { value: 'circledCrossingLanes', label: '⛒', unicode: '⛒', displayName: 'Circled Crossing Lanes' },
     { value: 'blackCrossOnShield', label: '⛨', unicode: '⛨', displayName: 'Cross On Shield' },
+    { value: 'shield', label: '🛡', unicode: '🛡', displayName: 'Shield'},
     { value: 'outlinedGreekCross', label: '✙', unicode: '✙', displayName: 'Outlined Greek Cross' },
     { value: 'heavyGreekCross', label: '✚', unicode: '✚', displayName: 'Heavy Greek Cross' },
     { value: 'openCentreCross', label: '✛', unicode: '✛', displayName: 'Open Centre Cross' },

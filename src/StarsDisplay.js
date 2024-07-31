@@ -3,7 +3,7 @@ import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, circleSpacing, gridSpacing, updateOverlayPosition }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, circleSpacing, gridSpacing, updateOverlayPosition, customSvgPath }) => {
   const [draggedOverlay, setDraggedOverlay] = useState(null);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
   const initialOverlayPosRef = useRef({ x: 0, y: 0 });
@@ -94,6 +94,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
 
   const renderShapes = (count, size, radius, keyPrefix) => {
     const shapes = [];
+    const shapePathToUse = shape === 'Custom' ? customSvgPath : shapePaths[shape];
   
     if (shapeConfiguration === 'square') {
       let rows = Math.ceil(Math.sqrt(count));
@@ -154,7 +155,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
                 />
               ) : (
                 <path
-                  d={shapePaths[shape]}
+                  d={shapePathToUse}
                   fill={outlineOnly ? 'none' : starColour}
                   stroke={starColour}
                   strokeWidth={outlineOnly ? outlineWeight : '0'}

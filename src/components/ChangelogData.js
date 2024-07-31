@@ -1,5 +1,12 @@
 export const changelogData = [
   {
+    version: "v.0.2.12",
+    date: "31/07/2024",
+    changes: [
+      "Added Custom SVG Path Symbols",
+    ]
+  },
+  {
     version: "v.0.2.11",
     date: "31/07/2024",
     changes: [
@@ -328,7 +335,6 @@ export const upcomingFeatures = [
   "Wavy Horizontal/Vertical Pattern Background",
   "Fit Circle/Flag in Small Screen",
   "Colour Picker with Gradient and Transparency Features",
-  "Custom Local SVG Path Symbols",
   "Basic Colour Theory on Non-Overlay Flag Randomiser",
   "Overhaul SVG Download",
   "Public Sharing of Flag URLs",

@@ -4,7 +4,7 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 import { random } from 'lodash';
 
@@ -68,6 +68,7 @@ const App = () => {
   const [stripeWidth, setStripeWidth] = useState(10);
   const [circleSpacing, setCircleSpacing] = useState(100);
   const [gridSpacing, setGridSpacing] = useState(100);
+  const [customSvgPath, setCustomSvgPath] = useState("M 10,20 L 90,20 L 90,60 L 10,60 Z M 10,20 L 50,40 L 90,20");
   
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [isQuizMode, setIsQuizMode] = useState(false);
@@ -88,6 +89,38 @@ const App = () => {
       });
     });
   }, [isChangelogOpen]);
+
+  const handleCustomSvgPathChange = (e) => {
+    setCustomSvgPath(e.target.value);
+  };
+  
+  const isValidSvgPath = (path) => {
+    const svgPathRegex = /^[MmLlHhVvCcSsQqTtAaZz0-9\s,.-]+$/;
+    return svgPathRegex.test(path);
+  };
+  
+  const handleCustomSvgSubmit = () => {
+    if (customSvgPath && isValidSvgPath(customSvgPath)) {
+      updateCustomShapePath(customSvgPath);
+      setSelectedShapeAndURL('Custom');
+      updateURL();
+      
+      // Clear the input field
+      const svgPathElement = document.getElementById('custom-svg-path');
+      if (svgPathElement) {
+        svgPathElement.textContent = '';
+      }
+
+      setNotification('Custom SVG path added successfully.');
+    } else {
+      setNotification('Invalid SVG path. Please check your input.');
+    }
+  };
+  
+
+  const updateCustomShapePath = (path) => {
+    shapePaths.Custom = path;
+  };
 
   const cloneOverlay = (index) => {
     if (overlays.length < MAX_OVERLAYS) {
@@ -355,6 +388,14 @@ const App = () => {
     setBorderWidth(parseInt(params.get('borderWidth') || '10'));
     setStripeCount(parseInt(params.get('stripeCount') || '2'));
     setGridSpacing(parseInt(params.get('gridSpacing') || '100'));
+
+    const urlCustomSvgPath = params.get('customSvgPath');
+    if (urlCustomSvgPath) {
+      const decodedPath = decodeURIComponent(urlCustomSvgPath);
+      setCustomSvgPath(decodedPath);
+      updateCustomShapePath(decodedPath);
+      setSelectedShape('Custom');
+    }
   
     const urlBackColors = params.get('backColours');
     if (urlBackColors) {
@@ -474,7 +515,6 @@ const App = () => {
     window.history.replaceState({}, '', `${window.location.pathname}${url.search}`);
   };
 
-
   const updateURL = () => {
     const params = new URLSearchParams();
     
@@ -502,6 +542,10 @@ const App = () => {
       borderWidth: 10,
       stripeWidth: 10,
     };
+
+    if (selectedShape === 'Custom' && customSvgPath) {
+      params.set('customSvgPath', encodeURIComponent(customSvgPath));
+    }
   
     const isDifferent = (key, value) => {
       if (key === 'backColours') {
@@ -807,6 +851,7 @@ const App = () => {
                       circleSpacing={circleSpacing}
                       gridSpacing={gridSpacing}
                       updateOverlayPosition={updateOverlayPosition}
+                      customSvgPath={customSvgPath}
                     />
                   </div>
                   <div className="Shape-selector">
@@ -975,6 +1020,22 @@ const App = () => {
                               />
                             </Tooltip>
                           </div>
+                          <div className="custom-svg-input">
+                            <Tooltip text="Enter a custom SVG path for your shape.">
+                              <input
+                                id="custom-svg-path"
+                                type="text"
+                                placeholder="Enter Custom SVG Path"
+                                value={customSvgPath}
+                                onChange={handleCustomSvgPathChange}
+                              />
+                              <button onClick={handleCustomSvgSubmit}>
+                                <FontAwesomeIcon icon={faArrowRight} />
+                              </button>
+                            </Tooltip>
+                          </div>
+                          <p className='image-disclaimer'>Use <a href="https://yqnn.github.io/svg-path-editor/" target="_blank" rel="noopener noreferrer">this</a> tool to help you draw SVG shapes.</p>
+                          <Divider />
                           <div className="Shape-colour">
                             <ColourPicker
                               id="starColourPicker"

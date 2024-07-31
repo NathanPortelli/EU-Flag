@@ -22,6 +22,7 @@ export const shapePaths = {
   Isotoxal: "M50,0 L60,40 L100,50 L60,60 L50,100 L40,60 L0,50 L40,40 Z",
   Fish: "M 13 68 C 20 30 50 20 73 51 C 50 80 20 70 13 33 M 50 50 A 10 10 0 1 1 50 50",
   Semicircle: "M50,0 A50,50 0 0,0 50,100 Z",
+  Custom: "",
 };
 
 export const shapeOptions = [
@@ -48,17 +49,8 @@ export const shapeOptions = [
   'Isotoxal',
   'Fish',
   'Semicircle',
+  'Custom',
 ];
-
-// export const formatOptions = [
-//   'Circle', 
-//   'Square', 
-// ];
-
-// export const formatIcons = {
-//   'Square': '☐',
-//   'Circle': '○',
-// };
 
 export const patternOptions = [
   'Single', 
