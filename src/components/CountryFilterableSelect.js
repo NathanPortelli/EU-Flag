@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const CountryFilterableSelect = ({ options, value, onChange, placeholder }) => {
+const CountryFilterableSelect = ({ options, value, onChange, placeholder, onUrlChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState('');
   const [inputPlaceholder, setInputPlaceholder] = useState(placeholder);
@@ -51,7 +51,7 @@ const CountryFilterableSelect = ({ options, value, onChange, placeholder }) => {
     setIsOpen(false);
     setFilter('');
     setInputPlaceholder(option.label);
-    window.location.href = option.link; // Redirecting to the selected country's link
+    onUrlChange(option.link);
   };
 
   const handleInputFocus = () => {

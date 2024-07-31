@@ -25,6 +25,7 @@ import { fonts } from './components/OverlayFonts';
 
 import ChangelogPopup from './components/ChangelogPopup';
 import Popup from './components/Popup';
+import QuizMode from './components//QuizMode';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
@@ -69,6 +70,7 @@ const App = () => {
   const [gridSpacing, setGridSpacing] = useState(100);
   
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+  const [isQuizMode, setIsQuizMode] = useState(false);
 
   const toggleChangelog = () => {
     setIsChangelogOpen(!isChangelogOpen);
@@ -325,59 +327,43 @@ const App = () => {
 
   const formatClass = isSmallScreen ? 'old-format' : 'new-format';
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+  const handleUrlChange = (newUrl) => {
+    const url = new URL(newUrl);
+    const params = new URLSearchParams(url.search);
     
-    const getParamOrDefault = (paramName, defaultValue, parser = (v) => v) => {
-      const paramValue = params.get(paramName);
-      return paramValue !== null ? parser(paramValue) : defaultValue;
-    };
-
-    setCrossSaltireSize(getParamOrDefault('crossSaltireSize', 11, parseFloat));
-    setStarCount(getParamOrDefault('starCount', 12, parseInt));
-    setCircleCount(getParamOrDefault('circleCount', 1, parseInt));
-    setStarSize(getParamOrDefault('starSize', 55, parseInt));
-    setStarRadius(getParamOrDefault('starRadius', window.innerWidth < 1000 ? 80 : 90, parseInt));
-    setStarColour(getParamOrDefault('starColour', '#FFDD00'));
-    setRotationAngle(getParamOrDefault('rotationAngle', 0, parseInt));
-    setSelectedShape(getParamOrDefault('shape', 'Star'));
-    setSelectedPattern(getParamOrDefault('pattern', 'Single'));
-    setSelectedAmount(getParamOrDefault('amount', ''));
-    setPointAway(getParamOrDefault('pointAway', false, (v) => v === 'true'));
-    setOutlineOnly(getParamOrDefault('outlineOnly', false, (v) => v === 'true'));
-    setOutlineWeight(getParamOrDefault('outlineWeight', 2, parseInt));
-    setStarRotation(getParamOrDefault('starRotation', 0, parseInt));
-    setShapeConfiguration(getParamOrDefault('shapeConfiguration', 'circle'));
-    setGridRotation(getParamOrDefault('gridRotation', 0, parseInt));
-    setStarsOnTop(getParamOrDefault('starsOnTop', false, (v) => v === 'true'));
-    setCheckerSize(getParamOrDefault('checkerSize', 4, parseInt));
-    setSunburstStripeCount(getParamOrDefault('sunburstStripeCount', 8, parseInt));
-    setBorderWidth(getParamOrDefault('borderWidth', 10, parseInt));
-    setCircleSpacing(getParamOrDefault('circleSpacing', 100, parseInt));
-    setGridSpacing(getParamOrDefault('gridSpacing', 100, parseInt));
-
+    // Update state based on URL parameters
+    setStarCount(parseInt(params.get('starCount') || '12'));
+    setCircleCount(parseInt(params.get('circleCount') || '1'));
+    setStarSize(parseInt(params.get('starSize') || '55'));
+    setStarColour(params.get('starColour') || '#FFDD00');
+    setRotationAngle(parseInt(params.get('rotationAngle') || '0'));
+    setSelectedShape(params.get('shape') || 'Star');
+    setSelectedPattern(params.get('pattern') || 'Single');
+    setSelectedAmount(params.get('amount') || '');
+    setPointAway(params.get('pointAway') === 'true');
+    setOutlineOnly(params.get('outlineOnly') === 'true');
+    setOutlineWeight(parseInt(params.get('outlineWeight') || '2'));
+    setStarRotation(parseInt(params.get('starRotation') || '0'));
+    setShapeConfiguration(params.get('shapeConfiguration') || 'circle');
+    setCrossSaltireSize(parseFloat(params.get('crossSaltireSize') || '11'));
+    setGridRotation(parseInt(params.get('gridRotation') || '0'));
+    setStarsOnTop(params.get('starsOnTop') === 'true');
+    setCheckerSize(parseInt(params.get('checkerSize') || '4'));
+    setSunburstStripeCount(parseInt(params.get('sunburstStripeCount') || '8'));
+    setBorderWidth(parseInt(params.get('borderWidth') || '10'));
+    setStripeCount(parseInt(params.get('stripeCount') || '2'));
+    setGridSpacing(parseInt(params.get('gridSpacing') || '100'));
+    setCrossSaltireSize(parseInt(params.get('crossSaltireSize') || '11'));
+  
     // Handle background colours
     const urlBackColors = params.get('backColours');
     if (urlBackColors) {
       const colors = urlBackColors.split(',');
       setBackColours(colors);
       setUserSetColours(colors);
-      setStripeCount(colors.length);
-    } else {
-      setBackColours(defaultBackColours);
-      setUserSetColours(defaultBackColours);
     }
-
-    setSelectedPattern(getParamOrDefault('pattern', 'Single'));
-    if (params.get('pattern') === 'Horizontal' || params.get('pattern') === 'Vertical') {
-      setStripeCount(getParamOrDefault('stripeCount', 2, parseInt));
-    } else if (params.get('pattern') === 'Bends' && 
-      (params.get('amount') === 'Forward Stripe' || params.get('amount') === 'Backward Stripe')) {
-      setStripeWidth(getParamOrDefault('stripeWidth', 10, parseInt));
-    } else {
-      setSelectedAmount(getParamOrDefault('amount', ''));
-    }
-    
+  
+    // Handle overlays
     const overlayData = params.get('overlays');
     if (overlayData) {
       const parsedOverlays = overlayData.split(';;').map(overlayString => {
@@ -409,8 +395,14 @@ const App = () => {
         }
       });
       setOverlays(parsedOverlays);
+    } else {
+      setOverlays([]);
     }
-  }, []);
+  
+    // Update the URL without redirecting
+    window.history.replaceState({}, '', `${window.location.pathname}${url.search}`);
+  };
+
 
   const updateURL = () => {
     const params = new URLSearchParams();
@@ -664,6 +656,7 @@ const App = () => {
     setBackColours(newColours);
     updateURL();
   };
+  
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href)
     .then(() => {
@@ -698,675 +691,693 @@ const App = () => {
 
   return (
     <div className={`App ${formatClass}`}>
-      <Header handleShare={handleShare} handleRefresh={handleRefresh} />
+      <Header 
+        handleShare={handleShare} 
+        handleRefresh={handleRefresh} 
+        toggleQuizMode={() => setIsQuizMode(!isQuizMode)}
+        isQuizMode={isQuizMode}
+      />
       <main className="App-main">
-        <div className="App-content">
-          <div className="Stars-content">
-            <div className="Stars-display">
-              <StarsDisplay
-                count={starCount}
-                size={starSize}
-                radius={starRadius}
-                circleCount={circleCount}
-                backColours={backColours}
-                starColour={starColour}
-                rotationAngle={rotationAngle}
-                shape={selectedShape}
-                pointAway={pointAway}
-                outlineOnly={outlineOnly}
-                outlineWeight={outlineWeight}
-                pattern={selectedPattern}
-                amount={selectedAmount}
-                starRotation={starRotation}
-                customImage={customImage}
-                backgroundImage={backgroundImage}
-                shapeConfiguration={shapeConfiguration}
-                overlays={overlays}
-                containerFormat={containerFormat}
-                crossSaltireSize={crossSaltireSize}
-                gridRotation={gridRotation}
-                starsOnTop={starsOnTop}
-                checkerSize={checkerSize}
-                sunburstStripeCount={sunburstStripeCount}
-                borderWidth={borderWidth}
-                stripeWidth={stripeWidth}
-                circleSpacing={circleSpacing}
-                gridSpacing={gridSpacing}
-                updateOverlayPosition={updateOverlayPosition}
-              />
-            </div>
-            <div className="Shape-selector">
-              <div className="custom-toggle-container">
-                <CustomToggle 
-                  option1="Circle"
-                  option2="Flag"
-                  isActive={containerFormat === 'flag'}
-                  onChange={() => setContainerFormat(containerFormat === 'circle' ? 'flag' : 'circle')}
-                />
-              </div>
-              <div className="Shape-container" id="country-selector">
-                <label htmlFor="countrySelector" className="shape-label">Samples</label>
-                <CountryFilterableSelect
-                  options={CountryList}
-                  value={selectedCountry}
-                  onChange={setSelectedCountry}
-                  placeholder="Select a Country"
-                />
-              </div>
-              <div className="randomize-buttons-container">
-                <button onClick={() => randomizeAll(true)} className="random-button random-button-large">
-                  <FontAwesomeIcon icon={faShuffle} className="random-icon" />
-                  Randomise All
-                </button>
-                <Tooltip text="Randomise all settings except for the overlays.">
-                  <button onClick={() => randomizeAll(false)} className="random-button random-button-small">
-                    <FontAwesomeIcon icon={faBan} />
-                  </button>
-                </Tooltip>
-              </div>
-            </div>
-          </div>
-          <div className="Slider-content">
-            <nav className="App-nav">
-              <button 
-                onClick={() => setActiveSection('Format')} 
-                className={activeSection === 'Format' ? 'active' : ''}
-              >
-                Format
-              </button>
-              <button 
-                onClick={() => setActiveSection('Shape')} 
-                className={activeSection === 'Shape' ? 'active' : ''}
-              >
-                Shape
-              </button>
-              <button 
-                onClick={() => setActiveSection('Overlays')} 
-                className={activeSection === 'Overlays' ? 'active' : ''}
-              >
-                Overlays
-              </button>
-              <button 
-                onClick={() => setActiveSection('Background')} 
-                className={activeSection === 'Background' ? 'active' : ''}
-              >
-                Background
-              </button>
-            </nav>
-            {activeSection === 'Format' && (
-              <div className="toolbar-segment">
-                <div className="Shape-selector">
-                  <Tooltip text="'EU' arranges the shapes in a circle, while 'USA' displays them in a rectangular grid.">
-                    <div className="Shape-container">
-                      <label htmlFor="configurationSelector" className="shape-label">Configuration</label>
-                      <select 
-                        id="configurationSelector" 
-                        value={shapeConfiguration} 
-                        onChange={handleShapeConfigurationChange}
-                        className="shape-dropdown"
-                      >
-                        <option value="circle">EU Format</option>
-                        <option value="square">USA Format</option>
-                      </select>
-                   
-                    </div>
-                  </Tooltip>
-                </div>
-                <Slider
-                  value={starCount}
-                  onChange={setStarCountAndURL}
-                  min={0}
-                  max={50}
-                  unit={starCount === 1 ? "shape" : "shapes"}
-                  label="Shape Count"
-                />
-                {shapeConfiguration === 'circle' && (
-                  <>
-                    <Slider
-                      value={circleCount}
-                      onChange={setCircleCountAndURL}
-                      min={1}
-                      max={3}
-                      unit={circleCount === 1 ? "circle" : "circles"}
-                      label="Circle Count"
+        {isQuizMode ? (
+          <QuizMode onExit={() => setIsQuizMode(false)} />
+        ) : (
+          <div className="App-content">
+            <div className="Stars-content">
+              {!isQuizMode ? (
+                <div>
+                  <div className="Stars-display">
+                    <StarsDisplay
+                      count={starCount}
+                      size={starSize}
+                      radius={starRadius}
+                      circleCount={circleCount}
+                      backColours={backColours}
+                      starColour={starColour}
+                      rotationAngle={rotationAngle}
+                      shape={selectedShape}
+                      pointAway={pointAway}
+                      outlineOnly={outlineOnly}
+                      outlineWeight={outlineWeight}
+                      pattern={selectedPattern}
+                      amount={selectedAmount}
+                      starRotation={starRotation}
+                      customImage={customImage}
+                      backgroundImage={backgroundImage}
+                      shapeConfiguration={shapeConfiguration}
+                      overlays={overlays}
+                      containerFormat={containerFormat}
+                      crossSaltireSize={crossSaltireSize}
+                      gridRotation={gridRotation}
+                      starsOnTop={starsOnTop}
+                      checkerSize={checkerSize}
+                      sunburstStripeCount={sunburstStripeCount}
+                      borderWidth={borderWidth}
+                      stripeWidth={stripeWidth}
+                      circleSpacing={circleSpacing}
+                      gridSpacing={gridSpacing}
+                      updateOverlayPosition={updateOverlayPosition}
                     />
-                    <Slider
-                      value={rotationAngle}
-                      onChange={setRotationAngleAndURL}
-                      min={0}
-                      max={360}
-                      unit="°"
-                      label="Rotation Angle"
-                      icon={faRotate}
-                    />
-                    <Slider
-                      value={circleSpacing}
-                      onChange={setCircleSpacingAndURL}
-                      min={80}
-                      max={200}
-                      unit="%"
-                      label="Circle Spacing"
-                      icon={faArrowsAltH}
-                    />
-                  </>
-                )}
-                {shapeConfiguration === 'square' && (
-                  <>
-                    <Slider
-                      value={gridRotation}
-                      onChange={setGridRotationAndURL}
-                      min={0}
-                      max={360}
-                      unit="°"
-                      label="Grid Rotation"
-                      icon={faRotate}
-                    />
-                    <Slider
-                      value={gridSpacing}
-                      onChange={setGridSpacingAndURL}
-                      min={20}
-                      max={200}
-                      unit="%"
-                      label="Grid Spacing"
-                      icon={faArrowsAltH}
-                    />
-                  </>
-                )}
-              </div>
-            )}
-            {activeSection === 'Shape' && (
-              <div className="toolbar-segment">
-                <ImageUpload
-                  onImageUpload={handleImageUpload}
-                  onImageRemove={handleImageRemove}
-                  hasImage={!!customImage}
-                />
-                <p className='image-disclaimer'>Images cannot be shared via link.</p>
-                {!customImage && (
-                  <>
-                    <Divider text="or" />
-                    <div className="Shape-selector">
-                      <Tooltip text="Select a shape for the field on your flag.">
-                        <CustomShapeDropdown
-                          options={shapeOptions}
-                          value={selectedShape}
-                          onChange={setSelectedShapeAndURL}
-                          shapePaths={shapePaths}
-                          title={"Shape"}
-                        />
-                      </Tooltip>
-                    </div>
-                    <div className="Shape-colour">
-                      <ColourPicker
-                        id="starColourPicker"
-                        label="Shape Colour"
-                        value={starColour}
-                        onChange={handleStarColourChange}
-                        labelColor={labelColors.star}
-                      />
-                    </div>
-                  </>
-                )}
-                {shapeConfiguration === 'circle' && (
-                  <div className="custom-toggle-container">
-                    <Tooltip text="Shape orientation; 'Up' aligns shapes vertically, 'Outward' orients shapes radially from the center.">                      
-                      <CustomToggle 
-                        option1="Pointing Up"
-                        option2="Pointing Outward"
-                        isActive={pointAway}
-                        onChange={() => setPointAwayAndURL(!pointAway)}
-                      />
-                    </Tooltip>
                   </div>
-                )}
-                {!customImage && (
-                  <>
+                  <div className="Shape-selector">
                     <div className="custom-toggle-container">
-                      <Tooltip text="'Filled' shows solid shapes, while 'Outline' displays just the shape's border.">
-                        <CustomToggle 
-                          option1="Filled"
-                          option2="Outline Only"
-                          isActive={outlineOnly}
-                          onChange={() => setOutlineOnlyAndURL(!outlineOnly)}
-                        />
-                      </Tooltip>
+                      <CustomToggle 
+                        option1="Circle"
+                        option2="Flag"
+                        isActive={containerFormat === 'flag'}
+                        onChange={() => setContainerFormat(containerFormat === 'circle' ? 'flag' : 'circle')}
+                      />
                     </div>
-                    {outlineOnly && (
-                      <div className="outline-weight">
-                        <Slider
-                          value={outlineWeight}
-                          onChange={setOutlineWeightAndURL}
-                          min={1}
-                          max={15}
-                          unit="px"
-                          label="Outline Weight"
-                          icon={faBorderTopLeft}
-                        />
-                      </div>
-                    )}
-                  </>
-                )}
-                <Slider
-                  value={starSize}
-                  onChange={setStarSizeAndURL}
-                  min={10}
-                  max={300}
-                  unit="px"
-                  label="Star Size"
-                  icon={faMaximize}
-                />
-                <Slider
-                  value={starRotation}
-                  onChange={setStarRotationAndURL}
-                  min={0}
-                  max={360}
-                  unit="°"
-                  label="Star Rotation"
-                  icon={faRotate}
-                />
-              </div>
-            )}
-            {activeSection === 'Overlays' && (
-              <div className="toolbar-segment">
-                <div className="custom-toggle-container">
-                  <Tooltip text="Place the shapes over or under the overlays.">
-                    <CustomToggle 
-                      option1="Shapes Under"
-                      option2="Shapes On Top"
-                      isActive={starsOnTop}
-                      onChange={() => setStarsOnTopAndURL(!starsOnTop)}
-                    />
-                  </Tooltip>
-                </div>
-                {overlays.length < MAX_OVERLAYS && (
-                  <div>
-                    <Divider text="" />
-                    <div className="add-buttons-container">
-                      <Tooltip text="Add a new design element to the flag.">
-                        <button className="download-button" onClick={addOverlay}>
-                          <FontAwesomeIcon icon={faPlus} className="download-icon" />
-                          New Overlay
-                        </button>
-                      </Tooltip>
-                      <Tooltip text="Add the cardinal sin of vexillology to your flag.">
-                        <button className="download-button" onClick={addTextOverlay}>
-                          <FontAwesomeIcon icon={faFont} className="download-icon" />
-                          New Text
+                    <div className="Shape-container" id="country-selector">
+                      <label htmlFor="countrySelector" className="shape-label">Samples</label>
+                      <CountryFilterableSelect
+                        options={CountryList}
+                        value={selectedCountry}
+                        onChange={setSelectedCountry}
+                        placeholder="Select a Country"
+                        onUrlChange={handleUrlChange}
+                      />
+                    </div>
+                    <div className="randomize-buttons-container">
+                      <button onClick={() => randomizeAll(true)} className="random-button random-button-large">
+                        <FontAwesomeIcon icon={faShuffle} className="random-icon" />
+                        Randomise All
+                      </button>
+                      <Tooltip text="Randomise all settings except for the overlays.">
+                        <button onClick={() => randomizeAll(false)} className="random-button random-button-small">
+                          <FontAwesomeIcon icon={faBan} />
                         </button>
                       </Tooltip>
                     </div>
-                    {overlays.length >= 1 && (
-                      <p className='image-disclaimer'>You can move the overlays by dragging them on the flag itself.</p>
-                    )}
-                    {overlays.length >= 2 && (
-                      <p className='image-disclaimer'>Drag/Move overlay options up or down to change their stacking order.</p>
-                    )}
                   </div>
-                )}
-                {overlays.map((overlay, index) => (
-                  <div 
-                    className={`overlay-full-container ${dragOverItem === index ? 'drag-over' : ''}`}
-                    key={index}
-                  >
-                    <div className="overlay-handle">
-                      <div 
-                        className="overlay-topcontent"
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, index)}
-                        onDragEnter={(e) => handleDragEnter(e, index)}
-                        onDragEnd={handleDragEnd}
-                        onDragOver={(e) => e.preventDefault()}
-                      >
-                        <div className="overlay-first-line">
-                          <div className="overlay-arrows">
-                            <button 
-                              className="arrow-button"
-                              onClick={() => moveOverlay(index, 'up')}
-                              disabled={index === 0}
+                </div>
+              ) : ( <> </> )}
+            </div>
+            <div className="Slider-content">
+              {!isQuizMode ? (
+                <div className='Slider-secondary-content'>
+                  <nav className="App-nav">
+                    <button 
+                      onClick={() => setActiveSection('Format')} 
+                      className={activeSection === 'Format' ? 'active' : ''}
+                    >
+                      Format
+                    </button>
+                    <button 
+                      onClick={() => setActiveSection('Shape')} 
+                      className={activeSection === 'Shape' ? 'active' : ''}
+                    >
+                      Shape
+                    </button>
+                    <button 
+                      onClick={() => setActiveSection('Overlays')} 
+                      className={activeSection === 'Overlays' ? 'active' : ''}
+                    >
+                      Overlays
+                    </button>
+                    <button 
+                      onClick={() => setActiveSection('Background')} 
+                      className={activeSection === 'Background' ? 'active' : ''}
+                    >
+                      Background
+                    </button>
+                  </nav>
+                  {activeSection === 'Format' && (
+                    <div className="toolbar-segment">
+                      <div className="Shape-selector">
+                        <Tooltip text="'EU' arranges the shapes in a circle, while 'USA' displays them in a rectangular grid.">
+                          <div className="Shape-container">
+                            <label htmlFor="configurationSelector" className="shape-label">Configuration</label>
+                            <select 
+                              id="configurationSelector" 
+                              value={shapeConfiguration} 
+                              onChange={handleShapeConfigurationChange}
+                              className="shape-dropdown"
                             >
-                              <i className="fas fa-arrow-up"></i>
-                            </button>
-                            <button 
-                              className="arrow-button"
-                              onClick={() => moveOverlay(index, 'down')}
-                              disabled={index === overlays.length - 1}
-                            >
-                              <i className="fas fa-arrow-down"></i>
-                            </button>
+                              <option value="circle">EU Format</option>
+                              <option value="square">USA Format</option>
+                            </select>
+                        
                           </div>
-                          <div className="overlay-sliders">
-                            <div className="overlay-content">
-                              {overlay.type === 'text' ? (
-                                <div className="overlay-font-content">
-                                  <div className="Text-container">
-                                    <label htmlFor={`overlayText-${index}`} className="shape-label">Text</label>
-                                    <input
-                                      type="text"
-                                      id={`overlayText-${index}`}
-                                      value={overlay.text}
-                                      onChange={(e) => {
-                                        const newText = e.target.value.slice(0, 50);
-                                        updateOverlayProperty(index, 'text', newText);
-                                      }}
-                                      placeholder="Enter text..."
-                                      className="shape-input"
-                                    />
-                                  </div>
-                                  <div className="Shape-container">
-                                    <label htmlFor={`overlayFont-${index}`} className="shape-label">Font</label>
-                                    <select
-                                      id={`overlayFont-${index}`}
-                                      value={overlay.font}
-                                      onChange={(e) => updateOverlayProperty(index, 'font', e.target.value)}
-                                      className="shape-dropdown"
-                                    >
-                                      {fonts.map((font) => (
-                                        <option key={font.name} value={font.value} style={{ fontFamily: font.value }}>
-                                          {font.name}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="Shape-container">
-                                  <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
-                                  <FilterableSelect
-                                    options={overlaySymbols}
-                                    value={overlay.shape} 
-                                    onChange={(value) => updateOverlayProperty(index, 'shape', value)}
-                                    placeholder="Select or type to filter..."
-                                  />
-                                </div>
-                              )}
-                              <div className="overlay-container">
-                                {overlays.length < MAX_OVERLAYS && (
-                                  <button className="clone-overlay" onClick={() => cloneOverlay(index)}>
-                                    <i className="fas fa-clone"></i>
-                                  </button>
-                                )}
-                                <button className="remove-image" onClick={() => removeOverlay(index)}>
-                                  <i className="fas fa-trash"></i>
-                                </button>
-                              </div>
-                            </div>
+                        </Tooltip>
+                      </div>
+                      <Slider
+                        value={starCount}
+                        onChange={setStarCountAndURL}
+                        min={0}
+                        max={50}
+                        unit={starCount === 1 ? "shape" : "shapes"}
+                        label="Shape Count"
+                      />
+                      {shapeConfiguration === 'circle' && (
+                        <>
+                          <Slider
+                            value={circleCount}
+                            onChange={setCircleCountAndURL}
+                            min={1}
+                            max={3}
+                            unit={circleCount === 1 ? "circle" : "circles"}
+                            label="Circle Count"
+                          />
+                          <Slider
+                            value={rotationAngle}
+                            onChange={setRotationAngleAndURL}
+                            min={0}
+                            max={360}
+                            unit="°"
+                            label="Rotation Angle"
+                            icon={faRotate}
+                          />
+                          <Slider
+                            value={circleSpacing}
+                            onChange={setCircleSpacingAndURL}
+                            min={80}
+                            max={200}
+                            unit="%"
+                            label="Circle Spacing"
+                            icon={faArrowsAltH}
+                          />
+                        </>
+                      )}
+                      {shapeConfiguration === 'square' && (
+                        <>
+                          <Slider
+                            value={gridRotation}
+                            onChange={setGridRotationAndURL}
+                            min={0}
+                            max={360}
+                            unit="°"
+                            label="Grid Rotation"
+                            icon={faRotate}
+                          />
+                          <Slider
+                            value={gridSpacing}
+                            onChange={setGridSpacingAndURL}
+                            min={20}
+                            max={200}
+                            unit="%"
+                            label="Grid Spacing"
+                            icon={faArrowsAltH}
+                          />
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {activeSection === 'Shape' && (
+                    <div className="toolbar-segment">
+                      <ImageUpload
+                        onImageUpload={handleImageUpload}
+                        onImageRemove={handleImageRemove}
+                        hasImage={!!customImage}
+                      />
+                      <p className='image-disclaimer'>Images cannot be shared via link.</p>
+                      {!customImage && (
+                        <>
+                          <Divider text="or" />
+                          <div className="Shape-selector">
+                            <Tooltip text="Select a shape for the field on your flag.">
+                              <CustomShapeDropdown
+                                options={shapeOptions}
+                                value={selectedShape}
+                                onChange={setSelectedShapeAndURL}
+                                shapePaths={shapePaths}
+                                title={"Shape"}
+                              />
+                            </Tooltip>
                           </div>
-                        </div>
-                        <div className='overlay-color'>
-                          <div className="Colour-container">
-                            <label
-                              htmlFor={`overlayColorPicker-${index}`}
-                              className="colour-label"
-                              style={{color: getOppositeColour(overlay.color)}}
-                            >
-                              <FontAwesomeIcon 
-                                icon={faPaintRoller} 
-                                className="header-icon" 
-                                style={{ marginRight: '8px' }} 
-                              />  
-                              Overlay Colour
-                            </label>
-                            <input
-                              type="color"
-                              id={`overlayColorPicker-${index}`}
-                              value={overlay.color}
-                              onChange={(e) => updateOverlayProperty(index, 'color', e.target.value)}
+                          <div className="Shape-colour">
+                            <ColourPicker
+                              id="starColourPicker"
+                              label="Shape Colour"
+                              value={starColour}
+                              onChange={handleStarColourChange}
+                              labelColor={labelColors.star}
                             />
                           </div>
+                        </>
+                      )}
+                      {shapeConfiguration === 'circle' && (
+                        <div className="custom-toggle-container">
+                          <Tooltip text="Shape orientation; 'Up' aligns shapes vertically, 'Outward' orients shapes radially from the center.">                      
+                            <CustomToggle 
+                              option1="Pointing Up"
+                              option2="Pointing Outward"
+                              isActive={pointAway}
+                              onChange={() => setPointAwayAndURL(!pointAway)}
+                            />
+                          </Tooltip>
                         </div>
-                      </div>
-                    </div>
-                    <div className="overlay-sliders">
+                      )}
+                      {!customImage && (
+                        <>
+                          <div className="custom-toggle-container">
+                            <Tooltip text="'Filled' shows solid shapes, while 'Outline' displays just the shape's border.">
+                              <CustomToggle 
+                                option1="Filled"
+                                option2="Outline Only"
+                                isActive={outlineOnly}
+                                onChange={() => setOutlineOnlyAndURL(!outlineOnly)}
+                              />
+                            </Tooltip>
+                          </div>
+                          {outlineOnly && (
+                            <div className="outline-weight">
+                              <Slider
+                                value={outlineWeight}
+                                onChange={setOutlineWeightAndURL}
+                                min={1}
+                                max={15}
+                                unit="px"
+                                label="Outline Weight"
+                                icon={faBorderTopLeft}
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
                       <Slider
-                        value={overlay.offsetY}
-                        onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
-                        min={-350}
-                        max={350}
-                        label="Vertical Position"
-                        icon={faUpDown}
-                      />
-                      <Slider
-                        value={overlay.offsetX}
-                        onChange={(value) => updateOverlayProperty(index, 'offsetX', value)}
-                        min={-350}
-                        max={350}
-                        label="Horizontal Position"
-                        icon={faLeftRight}
-                      />
-                    </div>
-                    <div className="overlay-sliders">
-                      <Slider
-                        value={overlay.size}
-                        onChange={(value) => updateOverlayProperty(index, 'size', value)}
+                        value={starSize}
+                        onChange={setStarSizeAndURL}
                         min={10}
-                        max={999}
-                        label="Size"
+                        max={300}
+                        unit="px"
+                        label="Star Size"
                         icon={faMaximize}
                       />
                       <Slider
-                        value={overlay.rotation}
-                        onChange={(value) => updateOverlayProperty(index, 'rotation', value)}
+                        value={starRotation}
+                        onChange={setStarRotationAndURL}
                         min={0}
                         max={360}
                         unit="°"
-                        label="Rotation"
+                        label="Star Rotation"
                         icon={faRotate}
                       />
                     </div>
-                    {overlay.type === 'text' && (
-                      <div className="overlay-sliders">
-                        <Slider
-                          value={overlay.width}
-                          onChange={(value) => updateOverlayProperty(index, 'width', value)}
-                          min={50}
-                          max={800}
-                          label="Text Width"
-                          icon={faLeftRight}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeSection === 'Background' && (
-              <div className="toolbar-segment">
-                <div className='background-image'>
-                  <Tooltip text="2:3 Aspect Ratio optimal for downloading">
-                    <ImageUpload
-                      onImageUpload={handleBackgroundImageUpload}
-                      onImageRemove={() => setBackgroundImage(null)}
-                      hasImage={!!backgroundImage}
-                      label="Upload Background Image"
-                    />
-                  </Tooltip>
-                  <p className='image-disclaimer'>Images cannot be shared via link.</p>
-                </div>
-                {!backgroundImage && (
-                  <>
-                  <Divider text="or" />
-                  <div className="Shape-selector">
-                    <Tooltip text="Select the background pattern of your flag design.">
-                      <div className="Shape-container">
-                        <label htmlFor="patternSelector" className="shape-label">Pattern</label>
-                        <select 
-                          id="patternSelector" 
-                          value={selectedPattern} 
-                          onChange={handlePatternChange} 
-                          className="shape-dropdown"
-                        >
-                          {patternOptions.map((pattern) => (
-                            <option key={pattern} value={pattern} className="optionWithSpacing">
-                              {patternIcons[pattern]} {' '} {pattern}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </Tooltip>
-                    {selectedPattern === 'Checkered' && (
-                      <Slider
-                        value={checkerSize}
-                        onChange={handleCheckerSizeChange}
-                        min={2}
-                        max={32}
-                        label="Checker Size"
-                        icon={faChessBoard}
-                      />
-                    )}
-                    {selectedPattern === 'Border' && (
-                      <Slider
-                        value={borderWidth}
-                        onChange={(value) => {
-                          setBorderWidth(value);
-                          updateURL();
-                        }}
-                        min={1}
-                        max={50}
-                        label="Border Width"
-                        unit="px"
-                        icon={faBorderStyle}
-                      />
-                    )}
-                    {selectedPattern === 'Sunburst' && (
-                      <Slider
-                        value={sunburstStripeCount}
-                        onChange={handleSunburstStripeCountChange}
-                        min={4}
-                        max={32}
-                        label="Sunburst Stripes"
-                        unit="stripes"
-                      />
-                    )}
-                    {(selectedPattern === 'Cross' || selectedPattern === 'Saltire') && (
-                      <Slider
-                        value={crossSaltireSize}
-                        onChange={(value) => setCrossSaltireSize(value)}
-                        min={1}
-                        max={60}
-                        // unit="%"
-                        label={`${selectedPattern} Size`}
-                        icon={faMaximize}
-                      />
-                    )}
-                    {(selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') ? (
-                      <Slider
-                        value={stripeCount}
-                        onChange={handleStripeCountChange}
-                        min={2}
-                        max={16}
-                        unit="stripes"
-                        label="Number of Stripes"
-                      />
-                    ) : (
-                      !['Single', 'Border', 'Checkered', 'Sunburst', 'Quadrants', 'Saltire', 'Cross'].includes(selectedPattern) && (
-                        <Tooltip text="Select the particular style of your pattern.">
-                          <div className="Shape-container">
-                            <label htmlFor="amountSelector" className="shape-label">Format</label>
-                            <select 
-                              id="amountSelector" 
-                              value={selectedAmount} 
-                              onChange={handleAmountChange} 
-                              className="shape-dropdown"
-                            >
-                              {amountOptions[selectedPattern] && amountOptions[selectedPattern].map((amount) => (
-                                <option key={amount} value={amount} className="optionWithSpacing">
-                                  {amountIcons[amount]} {' '} {amount}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
+                  )}
+                  {activeSection === 'Overlays' && (
+                    <div className="toolbar-segment">
+                      <div className="custom-toggle-container">
+                        <Tooltip text="Place the shapes over or under the overlays.">
+                          <CustomToggle 
+                            option1="Shapes Under"
+                            option2="Shapes On Top"
+                            isActive={starsOnTop}
+                            onChange={() => setStarsOnTopAndURL(!starsOnTop)}
+                          />
                         </Tooltip>
-                      )
-                    )}
-                    {selectedPattern === 'Bends' && 
-                    (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe') && (
-                      <Slider
-                        value={stripeWidth}
-                        onChange={handleStripeWidthChange}
-                        min={1}
-                        max={300}
-                        label="Stripe Width"
-                        unit="px"
-                        icon={faMaximize}
-                      />
-                    )}
-                    <Divider />
-                    <p className="colours-header">Colours</p>
-                    {selectedPattern === 'Single' ? (
-                      <div className="single-colour-container">
-                        <div className="Colour-container">
-                          <label
-                            htmlFor="backColourPicker-0"
-                            className="colour-label"
-                            style={{color: labelColors['back-0']}}
-                          >
-                          <FontAwesomeIcon 
-                            icon={faPaintRoller} 
-                            className="header-icon" 
-                            style={{ marginRight: '8px' }} 
-                          />
-                            Background Colour
-                          </label>
-                          <input
-                            type="color"
-                            id="backColourPicker-0"
-                            value={backColours[0]}
-                            onChange={(e) => handleBackColourChange(e.target.value, 0)}
-                          />
+                      </div>
+                      {overlays.length < MAX_OVERLAYS && (
+                        <div>
+                          <Divider text="" />
+                          <div className="add-buttons-container">
+                            <Tooltip text="Add a new design element to the flag.">
+                              <button className="download-button" onClick={addOverlay}>
+                                <FontAwesomeIcon icon={faPlus} className="download-icon" />
+                                New Overlay
+                              </button>
+                            </Tooltip>
+                            <Tooltip text="Add the cardinal sin of vexillology to your flag.">
+                              <button className="download-button" onClick={addTextOverlay}>
+                                <FontAwesomeIcon icon={faFont} className="download-icon" />
+                                New Text
+                              </button>
+                            </Tooltip>
+                          </div>
+                          {overlays.length >= 1 && (
+                            <p className='image-disclaimer'>You can move the overlays by dragging them on the flag itself.</p>
+                          )}
+                          {overlays.length >= 2 && (
+                            <p className='image-disclaimer'>Drag/Move overlay options up or down to change their stacking order.</p>
+                          )}
                         </div>
-                      </div>
-                    ) : (
-                      <div className="colour-grid">
-                        {(selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') ? (
-                          Array.from({ length: stripeCount }, (_, index) => (
-                            <ColourPicker
-                              key={index}
-                              id={`backColourPicker-${index}`}
-                              label={`Stripe Colour ${index + 1}`}
-                              value={backColours[index] || defaultBackColours[index % defaultBackColours.length]}
-                              onChange={(e) => handleBackColourChange(e, index)}
-                              labelColor={labelColors[`back-${index}`]}
+                      )}
+                      {overlays.map((overlay, index) => (
+                        <div 
+                          className={`overlay-full-container ${dragOverItem === index ? 'drag-over' : ''}`}
+                          key={index}
+                        >
+                          <div className="overlay-handle">
+                            <div 
+                              className="overlay-topcontent"
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, index)}
+                              onDragEnter={(e) => handleDragEnter(e, index)}
+                              onDragEnd={handleDragEnd}
+                              onDragOver={(e) => e.preventDefault()}
+                            >
+                              <div className="overlay-first-line">
+                                <div className="overlay-arrows">
+                                  <button 
+                                    className="arrow-button"
+                                    onClick={() => moveOverlay(index, 'up')}
+                                    disabled={index === 0}
+                                  >
+                                    <i className="fas fa-arrow-up"></i>
+                                  </button>
+                                  <button 
+                                    className="arrow-button"
+                                    onClick={() => moveOverlay(index, 'down')}
+                                    disabled={index === overlays.length - 1}
+                                  >
+                                    <i className="fas fa-arrow-down"></i>
+                                  </button>
+                                </div>
+                                <div className="overlay-sliders">
+                                  <div className="overlay-content">
+                                    {overlay.type === 'text' ? (
+                                      <div className="overlay-font-content">
+                                        <div className="Text-container">
+                                          <label htmlFor={`overlayText-${index}`} className="shape-label">Text</label>
+                                          <input
+                                            type="text"
+                                            id={`overlayText-${index}`}
+                                            value={overlay.text}
+                                            onChange={(e) => {
+                                              const newText = e.target.value.slice(0, 50);
+                                              updateOverlayProperty(index, 'text', newText);
+                                            }}
+                                            placeholder="Enter text..."
+                                            className="shape-input"
+                                          />
+                                        </div>
+                                        <div className="Shape-container">
+                                          <label htmlFor={`overlayFont-${index}`} className="shape-label">Font</label>
+                                          <select
+                                            id={`overlayFont-${index}`}
+                                            value={overlay.font}
+                                            onChange={(e) => updateOverlayProperty(index, 'font', e.target.value)}
+                                            className="shape-dropdown"
+                                          >
+                                            {fonts.map((font) => (
+                                              <option key={font.name} value={font.value} style={{ fontFamily: font.value }}>
+                                                {font.name}
+                                              </option>
+                                            ))}
+                                          </select>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="Shape-container">
+                                        <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
+                                        <FilterableSelect
+                                          options={overlaySymbols}
+                                          value={overlay.shape} 
+                                          onChange={(value) => updateOverlayProperty(index, 'shape', value)}
+                                          placeholder="Select or type to filter..."
+                                        />
+                                      </div>
+                                    )}
+                                    <div className="overlay-container">
+                                      {overlays.length < MAX_OVERLAYS && (
+                                        <button className="clone-overlay" onClick={() => cloneOverlay(index)}>
+                                          <i className="fas fa-clone"></i>
+                                        </button>
+                                      )}
+                                      <button className="remove-image" onClick={() => removeOverlay(index)}>
+                                        <i className="fas fa-trash"></i>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='overlay-color'>
+                                <div className="Colour-container">
+                                  <label
+                                    htmlFor={`overlayColorPicker-${index}`}
+                                    className="colour-label"
+                                    style={{color: getOppositeColour(overlay.color)}}
+                                  >
+                                    <FontAwesomeIcon 
+                                      icon={faPaintRoller} 
+                                      className="header-icon" 
+                                      style={{ marginRight: '8px' }} 
+                                    />  
+                                    Overlay Colour
+                                  </label>
+                                  <input
+                                    type="color"
+                                    id={`overlayColorPicker-${index}`}
+                                    value={overlay.color}
+                                    onChange={(e) => updateOverlayProperty(index, 'color', e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="overlay-sliders">
+                            <Slider
+                              value={overlay.offsetY}
+                              onChange={(value) => updateOverlayProperty(index, 'offsetY', value)}
+                              min={-350}
+                              max={350}
+                              label="Vertical Position"
+                              icon={faUpDown}
                             />
-                          ))
-                        ) : (
-                          backColours.map((colour, index) => (
-                            <ColourPicker
-                              key={index}
-                              id={`backColourPicker-${index}`}
-                              label={`Background Colour ${index + 1}`}
-                              value={colour}
-                              onChange={(value) => handleBackColourChange(value, index)}
-                              labelColor={labelColors[`back-${index}`]}
+                            <Slider
+                              value={overlay.offsetX}
+                              onChange={(value) => updateOverlayProperty(index, 'offsetX', value)}
+                              min={-350}
+                              max={350}
+                              label="Horizontal Position"
+                              icon={faLeftRight}
                             />
-                          ))
-                        )}
+                          </div>
+                          <div className="overlay-sliders">
+                            <Slider
+                              value={overlay.size}
+                              onChange={(value) => updateOverlayProperty(index, 'size', value)}
+                              min={10}
+                              max={999}
+                              label="Size"
+                              icon={faMaximize}
+                            />
+                            <Slider
+                              value={overlay.rotation}
+                              onChange={(value) => updateOverlayProperty(index, 'rotation', value)}
+                              min={0}
+                              max={360}
+                              unit="°"
+                              label="Rotation"
+                              icon={faRotate}
+                            />
+                          </div>
+                          {overlay.type === 'text' && (
+                            <div className="overlay-sliders">
+                              <Slider
+                                value={overlay.width}
+                                onChange={(value) => updateOverlayProperty(index, 'width', value)}
+                                min={50}
+                                max={800}
+                                label="Text Width"
+                                icon={faLeftRight}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {activeSection === 'Background' && (
+                    <div className="toolbar-segment">
+                      <div className='background-image'>
+                        <Tooltip text="2:3 Aspect Ratio optimal for downloading">
+                          <ImageUpload
+                            onImageUpload={handleBackgroundImageUpload}
+                            onImageRemove={() => setBackgroundImage(null)}
+                            hasImage={!!backgroundImage}
+                            label="Upload Background Image"
+                          />
+                        </Tooltip>
+                        <p className='image-disclaimer'>Images cannot be shared via link.</p>
                       </div>
-                    )}
-                  </div>
-                  </>
-                )}
-              </div>
-            )}
-            <DownloadButton 
-              backColours={getRelevantColors()}
-              selectedPattern={selectedPattern} 
-              selectedAmount={selectedAmount} 
-              backgroundImage={backgroundImage}
-              customImage={customImage}
-              overlays={overlays}
-              stripeCount={stripeCount}
-              crossSaltireSize={crossSaltireSize}
-              containerFormat={containerFormat}
-              gridRotation={gridRotation}
-              starsOnTop={starsOnTop}
-              checkerSize={checkerSize}
-              sunburstStripeCount={sunburstStripeCount}
-              borderWidth={borderWidth}
-              stripeWidth={stripeWidth}
-            />
+                      {!backgroundImage && (
+                        <>
+                        <Divider text="or" />
+                        <div className="Shape-selector">
+                          <Tooltip text="Select the background pattern of your flag design.">
+                            <div className="Shape-container">
+                              <label htmlFor="patternSelector" className="shape-label">Pattern</label>
+                              <select 
+                                id="patternSelector" 
+                                value={selectedPattern} 
+                                onChange={handlePatternChange} 
+                                className="shape-dropdown"
+                              >
+                                {patternOptions.map((pattern) => (
+                                  <option key={pattern} value={pattern} className="optionWithSpacing">
+                                    {patternIcons[pattern]} {' '} {pattern}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </Tooltip>
+                          {selectedPattern === 'Checkered' && (
+                            <Slider
+                              value={checkerSize}
+                              onChange={handleCheckerSizeChange}
+                              min={2}
+                              max={32}
+                              label="Checker Size"
+                              icon={faChessBoard}
+                            />
+                          )}
+                          {selectedPattern === 'Border' && (
+                            <Slider
+                              value={borderWidth}
+                              onChange={(value) => {
+                                setBorderWidth(value);
+                                updateURL();
+                              }}
+                              min={1}
+                              max={50}
+                              label="Border Width"
+                              unit="px"
+                              icon={faBorderStyle}
+                            />
+                          )}
+                          {selectedPattern === 'Sunburst' && (
+                            <Slider
+                              value={sunburstStripeCount}
+                              onChange={handleSunburstStripeCountChange}
+                              min={4}
+                              max={32}
+                              label="Sunburst Stripes"
+                              unit="stripes"
+                            />
+                          )}
+                          {(selectedPattern === 'Cross' || selectedPattern === 'Saltire') && (
+                            <Slider
+                              value={crossSaltireSize}
+                              onChange={(value) => setCrossSaltireSize(value)}
+                              min={1}
+                              max={60}
+                              label={`${selectedPattern} Size`}
+                              icon={faMaximize}
+                            />
+                          )}
+                          {(selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') ? (
+                            <Slider
+                              value={stripeCount}
+                              onChange={handleStripeCountChange}
+                              min={2}
+                              max={16}
+                              unit="stripes"
+                              label="Number of Stripes"
+                            />
+                          ) : (
+                            !['Single', 'Border', 'Checkered', 'Sunburst', 'Quadrants', 'Saltire', 'Cross'].includes(selectedPattern) && (
+                              <Tooltip text="Select the particular style of your pattern.">
+                                <div className="Shape-container">
+                                  <label htmlFor="amountSelector" className="shape-label">Format</label>
+                                  <select 
+                                    id="amountSelector" 
+                                    value={selectedAmount} 
+                                    onChange={handleAmountChange} 
+                                    className="shape-dropdown"
+                                  >
+                                    {amountOptions[selectedPattern] && amountOptions[selectedPattern].map((amount) => (
+                                      <option key={amount} value={amount} className="optionWithSpacing">
+                                        {amountIcons[amount]} {' '} {amount}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </Tooltip>
+                            )
+                          )}
+                          {selectedPattern === 'Bends' && 
+                          (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe') && (
+                            <Slider
+                              value={stripeWidth}
+                              onChange={handleStripeWidthChange}
+                              min={1}
+                              max={300}
+                              label="Stripe Width"
+                              unit="px"
+                              icon={faMaximize}
+                            />
+                          )}
+                          <Divider />
+                          <p className="colours-header">Colours</p>
+                          {selectedPattern === 'Single' ? (
+                            <div className="single-colour-container">
+                              <div className="Colour-container">
+                                <label
+                                  htmlFor="backColourPicker-0"
+                                  className="colour-label"
+                                  style={{color: labelColors['back-0']}}
+                                >
+                                <FontAwesomeIcon 
+                                  icon={faPaintRoller} 
+                                  className="header-icon" 
+                                  style={{ marginRight: '8px' }} 
+                                />
+                                  Background Colour
+                                </label>
+                                <input
+                                  type="color"
+                                  id="backColourPicker-0"
+                                  value={backColours[0]}
+                                  onChange={(e) => handleBackColourChange(e.target.value, 0)}
+                                />
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="colour-grid">
+                              {(selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') ? (
+                                Array.from({ length: stripeCount }, (_, index) => (
+                                  <ColourPicker
+                                    key={index}
+                                    id={`backColourPicker-${index}`}
+                                    label={`Stripe Colour ${index + 1}`}
+                                    value={backColours[index] || defaultBackColours[index % defaultBackColours.length]}
+                                    onChange={(e) => handleBackColourChange(e, index)}
+                                    labelColor={labelColors[`back-${index}`]}
+                                  />
+                                ))
+                              ) : (
+                                backColours.map((colour, index) => (
+                                  <ColourPicker
+                                    key={index}
+                                    id={`backColourPicker-${index}`}
+                                    label={`Background Colour ${index + 1}`}
+                                    value={colour}
+                                    onChange={(value) => handleBackColourChange(value, index)}
+                                    labelColor={labelColors[`back-${index}`]}
+                                  />
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  <DownloadButton 
+                    backColours={getRelevantColors()}
+                    selectedPattern={selectedPattern} 
+                    selectedAmount={selectedAmount} 
+                    backgroundImage={backgroundImage}
+                    customImage={customImage}
+                    overlays={overlays}
+                    stripeCount={stripeCount}
+                    crossSaltireSize={crossSaltireSize}
+                    containerFormat={containerFormat}
+                    gridRotation={gridRotation}
+                    starsOnTop={starsOnTop}
+                    checkerSize={checkerSize}
+                    sunburstStripeCount={sunburstStripeCount}
+                    borderWidth={borderWidth}
+                    stripeWidth={stripeWidth}
+                  />
+                </div>
+              ) : ( 
+                <> </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
       <footer className="App-footer">
         <div className="App-footer-content">

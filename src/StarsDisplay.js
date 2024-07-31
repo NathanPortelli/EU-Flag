@@ -41,7 +41,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   };
 
   const renderOverlays = () => {
-    return overlays.map((overlay, index) => {
+    return overlays.slice().reverse().map((overlay, index) => {
       const commonStyle = {
         position: 'absolute',
         top: '50%',
