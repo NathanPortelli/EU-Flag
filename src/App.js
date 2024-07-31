@@ -327,6 +327,77 @@ const App = () => {
 
   const formatClass = isSmallScreen ? 'old-format' : 'new-format';
 
+  useEffect(() => {
+    parseUrlParams();
+  }, []);
+
+  const parseUrlParams = () => {
+    const params = new URLSearchParams(window.location.search);
+    
+    setStarCount(parseInt(params.get('starCount') || '12'));
+    setCircleCount(parseInt(params.get('circleCount') || '1'));
+    setStarSize(parseInt(params.get('starSize') || '55'));
+    setStarColour(params.get('starColour') || '#FFDD00');
+    setRotationAngle(parseInt(params.get('rotationAngle') || '0'));
+    setSelectedShape(params.get('shape') || 'Star');
+    setSelectedPattern(params.get('pattern') || 'Single');
+    setSelectedAmount(params.get('amount') || '');
+    setPointAway(params.get('pointAway') === 'true');
+    setOutlineOnly(params.get('outlineOnly') === 'true');
+    setOutlineWeight(parseInt(params.get('outlineWeight') || '2'));
+    setStarRotation(parseInt(params.get('starRotation') || '0'));
+    setShapeConfiguration(params.get('shapeConfiguration') || 'circle');
+    setCrossSaltireSize(parseFloat(params.get('crossSaltireSize') || '11'));
+    setGridRotation(parseInt(params.get('gridRotation') || '0'));
+    setStarsOnTop(params.get('starsOnTop') === 'true');
+    setCheckerSize(parseInt(params.get('checkerSize') || '4'));
+    setSunburstStripeCount(parseInt(params.get('sunburstStripeCount') || '8'));
+    setBorderWidth(parseInt(params.get('borderWidth') || '10'));
+    setStripeCount(parseInt(params.get('stripeCount') || '2'));
+    setGridSpacing(parseInt(params.get('gridSpacing') || '100'));
+  
+    const urlBackColors = params.get('backColours');
+    if (urlBackColors) {
+      const colors = urlBackColors.split(',');
+      setBackColours(colors);
+      setUserSetColours(colors);
+    }
+  
+    // Handle overlays
+    const overlayData = params.get('overlays');
+    if (overlayData) {
+      const parsedOverlays = overlayData.split(';;').map(overlayString => {
+        const [type, ...rest] = overlayString.split('|');
+        if (type === 'text') {
+          const [text, font, size, width, offsetX, offsetY, rotation, color] = rest;
+          return {
+            type: 'text',
+            text: decodeURIComponent(text),
+            font: decodeURIComponent(font),
+            size: parseFloat(size),
+            width: parseFloat(width),
+            offsetX: parseFloat(offsetX),
+            offsetY: parseFloat(offsetY),
+            rotation: parseFloat(rotation),
+            color: decodeURIComponent(color)
+          };
+        } else {
+          const [shape, size, offsetX, offsetY, rotation, color] = rest;
+          return {
+            type: 'shape',
+            shape,
+            size: parseFloat(size),
+            offsetX: parseFloat(offsetX),
+            offsetY: parseFloat(offsetY),
+            rotation: parseFloat(rotation),
+            color: decodeURIComponent(color)
+          };
+        }
+      });
+      setOverlays(parsedOverlays);
+    }
+  };
+
   const handleUrlChange = (newUrl) => {
     const url = new URL(newUrl);
     const params = new URLSearchParams(url.search);
