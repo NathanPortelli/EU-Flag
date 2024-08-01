@@ -1,5 +1,15 @@
 export const changelogData = [
   {
+    version: "v.0.2.13",
+    date: "01/08/2024",
+    changes: [
+      "Added Max. Score to Quiz Mode",
+      "Added Answer Highlighting",
+      "Added Timer to Quiz Mode",
+      "Added Additional Options to Quiz Mode",
+    ]
+  },
+  {
     version: "v.0.2.12",
     date: "31/07/2024",
     changes: [
