@@ -4,6 +4,9 @@ import { changelogData, upcomingFeatures } from './ChangelogData';
 const ChangelogPopup = () => {
   const [activeTab, setActiveTab] = useState('changelog');
 
+  const difficultFeatures = upcomingFeatures.filter(feature => feature.difficulty === "Difficult");
+  const notDifficultFeatures = upcomingFeatures.filter(feature => feature.difficulty === "Not Difficult");
+
   return (
     <div className="changelog-popup">
       <div className="changelog-tabs">
@@ -43,16 +46,33 @@ const ChangelogPopup = () => {
               borderBottom: '1px solid rgba(255, 221, 0, 0.3)',
               paddingBottom: '5px'
             }}>Planned Features</h3>
+            <h4 style={{
+              marginTop: '10px',
+              marginBottom: '10px',
+              borderBottom: '1px solid rgba(255, 221, 0, 0.3)',
+              paddingBottom: '5px'
+            }}>Will take a while</h4>
             <ul>
-              {upcomingFeatures.map((feature, index) => (
-                <li key={index}>{feature}</li>
+              {difficultFeatures.map((feature, index) => (
+                <li key={index}>{feature.feature}</li>
+              ))}
+            </ul>
+            <h4 style={{
+              marginTop: '20px',
+              marginBottom: '10px',
+              borderBottom: '1px solid rgba(255, 221, 0, 0.3)',
+              paddingBottom: '5px'
+            }}>Not that difficult to implement</h4>
+            <ul>
+              {notDifficultFeatures.map((feature, index) => (
+                <li key={index}>{feature.feature}</li>
               ))}
             </ul>
             <h4 style={{
               marginTop: '20px',
               borderTop: '1px solid rgba(255, 221, 0, 0.3)',
               paddingTop: '10px'
-            }}>For any suggestions/issues, contact me via<a href='https://x.com/NathPortelli'>Twitter/X</a>or<a href="mailto:portellinathan@yahoo.com">email</a></h4>
+            }}>For any suggestions/issues, contact me via <a href='https://x.com/NathPortelli'>Twitter/X</a> or <a href="mailto:portellinathan@yahoo.com">email</a></h4>
           </div>
         )}
       </div>

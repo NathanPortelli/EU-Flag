@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faQuestionCircle, faShareFromSquare, faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faQuestionCircle, faFloppyDisk, faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 
 const Header = ({ handleShare, handleRefresh, toggleQuizMode, isQuizMode }) => (
   <header className="App-header">
@@ -12,7 +12,7 @@ const Header = ({ handleShare, handleRefresh, toggleQuizMode, isQuizMode }) => (
       </button>
       <div>
         <button className="header-button" onClick={handleShare}>
-          <FontAwesomeIcon icon={faShareFromSquare} className="header-icon" />
+          <FontAwesomeIcon icon={faFloppyDisk} className="header-icon" />
         </button>
       </div>
       <div>

@@ -52,6 +52,13 @@
     flex-direction: column;
   }
 
+  .slider-secondary-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+  }
+
   input[type=number]  {
     width: 55px;
     height: 30px;

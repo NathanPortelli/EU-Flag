@@ -4,7 +4,7 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 import { random } from 'lodash';
 
@@ -26,6 +26,7 @@ import { fonts } from './components/OverlayFonts';
 import ChangelogPopup from './components/ChangelogPopup';
 import Popup from './components/Popup';
 import QuizMode from './components//QuizMode';
+import SaveMenu from './components/SaveMenu';
 
 const App = () => {
   const [notification, setNotification] = useState(null);
@@ -72,6 +73,11 @@ const App = () => {
   
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [isQuizMode, setIsQuizMode] = useState(false);
+  const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
+
+  const toggleSaveMenu = () => {
+    setIsSaveMenuOpen(!isSaveMenuOpen);
+  };
 
   const toggleChangelog = () => {
     setIsChangelogOpen(!isChangelogOpen);
@@ -117,7 +123,6 @@ const App = () => {
     }
   };
   
-
   const updateCustomShapePath = (path) => {
     shapePaths.Custom = path;
   };
@@ -137,11 +142,12 @@ const App = () => {
         text: 'New Text',
         font: 'Arial, sans-serif',
         size: 48,
-        width: 200,
+        width: 500,
         offsetX: 0,
         offsetY: 0,
         rotation: 0,
-        color: `#${Math.floor(Math.random()*16777215).toString(16)}`
+        color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+        textCurve: 0
       }, ...prevOverlays]);
     }
   };
@@ -214,6 +220,8 @@ const App = () => {
       if (property === 'font') {
         const selectedFont = fonts.find(font => font.value === value);
         newOverlays[index][property] = selectedFont ? selectedFont.value : value;
+      } else if (property === 'textCurve') {
+        newOverlays[index][property] = Number(value);
       } else {
         newOverlays[index][property] = value;
       }
@@ -387,6 +395,7 @@ const App = () => {
     setSunburstStripeCount(parseInt(params.get('sunburstStripeCount') || '8'));
     setBorderWidth(parseInt(params.get('borderWidth') || '10'));
     setStripeCount(parseInt(params.get('stripeCount') || '2'));
+    setCircleSpacing(parseInt(params.get('circleSpacing') || '100'));
     setGridSpacing(parseInt(params.get('gridSpacing') || '100'));
 
     const urlCustomSvgPath = params.get('customSvgPath');
@@ -410,7 +419,7 @@ const App = () => {
       const parsedOverlays = overlayData.split(';;').map(overlayString => {
         const [type, ...rest] = overlayString.split('|');
         if (type === 'text') {
-          const [text, font, size, width, offsetX, offsetY, rotation, color] = rest;
+          const [text, font, size, width, offsetX, offsetY, rotation, color, textCurve] = rest; 
           return {
             type: 'text',
             text: decodeURIComponent(text),
@@ -420,7 +429,8 @@ const App = () => {
             offsetX: parseFloat(offsetX),
             offsetY: parseFloat(offsetY),
             rotation: parseFloat(rotation),
-            color: decodeURIComponent(color)
+            color: decodeURIComponent(color),
+            textCurve: parseFloat(textCurve)
           };
         } else {
           const [shape, size, offsetX, offsetY, rotation, color] = rest;
@@ -465,6 +475,7 @@ const App = () => {
     setBorderWidth(parseInt(params.get('borderWidth') || '10'));
     setStripeCount(parseInt(params.get('stripeCount') || '2'));
     setGridSpacing(parseInt(params.get('gridSpacing') || '100'));
+    setCircleSpacing(parseInt(params.get('circleSpacing') || '100'));
     setCrossSaltireSize(parseInt(params.get('crossSaltireSize') || '11'));
   
     // Handle background colours
@@ -541,6 +552,8 @@ const App = () => {
       sunburstStripeCount: 8,
       borderWidth: 10,
       stripeWidth: 10,
+      gridSpacing: 100,
+      circleSpacing: 100,
     };
 
     if (selectedShape === 'Custom' && customSvgPath) {
@@ -602,7 +615,7 @@ const App = () => {
     if (overlays.length > 0) {
       const overlayData = overlays.map(overlay => {
         if (overlay.type === 'text') {
-          return `text|${encodeURIComponent(overlay.text)}|${encodeURIComponent(overlay.font)}|${overlay.size}|${overlay.width}|${overlay.offsetX}|${overlay.offsetY}|${overlay.rotation}|${encodeURIComponent(overlay.color)}`;
+          return `text|${encodeURIComponent(overlay.text)}|${encodeURIComponent(overlay.font)}|${overlay.size}|${overlay.width}|${overlay.offsetX}|${overlay.offsetY}|${overlay.rotation}|${encodeURIComponent(overlay.color)}|${overlay.textCurve}`; 
         } else {
           return `shape|${overlay.shape}|${overlay.size}|${overlay.offsetX}|${overlay.offsetY}|${overlay.rotation}|${encodeURIComponent(overlay.color)}`;
         }
@@ -771,16 +784,9 @@ const App = () => {
     setBackColours(newColours);
     updateURL();
   };
-  
+
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href)
-    .then(() => {
-      setNotification("Current URL copied to clipboard!");
-    })
-    .catch(err => {
-      console.error('Failed to copy: ', err);
-      setNotification("Failed to copy URL. Please try again.");
-    });
+    toggleSaveMenu();
   };
 
   const clearNotification = () => {
@@ -813,6 +819,11 @@ const App = () => {
         isQuizMode={isQuizMode}
       />
       <main className="App-main">
+        {isSaveMenuOpen && (
+          <Popup onClose={toggleSaveMenu}>
+            <SaveMenu currentUrl={window.location.href} onClose={toggleSaveMenu} />
+          </Popup>
+        )}
         {isQuizMode ? (
           <QuizMode onExit={() => setIsQuizMode(false)} />
         ) : (
@@ -854,15 +865,29 @@ const App = () => {
                       customSvgPath={customSvgPath}
                     />
                   </div>
-                  <div className="Shape-selector">
-                    <div className="custom-toggle-container">
-                      <CustomToggle 
-                        option1="Circle"
-                        option2="Flag"
-                        isActive={containerFormat === 'flag'}
-                        onChange={() => setContainerFormat(containerFormat === 'circle' ? 'flag' : 'circle')}
-                      />
-                    </div>
+                  <div className="Shape-selector Under-Stars-Display">
+                    <div className="Shape-selector">
+                          <Tooltip text="Select the flag format or aspect ratio.">
+                            <div className="Shape-container">
+                              <label htmlFor="patternSelector" className="shape-label">Format</label>
+                              <select 
+                                id="formatDropdown" 
+                                className="shape-dropdown"
+                                value={containerFormat}
+                                onChange={(e) => setContainerFormat(e.target.value)}
+                              >
+                                <option value="circle">Circle</option>
+                                <option value="flag">Flag 2:3</option>
+                                <option value="flag-1-2">Flag 1:2</option>
+                                <option value="square-flag">Square</option>
+                                <option value="ohio">Ohio</option>
+                                <option value="shield">Shield</option>
+                                <option value="pennant">Pennant</option>
+                              </select>
+                            </div>
+                          </Tooltip>
+                        </div>
+
                     <div className="Shape-container" id="country-selector">
                       <label htmlFor="countrySelector" className="shape-label">Samples</label>
                       <CountryFilterableSelect
@@ -1090,7 +1115,7 @@ const App = () => {
                         value={starSize}
                         onChange={setStarSizeAndURL}
                         min={10}
-                        max={300}
+                        max={400}
                         unit="px"
                         label="Star Size"
                         icon={faMaximize}
@@ -1302,6 +1327,14 @@ const App = () => {
                                 max={800}
                                 label="Text Width"
                                 icon={faLeftRight}
+                              />
+                              <Slider
+                                value={overlay.textCurve}
+                                onChange={(value) => updateOverlayProperty(index, 'textCurve', value)}
+                                min={-200}
+                                max={200}
+                                label="Text Curve"
+                                icon={faManatSign}
                               />
                             </div>
                           )}

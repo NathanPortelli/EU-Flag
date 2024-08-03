@@ -1,5 +1,16 @@
 export const changelogData = [
   {
+    version: "v.0.2.14",
+    date: "03/08/2024",
+    changes: [
+      "Added Local Cache Storage for Flag Saving",
+      "Added Curved Text",
+      "Additional Flag Formats (1:2, Square, Shield, Ohio, Pennant)",
+      "Cleaned up Quiz Settings",
+      "Minor UI Fixes",
+    ]
+  },
+  {
     version: "v.0.2.13",
     date: "01/08/2024",
     changes: [
@@ -342,10 +353,14 @@ export const changelogData = [
 ];
 
 export const upcomingFeatures = [
-  "Wavy Horizontal/Vertical Pattern Background",
-  "Fit Circle/Flag in Small Screen",
-  "Colour Picker with Gradient and Transparency Features",
-  "Basic Colour Theory on Non-Overlay Flag Randomiser",
-  "Overhaul SVG Download",
-  "Public Sharing of Flag URLs",
+  { feature: "Wavy Horizontal/Vertical Pattern Background", difficulty: "Difficult" },
+  { feature: "Fit Circle/Flag in Small Screen", difficulty: "Difficult" },
+  { feature: "Colour Picker with Gradient and Transparency Features", difficulty: "Difficult" },
+  { feature: "Basic Colour Theory on Non-Overlay Flag Randomiser", difficulty: "Not Difficult" },
+  { feature: "Overhaul SVG Download", difficulty: "Difficult" },
+  { feature: "Public Sharing of Flag URLs", difficulty: "Difficult" },
+  { feature: "Gradient Backgrounds", difficulty: "Difficult" },
+  { feature: "Symmetry Options (Mirroring, Radial)", difficulty: "Not Difficult" },
+  { feature: "Undo/Redo Functionality", difficulty: "Difficult" },
+  { feature: "Better Management of Flag Samples", difficulty: "Not Difficult" }
 ];

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { CountryList } from './CountryURLList';
 import StarsDisplay from '../StarsDisplay';
 import Slider from './Slider';
-import { faList, faClock } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faList, faClock, faCog } from '@fortawesome/free-solid-svg-icons';
 import { CustomToggle } from './CustomToggle';
+import Popup from './Popup';
 
 const QuizMode = ({ onExit }) => {
   const [currentFlag, setCurrentFlag] = useState(null);
@@ -18,6 +20,7 @@ const QuizMode = ({ onExit }) => {
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timeLimit, setTimeLimit] = useState(10);
   const [timeLeft, setTimeLeft] = useState(timeLimit);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     const storedMaxScore = localStorage.getItem('maxScore');
@@ -38,7 +41,7 @@ const QuizMode = ({ onExit }) => {
               setScoreColor('red');
               generateNewQuestion();
               setTimeLeft(timeLimit);
-              startTimer(); // Restart the timer
+              startTimer();
               return timeLimit;
             }
             return prevTime - 1;
@@ -142,7 +145,7 @@ const QuizMode = ({ onExit }) => {
       setSelectedAnswer(null);
       setCorrectAnswer(null);
       generateNewQuestion();
-    }, 1000);
+    }, 600);
   };
 
   const handleOptionCountChange = (newCount) => {
@@ -158,6 +161,45 @@ const QuizMode = ({ onExit }) => {
     setTimeLimit(newLimit);
     setTimeLeft(newLimit);
   };
+
+  // Settings popup
+
+  const Settings = () => (
+    <div className='quiz-controls'>
+      <h1 className='quiz-controls-title'>Quiz Settings</h1>
+      <div className="timer-controls">
+        <CustomToggle
+          option1="Timer Off"
+          option2="Timer On"
+          isActive={timerEnabled}
+          onChange={handleTimerToggle}
+        />
+      </div>
+      {timerEnabled && (
+        <Slider
+          value={timeLimit}
+          onChange={handleTimeLimitChange}
+          min={5}
+          max={30}
+          label="Time Limit"
+          unit="seconds"
+          icon={faClock}
+        />
+      )}
+      <div className="option-count-slider-container">
+        <Slider
+          value={optionCount}
+          onChange={handleOptionCountChange}
+          min={2}
+          max={6}
+          label="Number of Options"
+          unit="options"
+          icon={faList}
+        />
+      </div>
+      <button className="exit-quiz-button" onClick={onExit}>Exit Quiz Mode</button>
+    </div>
+  );
 
   return (
     <div className="quiz-mode-container">
@@ -196,8 +238,15 @@ const QuizMode = ({ onExit }) => {
           )}
         </div>
         <div className="quiz-right">
-          <div className="quiz-score" style={{ color: scoreColor }}>Score: {score}</div>
-          <div className="quiz-max-score">Max Score: {maxScore}</div>
+          <div className="quiz-score-container">
+            <div className="quiz-score-content">
+              <div className="quiz-score" style={{ color: scoreColor }}>Score: {score}</div>
+              <div className="quiz-max-score">Max Score: {maxScore}</div>
+            </div>
+            <button className="settings-button" onClick={() => setShowSettings(true)}>
+              <FontAwesomeIcon icon={faCog} />
+            </button>
+          </div>
           {timerEnabled && <div className="quiz-timer">Time Left: {timeLeft}s</div>}
           <div className="quiz-options">
             {options.map((option, index) => (
@@ -220,41 +269,13 @@ const QuizMode = ({ onExit }) => {
               </button>
             ))}
           </div>
-          <div className='quiz-controls'>
-            <div className="timer-controls">
-              <CustomToggle
-                option1="Timer Off"
-                option2="Timer On"
-                isActive={timerEnabled}
-                onChange={handleTimerToggle}
-              />
-            </div>
-            {timerEnabled && (
-              <Slider
-                value={timeLimit}
-                onChange={handleTimeLimitChange}
-                min={5}
-                max={30}
-                label="Time Limit"
-                unit="seconds"
-                icon={faClock}
-              />
-            )}
-            <div className="option-count-slider-container">
-              <Slider
-                value={optionCount}
-                onChange={handleOptionCountChange}
-                min={3}
-                max={6}
-                label="Number of Options"
-                unit="options"
-                icon={faList}
-              />
-            </div>
-            <button className="exit-quiz-button" onClick={onExit}>Exit Quiz Mode</button>
-          </div>
         </div>
       </div>
+      {showSettings && (
+        <Popup onClose={() => setShowSettings(false)}>
+          <Settings />
+        </Popup>
+      )}
     </div>
   );
 };

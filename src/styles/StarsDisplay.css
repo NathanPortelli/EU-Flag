@@ -13,8 +13,20 @@
   overflow: hidden;
 }
 
-.stars-container.flag {
+.stars-container.flag, .stars-container.pennant, .stars-container.ohio {
   width: 675px;
+  height: 450px;
+  border-radius: 0;
+}
+
+.stars-container.flag-1-2 {
+  width: 750px;
+  height: 375px;
+  border-radius: 0;
+}
+
+.stars-container.shield, .stars-container.square-flag {
+  width: 450px;
   height: 450px;
   border-radius: 0;
 }

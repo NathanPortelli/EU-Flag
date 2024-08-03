@@ -36,6 +36,40 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
   const sortOverlays = (overlays) => {
     return [...overlays].sort((a, b) => overlays.indexOf(b) - overlays.indexOf(a));
   };
+
+  // For Text Overlay
+  const wrapText = (text, fontSize, maxWidth) => {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+  
+    words.forEach(word => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const testWidth = getTextWidth(testLine, fontSize);
+  
+      if (testWidth > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+  
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+  
+    return lines;
+  };
+  
+  const getTextWidth = (text, fontSize) => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.font = `${fontSize}px Arial`;
+    return context.measureText(text).width;
+  };
+
+  // SVG
   
   const handleSvgDownload = () => {
     const starsContainer = document.getElementById('stars-container');
@@ -88,47 +122,46 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     const sortedOverlays = sortOverlays(overlays);
     sortedOverlays.forEach((overlay, index) => {
       if (overlay.type === 'text') {
-        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("font-size", `${overlay.size}px`);
-        text.setAttribute("font-family", overlay.font);
-        text.setAttribute("fill", overlay.color);
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("dominant-baseline", "central");
-        text.setAttribute("transform", `
-          translate(${300 + overlay.offsetX}, ${200 + overlay.offsetY})
+        const textGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        const id = `curve-${index}`;
+        const width = overlay.width;
+        const height = overlay.size * 4;
+        const curveAmount = overlay.textCurve * 0.5;
+        const verticalOffset = Math.abs(curveAmount) / 2;
+  
+        // Wrap text based on width
+        const wrappedText = wrapText(overlay.text, overlay.size, width);
+  
+        wrappedText.forEach((line, lineIndex) => {
+          const yOffset = (lineIndex - (wrappedText.length - 1) / 2) * overlay.size;
+          
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("id", `${id}-${lineIndex}`);
+          path.setAttribute("d", `M0,${height / 2 + verticalOffset + yOffset} Q${width / 2},${height / 2 + curveAmount + yOffset} ${width},${height / 2 + verticalOffset + yOffset}`);
+          path.setAttribute("fill", "none");
+          textGroup.appendChild(path);
+  
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("font-size", `${overlay.size}px`);
+          text.setAttribute("font-family", overlay.font);
+          text.setAttribute("fill", overlay.color);
+  
+          const textPath = document.createElementNS("http://www.w3.org/2000/svg", "textPath");
+          textPath.setAttribute("href", `#${id}-${lineIndex}`);
+          textPath.setAttribute("startOffset", "50%");
+          textPath.setAttribute("text-anchor", "middle");
+          textPath.textContent = line;
+  
+          text.appendChild(textPath);
+          textGroup.appendChild(text);
+        });
+  
+        textGroup.setAttribute("transform", `
+          translate(${300 + overlay.offsetX - width / 2}, ${200 + overlay.offsetY - height / 2})
           rotate(${overlay.rotation})
         `);
-      
-        const words = overlay.text.split(' ');
-        let lines = [];
-        let currentLine = words[0];
-      
-        for (let i = 1; i < words.length; i++) {
-          const word = words[i];
-          const testLine = currentLine + " " + word;
-          const testWidth = testLine.length * (overlay.size / 2); // Rough estimate of text width
-          if (testWidth <= overlay.width) {
-            currentLine = testLine;
-          } else {
-            lines.push(currentLine);
-            currentLine = word;
-          }
-        }
-        lines.push(currentLine);
-      
-        const lineHeight = overlay.size * 1.2;
-        const totalHeight = lines.length * lineHeight;
-        const startY = -totalHeight / 2 + lineHeight / 2;
-      
-        lines.forEach((line, index) => {
-          const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-          tspan.setAttribute("x", "0");
-          tspan.setAttribute("y", (startY + index * lineHeight).toString());
-          tspan.textContent = line;
-          text.appendChild(tspan);
-        });
-      
-        overlaysGroup.appendChild(text);
+  
+        overlaysGroup.appendChild(textGroup);
       } else {
         // Handle symbol overlay
         const overlaySymbol = overlaySymbols.find(s => s.value === overlay.shape);
@@ -154,7 +187,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       svg.appendChild(starsGroup);
       svg.appendChild(overlaysGroup);
     }
-  
+
     const svgData = new XMLSerializer().serializeToString(svg);
     const svgBlob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
     const svgUrl = URL.createObjectURL(svgBlob);
@@ -426,7 +459,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
 
   return (
     <div className="download-segment">
-      <h2>Download</h2>
+      <h1 className='quiz-controls-title'>Download</h1>
       <div className="download-button-container">
         <Tooltip text="Set configuration to 'Circle' or 'Flag' based on your preferred output.">
           <button className="download-button" onClick={handlePngDownload}>

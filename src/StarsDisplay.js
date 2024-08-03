@@ -40,6 +40,37 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
     setDraggedOverlay(null);
   };
 
+  const wrapText = (text, fontSize, maxWidth) => {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+  
+    words.forEach(word => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const testWidth = getTextWidth(testLine, fontSize);
+  
+      if (testWidth > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+  
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+  
+    return lines;
+  };
+  
+  const getTextWidth = (text, fontSize) => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.font = `${fontSize}px Arial`;
+    return context.measureText(text).width;
+  };
+
   const renderOverlays = () => {
     return overlays.slice().reverse().map((overlay, index) => {
       const commonStyle = {
@@ -49,26 +80,65 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         transform: `translate(calc(-50% + ${overlay.offsetX}px), calc(-50% + ${overlay.offsetY}px)) rotate(${overlay.rotation}deg)`,
         cursor: 'move',
       };
-
+  
       if (overlay.type === 'text') {
+        const id = `curve-${index}`;
+        const width = overlay.width;
+        const height = overlay.size * 4;
+        const curveAmount = overlay.textCurve * 0.5;
+        const verticalOffset = Math.abs(curveAmount) / 2;
+  
+        // Wrap text based on width
+        const wrappedText = wrapText(overlay.text, overlay.size, width);
+  
         return (
           <div
             key={`overlay-${index}`}
             style={{
               ...commonStyle,
-              fontSize: `${overlay.size}px`,
-              fontFamily: overlay.font,
-              color: overlay.color,
-              width: `${overlay.width}px`,
-              textAlign: 'center',
-              whiteSpace: 'normal',
-              wordWrap: 'break-word',
+              width: `${width}px`,
+              height: `${height}px`,
             }}
             draggable
             onDragStart={(e) => handleDragStart(e, index, overlay)}
             onDragEnd={handleDragEnd}
           >
-            {overlay.text}
+            <svg
+              width={width}
+              height={height}
+              viewBox={`0 0 ${width} ${height}`}
+              style={{ overflow: 'visible' }}
+            >
+              {wrappedText.map((line, lineIndex) => {
+                const yOffset = (lineIndex - (wrappedText.length - 1) / 2) * overlay.size;
+                return (
+                  <defs key={`defs-${lineIndex}`}>
+                    <path
+                      id={`${id}-${lineIndex}`}
+                      d={`M0,${height / 2 + verticalOffset + yOffset} Q${width / 2},${height / 2 + curveAmount + yOffset} ${width},${height / 2 + verticalOffset + yOffset}`}
+                    />
+                  </defs>
+                );
+              })}
+              {wrappedText.map((line, lineIndex) => (
+                <text
+                  key={lineIndex}
+                  style={{
+                    fontSize: `${overlay.size}px`,
+                    fontFamily: overlay.font,
+                    fill: overlay.color,
+                  }}
+                >
+                  <textPath
+                    href={`#${id}-${lineIndex}`}
+                    startOffset="50%"
+                    textAnchor="middle"
+                  >
+                    {line}
+                  </textPath>
+                </text>
+              ))}
+            </svg>
           </div>
         );
       } else {
@@ -409,20 +479,44 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
     return backgroundStyle;
   }; 
 
+  const getContainerStyle = () => {
+    switch (containerFormat) {
+      case 'circle':
+        return { borderRadius: '50%' };
+      case 'flag':
+      case 'flag-1-2':
+      case 'square-flag':
+        return { borderRadius: '0' };
+      case 'ohio':
+        return {
+          borderRadius: '0',
+          clipPath: 'polygon(0% 0%, 100% 20%, 75% 50%, 100% 80%, 0% 100%)',
+        };
+      case 'shield':
+        return {
+          clipPath: 'polygon(0% 0%, 100% 0, 100% 68%, 50% 100%, 0 72%)',
+        };
+      case 'pennant':
+        return {
+          borderRadius: '0',
+          clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
+        };
+      default:
+        return {};
+    }
+  };  
+
   if (count === 1) {
     return (
       <div 
         id="stars-container" 
-        className={`stars-container ${containerFormat === 'flag' ? 'flag' : ''}`}
+        className={`stars-container ${containerFormat}`}
         style={{
           ...generateBackgroundStyle(),
-          ...(containerFormat === 'flag' ? {
-            borderRadius: '0',
-          } : {
-            borderRadius: '100%',
-          }), 
+          ...getContainerStyle(),
         }}
         data-has-background-image={!!backgroundImage}
+        onDragOver={(e) => e.preventDefault()}
       >
         <div 
           id="stars-only-container" 
@@ -510,14 +604,10 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   return (
     <div 
       id="stars-container" 
-      className={`stars-container ${containerFormat === 'flag' ? 'flag' : ''}`}
+      className={`stars-container ${containerFormat}`}
       style={{
         ...generateBackgroundStyle(),
-        ...(containerFormat === 'flag' ? {
-          borderRadius: '0',
-        } : {
-          borderRadius: '100%',
-        })
+        ...getContainerStyle(),
       }}
       data-has-background-image={!!backgroundImage}
       onDragOver={(e) => e.preventDefault()}

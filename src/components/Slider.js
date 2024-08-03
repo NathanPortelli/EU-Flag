@@ -35,7 +35,7 @@ const Slider = ({ value, onChange, min, max, label, unit, icon }) => {
 
   return (
     <div className="slider-content">
-      <div>
+      <div className='slider-secondary-content'>
         <input
           type="range"
           min={min}
