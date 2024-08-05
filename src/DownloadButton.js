@@ -79,14 +79,102 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       return;
     }
   
-    // New SVG element with 2:3 aspect ratio
+    // Create SVG element with appropriate dimensions and viewBox
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svg.setAttribute("width", "600");
-    svg.setAttribute("height", "400");
-    svg.setAttribute("viewBox", "0 0 600 400");
-    createBackground(svg);
+
+    // Set dimensions and viewBox based on containerFormat
+    let width, height, viewBox;
+    switch (containerFormat) {
+      case 'flag':
+        width = 600;
+        height = 400;
+        viewBox = "0 0 600 400";
+        break;
+      case 'guidon':
+        width = 600;
+        height = 400;
+        viewBox = "0 0 600 400";
+        break;
+      case 'flag-1-2':
+        width = 600;
+        height = 300;
+        viewBox = "0 0 600 300";
+        break;
+      case 'square-flag':
+        width = 400;
+        height = 400;
+        viewBox = "0 0 400 400";
+        break;
+      case 'circle':
+        width = 400;
+        height = 400;
+        viewBox = "0 0 400 400";
+        break;
+      case 'ohio':
+        width = 600;
+        height = 400;
+        viewBox = "0 0 600 400";
+        break;
+      case 'shield':
+        width = 500;
+        height = 600;
+        viewBox = "0 0 500 600";
+        break;
+      case 'pennant':
+        width = 600;
+        height = 400;
+        viewBox = "0 0 600 400";
+        break;
+      default:
+        width = 600;
+        height = 400;
+        viewBox = "0 0 600 400";
+    }
+
+    svg.setAttribute("width", width.toString());
+    svg.setAttribute("height", height.toString());
+    svg.setAttribute("viewBox", viewBox);
+
+    // Create a clipping path or shape for non-rectangular formats
+    if (['guidon', 'ohio', 'shield', 'pennant', 'circle'].includes(containerFormat)) {
+      const clipPath = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+      clipPath.setAttribute("id", "flagShape");
   
+      let shape;
+      switch (containerFormat) {
+        case 'guidon':
+          shape = `M 0 0 L 600 0 L 601 0 L 450 200 L 601 403 L 600 400 L 0 400 Z`;
+          break;
+        case 'ohio':
+          shape = `M0,0 L${width},${height * 0.2} L${width * 0.75},${height * 0.5} L${width},${height * 0.8} L0,${height} Z`;
+          break;
+        case 'shield':
+          shape = `M0,0 L${width},0 L${width},${height * 0.68} L${width / 2},${height} L0,${height * 0.72} Z`;
+          break;
+        case 'pennant':
+          shape = `M0,0 L${width},${height / 2} L0,${height} Z`;
+          break;
+        case 'circle':
+          shape = `M${width / 2},${height / 2} m-${width / 2},0 a${width / 2},${height / 2} 0 1,0 ${width},0 a${width / 2},${height / 2} 0 1,0 -${width},0`;
+          break;
+        default:
+          break;
+      }
+  
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", shape);
+      clipPath.appendChild(path);
+      svg.appendChild(clipPath);
+    }
+
+    const flagContent = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    if (['guidon', 'ohio', 'shield', 'pennant', 'circle'].includes(containerFormat)) {
+      flagContent.setAttribute("clip-path", "url(#flagShape)");
+    }
+
+    createBackground(flagContent);
+
     const starsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     const overlaysGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
@@ -181,72 +269,76 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
 
     // Append groups based on starsOnTop
     if (starsOnTop) {
-      svg.appendChild(overlaysGroup);
-      svg.appendChild(starsGroup);
+      flagContent.appendChild(overlaysGroup);
+      flagContent.appendChild(starsGroup);
     } else {
-      svg.appendChild(starsGroup);
-      svg.appendChild(overlaysGroup);
-    }
+      flagContent.appendChild(starsGroup);
+      flagContent.appendChild(overlaysGroup);
+    }    
 
+    svg.appendChild(flagContent);
+
+    // Generate and download SVG
     const svgData = new XMLSerializer().serializeToString(svg);
     const svgBlob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
     const svgUrl = URL.createObjectURL(svgBlob);
     const downloadLink = document.createElement("a");
     downloadLink.href = svgUrl;
-    downloadLink.download = "eu-flag.svg";
+    downloadLink.download = "flag.svg";
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
-
+  
     setButtonClicked(true);
   };
   
-  const createBackground = (svg) => {
+  const createBackground = (parent) => {
     switch (selectedPattern) {
       case 'Single':
-        createSolidBackground(svg, backColours[0]);
+        createSolidBackground(parent, backColours[0]);
         break;
       case 'Checkered':
-        createCheckeredBackground(svg, checkerSize);
+        createCheckeredBackground(parent, checkerSize);
         break;
       case 'Sunburst':
-        createSunburstBackground(svg);
+        createSunburstBackground(parent);
         break;
       case 'Border':
-        createBorderBackground(svg);
+        createBorderBackground(parent);
         break;
       case 'Vertical':
-        createVerticalStripes(svg);
+        createVerticalStripes(parent);
         break;
       case 'Horizontal':
-        createHorizontalStripes(svg);
+        createHorizontalStripes(parent);
         break;
       case 'Cross':
-        createCrossBackground(svg);
+        createCrossBackground(parent);
         break;
       case 'Saltire':
-        createSaltireBackground(svg);
+        createSaltireBackground(parent);
         break;
       case 'Quadrants':
-        createQuadrantsBackground(svg);
+        createQuadrantsBackground(parent);
         break;
       case 'Bends':
-        createBendsBackground(svg);
+        createBendsBackground(parent);
         break;
       default:
-        createSolidBackground(svg, backColours[0]);
+        createSolidBackground(parent, backColours[0]);
+        break;
     }
   };
   
-  const createSolidBackground = (svg, color) => {
+  const createSolidBackground = (parent, color) => {
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     rect.setAttribute("width", "100%");
     rect.setAttribute("height", "100%");
     rect.setAttribute("fill", color);
-    svg.appendChild(rect);
+    parent.appendChild(rect);
   };
   
-  const createCheckeredBackground = (svg, checkerSize) => {
+  const createCheckeredBackground = (parent, checkerSize) => {
     const rectSize = 100 / checkerSize;
     for (let i = 0; i < checkerSize; i++) {
       for (let j = 0; j < checkerSize; j++) {
@@ -256,12 +348,12 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
         rect.setAttribute("width", `${rectSize}%`);
         rect.setAttribute("height", `${rectSize}%`);
         rect.setAttribute("fill", (i + j) % 2 === 0 ? backColours[1] : backColours[0]);
-        svg.appendChild(rect);
+        parent.appendChild(rect);
       }
     }
   };
   
-  const createSunburstBackground = (svg) => {
+  const createSunburstBackground = (parent) => {
     const width = 600;
     const height = 400;
     const centerX = width / 2;
@@ -280,11 +372,11 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("d", `M${centerX},${centerY} L${startX},${startY} A${radius},${radius} 0 0,1 ${endX},${endY} Z`);
       path.setAttribute("fill", backColours[i % backColours.length]);
-      svg.appendChild(path);
+      parent.appendChild(path);
     }
   };
 
-  const createVerticalStripes = (svg) => {
+  const createVerticalStripes = (parent) => {
     const stripeWidth = 600 / stripeCount;
     for (let i = 0; i < stripeCount; i++) {
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -293,11 +385,11 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       rect.setAttribute("width", stripeWidth);
       rect.setAttribute("height", "400");
       rect.setAttribute("fill", backColours[i] || backColours[backColours.length - 1]);
-      svg.appendChild(rect);
+      parent.appendChild(rect);
     }
   };
   
-  const createHorizontalStripes = (svg) => {
+  const createHorizontalStripes = (parent) => {
     const stripeHeight = 400 / stripeCount;
     for (let i = 0; i < stripeCount; i++) {
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -306,17 +398,17 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       rect.setAttribute("width", "600");
       rect.setAttribute("height", stripeHeight);
       rect.setAttribute("fill", backColours[i] || backColours[backColours.length - 1]);
-      svg.appendChild(rect);
+      parent.appendChild(rect);
     }
   };
 
-  const createBorderBackground = (svg) => {
+  const createBorderBackground = (parent) => {
     // Main background rectangle
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     rect.setAttribute("width", "100%");
     rect.setAttribute("height", "100%");
     rect.setAttribute("fill", backColours[1]);
-    svg.appendChild(rect);
+    parent.appendChild(rect);
   
     // Border rectangle
     const border = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -327,12 +419,12 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     border.setAttribute("fill", "none");
     border.setAttribute("stroke", backColours[0] || "#000000");
     border.setAttribute("stroke-width", borderWidth);
-    svg.appendChild(border);
+    parent.appendChild(border);
   };
   
-  const createCrossBackground = (svg) => {
+  const createCrossBackground = (parent) => {
     // Background
-    createSolidBackground(svg, backColours[1]);
+    createSolidBackground(parent, backColours[1]);
     
     // Cross
     const crossWidth = 600 * (crossSaltireSize / 100);
@@ -340,12 +432,12 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     path.setAttribute("d", `M0,200 H600 M300,0 V400`);
     path.setAttribute("stroke", backColours[0]);
     path.setAttribute("stroke-width", crossWidth);
-    svg.appendChild(path);
+    parent.appendChild(path);
   };
   
-  const createSaltireBackground = (svg) => {
+  const createSaltireBackground = (parent) => {
     // Background
-    createSolidBackground(svg, backColours[1]);
+    createSolidBackground(parent, backColours[1]);
     
     // Saltire
     const saltireWidth = 600 * (crossSaltireSize / 100);
@@ -353,10 +445,10 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     path.setAttribute("d", `M0,0 L600,400 M0,400 L600,0`);
     path.setAttribute("stroke", backColours[0]);
     path.setAttribute("stroke-width", saltireWidth);
-    svg.appendChild(path);
+    parent.appendChild(path);
   };
   
-  const createQuadrantsBackground = (svg) => {
+  const createQuadrantsBackground = (parent) => {
     const rects = [
       {x: 0, y: 0, color: backColours[3]},
       {x: 300, y: 0, color: backColours[0]},
@@ -370,11 +462,11 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       rect.setAttribute("width", "300");
       rect.setAttribute("height", "200");
       rect.setAttribute("fill", color);
-      svg.appendChild(rect);
+      parent.appendChild(rect);
     });
   };
   
-  const createBendsBackground = (svg) => {
+  const createBendsBackground = (parent) => {
     if (selectedAmount === 'Forwards' || selectedAmount === 'Backwards') {
       const linearGradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
       linearGradient.setAttribute("id", "bendsGradient");
@@ -396,16 +488,16 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
   
       const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
       defs.appendChild(linearGradient);
-      svg.appendChild(defs);
+      parent.appendChild(defs);
   
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       rect.setAttribute("width", "100%");
       rect.setAttribute("height", "100%");
       rect.setAttribute("fill", "url(#bendsGradient)");
-      svg.appendChild(rect);
+      parent.appendChild(rect);
     } else if (selectedAmount === 'Both Ways') {
-      const width = svg.getAttribute("width");
-      const height = svg.getAttribute("height");
+      const width = parent.getAttribute("width");
+      const height = parent.getAttribute("height");
       const paths = [
         { d: `M0,0 L${width/2},${height/2} L0,${height} Z`, color: backColours[2] }, 
         { d: `M0,0 L${width},0 L${width/2},${height/2} Z`, color: backColours[3] }, 
@@ -416,7 +508,7 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", d);
         path.setAttribute("fill", color);
-        svg.appendChild(path);
+        parent.appendChild(path);
       });
     } else if (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe') {
       const isForward = selectedAmount === 'Forward Stripe';
@@ -447,13 +539,13 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
   
       const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
       defs.appendChild(linearGradient);
-      svg.appendChild(defs);
+      parent.appendChild(defs);
   
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       rect.setAttribute("width", "100%");
       rect.setAttribute("height", "100%");
       rect.setAttribute("fill", "url(#bendsGradient)");
-      svg.appendChild(rect);
+      parent.appendChild(rect);
     }
   };
 

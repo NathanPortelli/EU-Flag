@@ -1,5 +1,16 @@
 export const changelogData = [
   {
+    version: "v.0.2.15",
+    date: "05/08/2024",
+    changes: [
+      "Added Undo/Redo Functionality",
+      "Fixed Issue with Text Overlays on Sample Flags",
+      "Fixed Issue with Overlay Dragging",
+      "Fixed Flag Format for SVG Download",
+      "Fixed Header Format for Smaller Screens",
+    ]
+  },
+  {
     version: "v.0.2.14",
     date: "03/08/2024",
     changes: [
@@ -357,10 +368,8 @@ export const upcomingFeatures = [
   { feature: "Fit Circle/Flag in Small Screen", difficulty: "Difficult" },
   { feature: "Colour Picker with Gradient and Transparency Features", difficulty: "Difficult" },
   { feature: "Basic Colour Theory on Non-Overlay Flag Randomiser", difficulty: "Not Difficult" },
-  { feature: "Overhaul SVG Download", difficulty: "Difficult" },
   { feature: "Public Sharing of Flag URLs", difficulty: "Difficult" },
   { feature: "Gradient Backgrounds", difficulty: "Difficult" },
   { feature: "Symmetry Options (Mirroring, Radial)", difficulty: "Not Difficult" },
-  { feature: "Undo/Redo Functionality", difficulty: "Difficult" },
   { feature: "Better Management of Flag Samples", difficulty: "Not Difficult" }
 ];

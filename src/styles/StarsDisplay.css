@@ -13,7 +13,7 @@
   overflow: hidden;
 }
 
-.stars-container.flag, .stars-container.pennant, .stars-container.ohio {
+.stars-container.flag, .stars-container.pennant, .stars-container.ohio, .stars-container.guidon {
   width: 675px;
   height: 450px;
   border-radius: 0;

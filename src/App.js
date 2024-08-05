@@ -74,6 +74,8 @@ const App = () => {
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
+  const [urlHistory, setUrlHistory] = useState([window.location.href]);
+  const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
 
   const toggleSaveMenu = () => {
     setIsSaveMenuOpen(!isSaveMenuOpen);
@@ -163,21 +165,21 @@ const App = () => {
   };
 
   const handleDragStart = (e, index) => {
-    setDraggedItem(index);
+    setDraggedItem(overlays[index]);
+  };
+  
+  const handleDragEnd = (e) => {
+    if (draggedItem) {
+      const newOverlays = overlays.filter((overlay) => overlay !== draggedItem);
+      newOverlays.splice(dragOverItem, 0, draggedItem);
+      setOverlays(newOverlays);
+      setDraggedItem(null);
+      setDragOverItem(null);
+    }
   };
   
   const handleDragEnter = (e, index) => {
     setDragOverItem(index);
-  };
-  
-  const handleDragEnd = () => {
-    const newOverlays = [...overlays];
-    const draggedItemContent = newOverlays[draggedItem];
-    newOverlays.splice(draggedItem, 1);
-    newOverlays.splice(dragOverItem, 0, draggedItemContent);
-    setOverlays(newOverlays);
-    setDraggedItem(null);
-    setDragOverItem(null);
   };
 
   const handleBackgroundImageUpload = (imageData) => {
@@ -217,17 +219,13 @@ const App = () => {
   const updateOverlayProperty = (index, property, value) => {
     setOverlays(prevOverlays => {
       const newOverlays = [...prevOverlays];
-      if (property === 'font') {
-        const selectedFont = fonts.find(font => font.value === value);
-        newOverlays[index][property] = selectedFont ? selectedFont.value : value;
-      } else if (property === 'textCurve') {
-        newOverlays[index][property] = Number(value);
-      } else {
-        newOverlays[index][property] = value;
-      }
+      newOverlays[index] = {
+        ...newOverlays[index],
+        [property]: value,
+      };
       return newOverlays;
     });
-  };
+  };  
 
   const handleStripeWidthChange = (value) => {
     setStripeWidth(value);
@@ -445,7 +443,10 @@ const App = () => {
           };
         }
       });
-      setOverlays(parsedOverlays);
+      setOverlays(parsedOverlays.map(overlay => ({
+        ...overlay,
+        textCurve: overlay.textCurve !== undefined ? overlay.textCurve : 0 // Default to 0 if not specified
+      })));      
     }
   };
 
@@ -517,14 +518,55 @@ const App = () => {
           };
         }
       });
-      setOverlays(parsedOverlays);
+      setOverlays(parsedOverlays.map(overlay => ({
+        ...overlay,
+        textCurve: overlay.textCurve !== undefined ? overlay.textCurve : 0 // Default to 0 if not specified
+      })));      
     } else {
       setOverlays([]);
     }
   
     // Update the URL without redirecting
-    window.history.replaceState({}, '', `${window.location.pathname}${url.search}`);
+    //window.history.replaceState({}, '', `${window.location.pathname}${url.search}`);
+    window.history.replaceState({}, '', newUrl);
   };
+
+  const undo = () => {
+    if (currentUrlIndex > 0) {
+      const newIndex = currentUrlIndex - 1;
+      setCurrentUrlIndex(newIndex);
+      handleUrlChange(urlHistory[newIndex]);
+    }
+  };
+  
+  const redo = () => {
+    if (currentUrlIndex < urlHistory.length - 1) {
+      const newIndex = currentUrlIndex + 1;
+      setCurrentUrlIndex(newIndex);
+      handleUrlChange(urlHistory[newIndex]);
+    }
+  };
+
+  useEffect(() => {
+    const checkUrlUpdate = () => {
+      const currentUrl = window.location.href;
+      if (currentUrl !== urlHistory[currentUrlIndex]) {
+        setUrlHistory(prevHistory => {
+          const newHistory = prevHistory.slice(0, currentUrlIndex + 1);
+          newHistory.push(currentUrl);
+          if (newHistory.length > 40) {
+            newHistory.shift();
+          }
+          return newHistory;
+        });
+        setCurrentUrlIndex(prevIndex => Math.min(prevIndex + 1, 39));
+      }
+    };
+  
+    const intervalId = setInterval(checkUrlUpdate, 3000);  // 3 seconds
+  
+    return () => clearInterval(intervalId);
+  }, [urlHistory, currentUrlIndex]);
 
   const updateURL = () => {
     const params = new URLSearchParams();
@@ -798,14 +840,11 @@ const App = () => {
     window.location.reload();
   };
 
-  const updateOverlayPosition = (index, x, y) => {
+  const updateOverlayPosition = (index, offsetX, offsetY) => {
     setOverlays(prevOverlays => {
       const newOverlays = [...prevOverlays];
-      newOverlays[index] = {
-        ...newOverlays[index],
-        offsetX: x,
-        offsetY: y,
-      };
+      newOverlays[index].offsetX = offsetX;
+      newOverlays[index].offsetY = offsetY;
       return newOverlays;
     });
   };
@@ -817,6 +856,10 @@ const App = () => {
         handleRefresh={handleRefresh} 
         toggleQuizMode={() => setIsQuizMode(!isQuizMode)}
         isQuizMode={isQuizMode}
+        undo={undo}
+        redo={redo}
+        canUndo={currentUrlIndex > 0}
+        canRedo={currentUrlIndex < urlHistory.length - 1}
       />
       <main className="App-main">
         {isSaveMenuOpen && (
@@ -880,6 +923,7 @@ const App = () => {
                                 <option value="flag">Flag 2:3</option>
                                 <option value="flag-1-2">Flag 1:2</option>
                                 <option value="square-flag">Square</option>
+                                <option value="guidon">Guidon</option>
                                 <option value="ohio">Ohio</option>
                                 <option value="shield">Shield</option>
                                 <option value="pennant">Pennant</option>
@@ -1175,7 +1219,8 @@ const App = () => {
                         >
                           <div className="overlay-handle">
                             <div 
-                              className="overlay-topcontent"
+                              className={`overlay-topcontent ${dragOverItem === index ? 'drag-over' : ''}`}
+                              key={index}
                               draggable
                               onDragStart={(e) => handleDragStart(e, index)}
                               onDragEnter={(e) => handleDragEnter(e, index)}

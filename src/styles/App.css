@@ -166,7 +166,6 @@ input[type="range"] {
 
 .new-format .App-header {
   background-color: #002080;
-  padding: 10px 10%;
   text-align: center;
   display: flex;
   justify-content: space-between;
@@ -230,20 +229,6 @@ input[type="range"] {
   justify-content: center;
   padding-top: 10px;
   margin-bottom: 20px;
-}
-
-/* GitHub Icon */
-
-.github-icon {
-  font-size: 2.2rem;
-  color: #ffffff;
-  text-decoration: none;
-  margin-left: 15px;
-  color: #FFDD00
-}
-
-.github-icon:hover {
-  color: #d6bb02;
 }
 
 /* Colour Inputter */
@@ -583,6 +568,64 @@ input[type='color']::-webkit-color-swatch {
 .header-buttons {
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.header-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Header - Smaller Screen */
+
+.dropdown-toggle {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .header-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: right;
+    justify-content: end;
+    width: 100%;
+  }
+
+  .dropdown-toggle {
+    background-color: transparent;
+    color: #FFDD00;
+    border: none;
+    padding: 10px;
+    font-size: 30px;
+    cursor: pointer;
+    display: flex;
+    margin-left: 0px !important;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .dropdown-menu {
+    display: none;
+    flex-direction: column;
+    align-items: flex-end;
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    background-color: #002080;
+    border: 1px solid #FFDD00;
+    border-radius: 10px;
+    padding: 10px;
+    z-index: 600;
+  }
+
+  .dropdown-menu.show {
+    display: flex;
+  }
+}
+
+.dropdown-menu .header-button:hover {
+  color: #ffdd00d2;
 }
 
 /* Overlays */

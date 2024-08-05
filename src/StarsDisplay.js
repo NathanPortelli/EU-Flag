@@ -21,24 +21,24 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
       y: overlay.offsetY
     };
   };
-
+  
   const handleDragEnd = (e) => {
     if (draggedOverlay !== null) {
       const container = document.getElementById('stars-container');
       const rect = container.getBoundingClientRect();
       const endX = e.clientX - rect.left;
       const endY = e.clientY - rect.top;
-      
+  
       const deltaX = endX - dragStartPosRef.current.x;
       const deltaY = endY - dragStartPosRef.current.y;
-      
+  
       const newX = initialOverlayPosRef.current.x + deltaX;
       const newY = initialOverlayPosRef.current.y + deltaY;
-      
+  
       updateOverlayPosition(draggedOverlay, newX, newY);
     }
     setDraggedOverlay(null);
-  };
+  };   
 
   const wrapText = (text, fontSize, maxWidth) => {
     const words = text.split(' ');
@@ -160,7 +160,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         );
       }
     });
-  };
+  };  
 
   const renderShapes = (count, size, radius, keyPrefix) => {
     const shapes = [];
@@ -487,6 +487,11 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
       case 'flag-1-2':
       case 'square-flag':
         return { borderRadius: '0' };
+      case 'guidon':
+        return {
+          borderRadius: '0',
+          clipPath: 'polygon(100% 0, 75% 50%, 100% 100%, 0% 100%, 0 50%, 0% 0%)',
+        };
       case 'ohio':
         return {
           borderRadius: '0',
