@@ -241,7 +241,7 @@ const QuizMode = ({ onExit }) => {
           <div className="quiz-score-container">
             <div className="quiz-score-content">
               <div className="quiz-score" style={{ color: scoreColor }}>Score: {score}</div>
-              <div className="quiz-max-score">Max Score: {maxScore}</div>
+              <div className="quiz-max-score">High Score: {maxScore}</div>
             </div>
             <button className="settings-button" onClick={() => setShowSettings(true)}>
               <FontAwesomeIcon icon={faCog} />

@@ -4,7 +4,7 @@ import StarsDisplay from './StarsDisplay';
 import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign } from '@fortawesome/free-solid-svg-icons';
+import { faLayerGroup, faImage, faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 import { random } from 'lodash';
 
@@ -69,8 +69,11 @@ const App = () => {
   const [stripeWidth, setStripeWidth] = useState(10);
   const [circleSpacing, setCircleSpacing] = useState(100);
   const [gridSpacing, setGridSpacing] = useState(100);
+  const [seychellesStripeCount, setSeychellesStripeCount] = useState(3);
   const [customSvgPath, setCustomSvgPath] = useState("M 10,20 L 90,20 L 90,60 L 10,60 Z M 10,20 L 50,40 L 90,20");
-  
+  const [crossHorizontalOffset, setCrossHorizontalOffset] = useState(0);
+  const [crossVerticalOffset, setCrossVerticalOffset] = useState(0);
+
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
@@ -154,16 +157,6 @@ const App = () => {
     }
   };
 
-  const handleCheckerSizeChange = (value) => {
-    setCheckerSize(value);
-    updateURL();
-  };
-
-  const handleSunburstStripeCountChange = (value) => {
-    setSunburstStripeCount(value);
-    updateURL();
-  };
-
   const handleDragStart = (e, index) => {
     setDraggedItem(overlays[index]);
   };
@@ -212,6 +205,19 @@ const App = () => {
     }
   };
 
+  const addImageOverlay = () => {
+    if (overlays.length < MAX_OVERLAYS) {
+      setOverlays(prevOverlays => [{
+        type: 'image',
+        imageData: null,
+        size: 200,
+        offsetX: 0,
+        offsetY: 0,
+        rotation: 0,
+      }, ...prevOverlays]);
+    }
+  };
+
   const removeOverlay = (index) => {
     setOverlays(prevOverlays => prevOverlays.filter((_, i) => i !== index));
   };
@@ -226,7 +232,18 @@ const App = () => {
       return newOverlays;
     });
   };  
+  
+  const handleCheckerSizeChange = (value) => {
+    setCheckerSize(value);
+    updateURL();
+  };
 
+  const handleSunburstStripeCountChange = (value) => {
+    setSunburstStripeCount(value);
+    updateURL();
+  };
+
+  
   const handleStripeWidthChange = (value) => {
     setStripeWidth(value);
     updateURL();
@@ -258,6 +275,8 @@ const App = () => {
     setBorderWidth(random(1, 30));
     setCircleSpacingAndURL(random(80, 200));
     setGridSpacingAndURL(random(20, 200));
+    setCrossHorizontalOffsetAndURL(random(-50, 50));
+    setCrossVerticalOffsetAndURL(random(-50, 50));  
   
     const newBackColours = Array(16).fill().map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`);
     setBackColours(newBackColours);
@@ -265,6 +284,8 @@ const App = () => {
   
     if (randomPattern === 'Horizontal' || randomPattern === 'Vertical') {
       setStripeCount(random(2, 16));
+    } else if (randomPattern === 'Seychelles') {
+      setSeychellesStripeCount(Math.floor(Math.random() * 14) + 3);
     }
   
     // Randomize overlays
@@ -308,6 +329,8 @@ const App = () => {
       case 'Checkered':
       case 'Sunburst':
         return backColours.slice(0, 2);
+      case 'Seychelles':
+        return backColours.slice(0, seychellesStripeCount);
       case 'Quadrants':
         return backColours.slice(0, 4);
       default:
@@ -317,6 +340,8 @@ const App = () => {
 
   // Calculate opposite colour
   const getOppositeColour = (hex) => {
+    if (!hex) return '#000000';
+
     let r = parseInt(hex.slice(1, 3), 16);
     let g = parseInt(hex.slice(3, 5), 16);
     let b = parseInt(hex.slice(5, 7), 16);
@@ -393,8 +418,11 @@ const App = () => {
     setSunburstStripeCount(parseInt(params.get('sunburstStripeCount') || '8'));
     setBorderWidth(parseInt(params.get('borderWidth') || '10'));
     setStripeCount(parseInt(params.get('stripeCount') || '2'));
+    setSeychellesStripeCount(parseInt(params.get('seychellesStripeCount') || '3'));
     setCircleSpacing(parseInt(params.get('circleSpacing') || '100'));
     setGridSpacing(parseInt(params.get('gridSpacing') || '100'));
+    setCrossHorizontalOffset(parseFloat(params.get('crossHorizontalOffset') || '0'));
+    setCrossVerticalOffset(parseFloat(params.get('crossVerticalOffset') || '0'));
 
     const urlCustomSvgPath = params.get('customSvgPath');
     if (urlCustomSvgPath) {
@@ -417,7 +445,7 @@ const App = () => {
       const parsedOverlays = overlayData.split(';;').map(overlayString => {
         const [type, ...rest] = overlayString.split('|');
         if (type === 'text') {
-          const [text, font, size, width, offsetX, offsetY, rotation, color, textCurve] = rest; 
+          const [text, font, size, width, offsetX, offsetY, rotation, color, textCurve] = rest;
           return {
             type: 'text',
             text: decodeURIComponent(text),
@@ -429,6 +457,16 @@ const App = () => {
             rotation: parseFloat(rotation),
             color: decodeURIComponent(color),
             textCurve: parseFloat(textCurve)
+          };
+        } else if (type === 'image') {
+          const [size, offsetX, offsetY, rotation] = rest;
+          return {
+            type: 'image',
+            imageData: null,
+            size: parseFloat(size),
+            offsetX: parseFloat(offsetX),
+            offsetY: parseFloat(offsetY),
+            rotation: parseFloat(rotation)
           };
         } else {
           const [shape, size, offsetX, offsetY, rotation, color] = rest;
@@ -445,8 +483,8 @@ const App = () => {
       });
       setOverlays(parsedOverlays.map(overlay => ({
         ...overlay,
-        textCurve: overlay.textCurve !== undefined ? overlay.textCurve : 0 // Default to 0 if not specified
-      })));      
+        textCurve: overlay.textCurve !== undefined ? overlay.textCurve : 0
+      })));     
     }
   };
 
@@ -475,6 +513,7 @@ const App = () => {
     setSunburstStripeCount(parseInt(params.get('sunburstStripeCount') || '8'));
     setBorderWidth(parseInt(params.get('borderWidth') || '10'));
     setStripeCount(parseInt(params.get('stripeCount') || '2'));
+    setSeychellesStripeCount(parseInt(params.get('seychellesStripeCount') || '3'));
     setGridSpacing(parseInt(params.get('gridSpacing') || '100'));
     setCircleSpacing(parseInt(params.get('circleSpacing') || '100'));
     setCrossSaltireSize(parseInt(params.get('crossSaltireSize') || '11'));
@@ -596,6 +635,7 @@ const App = () => {
       stripeWidth: 10,
       gridSpacing: 100,
       circleSpacing: 100,
+      seychellesStripeCount: 3,
     };
 
     if (selectedShape === 'Custom' && customSvgPath) {
@@ -639,6 +679,8 @@ const App = () => {
     addParamIfDifferent('borderWidth', borderWidth);
     addParamIfDifferent('circleSpacing', circleSpacing);
     addParamIfDifferent('gridSpacing', gridSpacing);
+    addParamIfDifferent('crossHorizontalOffset', crossHorizontalOffset);
+    addParamIfDifferent('crossVerticalOffset', crossVerticalOffset);
   
     // Handle background colours
     if (isDifferent('backColours', backColours)) {
@@ -651,13 +693,17 @@ const App = () => {
     } else if (selectedPattern === 'Bends' && 
       (selectedAmount === 'Forward Stripe' || selectedAmount === 'Backward Stripe')) {
       addParamIfDifferent('stripeWidth', stripeWidth);
+    } else if (selectedPattern === 'Seychelles') {
+      params.append('seychellesStripeCount', seychellesStripeCount);
     }
   
     // Handle overlays
     if (overlays.length > 0) {
       const overlayData = overlays.map(overlay => {
         if (overlay.type === 'text') {
-          return `text|${encodeURIComponent(overlay.text)}|${encodeURIComponent(overlay.font)}|${overlay.size}|${overlay.width}|${overlay.offsetX}|${overlay.offsetY}|${overlay.rotation}|${encodeURIComponent(overlay.color)}|${overlay.textCurve}`; 
+          return `text|${encodeURIComponent(overlay.text)}|${encodeURIComponent(overlay.font)}|${overlay.size}|${overlay.width}|${overlay.offsetX}|${overlay.offsetY}|${overlay.rotation}|${encodeURIComponent(overlay.color)}|${overlay.textCurve}`;
+        } else if (overlay.type === 'image') {
+          return `image|${overlay.size}|${overlay.offsetX}|${overlay.offsetY}|${overlay.rotation}`;
         } else {
           return `shape|${overlay.shape}|${overlay.size}|${overlay.offsetX}|${overlay.offsetY}|${overlay.rotation}|${encodeURIComponent(overlay.color)}`;
         }
@@ -710,6 +756,8 @@ const App = () => {
   const setStarsOnTopAndURL = setStateAndUpdateURL(setStarsOnTop);
   const setCircleSpacingAndURL = setStateAndUpdateURL(setCircleSpacing);
   const setGridSpacingAndURL = setStateAndUpdateURL(setGridSpacing);
+  const setCrossHorizontalOffsetAndURL = setStateAndUpdateURL(setCrossHorizontalOffset);
+  const setCrossVerticalOffsetAndURL = setStateAndUpdateURL(setCrossVerticalOffset);
 
   const handleBackColourChange = (colour, index) => {
     const newColours = [...backColours];
@@ -756,6 +804,17 @@ const App = () => {
     updateURL();
   };
 
+  const handleSeychellesStripeCountChange = (value) => {
+    setSeychellesStripeCount(value);
+    const newColors = [...backColours];
+    while (newColors.length < value) {
+      newColors.push(defaultBackColours[newColors.length % defaultBackColours.length]);
+    }
+    setBackColours(newColors.slice(0, value));
+    setUserSetColours(newColors);
+    updateURL();
+  };
+
   const handleShapeConfigurationChange = (e) => {
     const newConfig = e.target.value;
     if (newConfig === 'square') {
@@ -778,6 +837,9 @@ const App = () => {
     } else if (pattern === 'Border') {
       setBackColours(userSetColours.slice(0, 2));
       setBorderWidth(10);
+    } else if (pattern === 'Seychelles') {
+      setBackColours(userSetColours.slice(0, 3));
+      setSeychellesStripeCount(3);
     } else if (pattern === 'Sunburst') {
       setSunburstStripeCount(8);
       setBackColours(userSetColours.slice(0, 2));
@@ -791,9 +853,6 @@ const App = () => {
       let coloursCount = 1;
 
       switch (pattern) {
-        case 'Single':
-          coloursCount = 1;
-          break;
         case 'Vertical':
         case 'Horizontal':
         case 'Bends':
@@ -801,11 +860,16 @@ const App = () => {
         case 'Saltire':
           coloursCount = 2;
           break;
+        case 'Seychelles':
+          coloursCount = 3;
+          break;
         case 'Quadrants':
           coloursCount = 4;
           break;
+        case 'Single':
         default:
           coloursCount = 1;
+          break;
       }
       const newColours = userSetColours.slice(0, coloursCount);
       setBackColours(newColours);
@@ -906,6 +970,9 @@ const App = () => {
                       gridSpacing={gridSpacing}
                       updateOverlayPosition={updateOverlayPosition}
                       customSvgPath={customSvgPath}
+                      seychellesStripeCount={seychellesStripeCount}
+                      crossHorizontalOffset={crossHorizontalOffset}
+                      crossVerticalOffset={crossVerticalOffset}
                     />
                   </div>
                   <div className="Shape-selector Under-Stars-Display">
@@ -1203,10 +1270,13 @@ const App = () => {
                                 New Text
                               </button>
                             </Tooltip>
+                            <Tooltip text="Add an image overlay to your flag.">
+                              <button className="download-button" onClick={addImageOverlay}>
+                                <FontAwesomeIcon icon={faImage} className="download-icon" />
+                                New Image
+                              </button>
+                            </Tooltip>
                           </div>
-                          {overlays.length >= 1 && (
-                            <p className='image-disclaimer'>You can move the overlays by dragging them on the flag itself.</p>
-                          )}
                           {overlays.length >= 2 && (
                             <p className='image-disclaimer'>Drag/Move overlay options up or down to change their stacking order.</p>
                           )}
@@ -1278,6 +1348,14 @@ const App = () => {
                                           </select>
                                         </div>
                                       </div>
+                                    ) : overlay.type === 'image' ? (
+                                      <div className="Image-container">
+                                        <ImageUpload
+                                          onImageUpload={(imageData) => updateOverlayProperty(index, 'imageData', imageData)}
+                                          onImageRemove={() => updateOverlayProperty(index, 'imageData', null)}
+                                          hasImage={!!overlay.imageData}
+                                        />
+                                      </div>
                                     ) : (
                                       <div className="Shape-container">
                                         <label htmlFor={`overlaySelector-${index}`} className="shape-label">Overlay</label>
@@ -1291,41 +1369,50 @@ const App = () => {
                                     )}
                                     <div className="overlay-container">
                                       {overlays.length < MAX_OVERLAYS && (
-                                        <button className="clone-overlay" onClick={() => cloneOverlay(index)}>
-                                          <i className="fas fa-clone"></i>
-                                        </button>
+                                        <Tooltip text="Duplicate this overlay.">
+                                          <button className="clone-overlay" onClick={() => cloneOverlay(index)}>
+                                            <i className="fas fa-clone"></i>
+                                          </button>
+                                        </Tooltip>
                                       )}
-                                      <button className="remove-image" onClick={() => removeOverlay(index)}>
-                                        <i className="fas fa-trash"></i>
-                                      </button>
+                                      <Tooltip text="Delete this overlay.">
+                                        <button className="remove-image" onClick={() => removeOverlay(index)}>
+                                          <i className="fas fa-trash"></i>
+                                        </button>
+                                      </Tooltip>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                              <div className='overlay-color'>
-                                <div className="Colour-container">
-                                  <label
-                                    htmlFor={`overlayColorPicker-${index}`}
-                                    className="colour-label"
-                                    style={{color: getOppositeColour(overlay.color)}}
-                                  >
-                                    <FontAwesomeIcon 
-                                      icon={faPaintRoller} 
-                                      className="header-icon" 
-                                      style={{ marginRight: '8px' }} 
-                                    />  
-                                    Overlay Colour
-                                  </label>
-                                  <input
-                                    type="color"
-                                    id={`overlayColorPicker-${index}`}
-                                    value={overlay.color}
-                                    onChange={(e) => updateOverlayProperty(index, 'color', e.target.value)}
-                                  />
+                              {overlay.type !== 'image' && (
+                                <div className='overlay-color'>
+                                  <div className="Colour-container">
+                                    <label
+                                      htmlFor={`overlayColorPicker-${index}`}
+                                      className="colour-label"
+                                      style={{color: getOppositeColour(overlay.color)}}
+                                    >
+                                      <FontAwesomeIcon 
+                                        icon={faPaintRoller} 
+                                        className="header-icon" 
+                                        style={{ marginRight: '8px' }} 
+                                      />  
+                                      Overlay Colour
+                                    </label>
+                                    <input
+                                      type="color"
+                                      id={`overlayColorPicker-${index}`}
+                                      value={overlay.color}
+                                      onChange={(e) => updateOverlayProperty(index, 'color', e.target.value)}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
+                              )}
                             </div>
                           </div>
+                          {overlay.type === 'image' && (
+                            <p className='overlay-image-disclaimer'>Images cannot be shared via link.</p>
+                          )}
                           <div className="overlay-sliders">
                             <Slider
                               value={overlay.offsetY}
@@ -1390,14 +1477,12 @@ const App = () => {
                   {activeSection === 'Background' && (
                     <div className="toolbar-segment">
                       <div className='background-image'>
-                        <Tooltip text="2:3 Aspect Ratio optimal for downloading">
-                          <ImageUpload
-                            onImageUpload={handleBackgroundImageUpload}
-                            onImageRemove={() => setBackgroundImage(null)}
-                            hasImage={!!backgroundImage}
-                            label="Upload Background Image"
-                          />
-                        </Tooltip>
+                        <ImageUpload
+                          onImageUpload={handleBackgroundImageUpload}
+                          onImageRemove={() => setBackgroundImage(null)}
+                          hasImage={!!backgroundImage}
+                          label="Upload Background Image"
+                        />
                         <p className='image-disclaimer'>Images cannot be shared via link.</p>
                       </div>
                       {!backgroundImage && (
@@ -1431,6 +1516,17 @@ const App = () => {
                               icon={faChessBoard}
                             />
                           )}
+                          {selectedPattern === 'Seychelles' && (
+                            <Slider
+                              value={seychellesStripeCount}
+                              onChange={handleSeychellesStripeCountChange}
+                              min={3}
+                              max={7}
+                              label="Seychelles Stripes"
+                              unit="stripes"
+                              icon={faLayerGroup}
+                            />
+                          )}
                           {selectedPattern === 'Border' && (
                             <Slider
                               value={borderWidth}
@@ -1455,15 +1551,33 @@ const App = () => {
                               unit="stripes"
                             />
                           )}
-                          {(selectedPattern === 'Cross' || selectedPattern === 'Saltire') && (
-                            <Slider
-                              value={crossSaltireSize}
-                              onChange={(value) => setCrossSaltireSize(value)}
-                              min={1}
-                              max={60}
-                              label={`${selectedPattern} Size`}
-                              icon={faMaximize}
-                            />
+                          {selectedPattern === 'Cross' && (
+                            <>
+                              <Slider
+                                value={crossHorizontalOffset}
+                                onChange={setCrossHorizontalOffsetAndURL}
+                                min={-50}
+                                max={50}
+                                label="Horizontal Offset"
+                                icon={faLeftRight}
+                              />
+                              <Slider
+                                value={crossVerticalOffset}
+                                onChange={setCrossVerticalOffsetAndURL}
+                                min={-50}
+                                max={50}
+                                label="Vertical Offset"
+                                icon={faUpDown}
+                              />
+                              <Slider
+                                value={crossSaltireSize}
+                                onChange={(value) => setCrossSaltireSize(value)}
+                                min={1}
+                                max={60}
+                                label={`${selectedPattern} Size`}
+                                icon={faMaximize}
+                              />
+                            </>
                           )}
                           {(selectedPattern === 'Horizontal' || selectedPattern === 'Vertical') ? (
                             <Slider
@@ -1475,7 +1589,7 @@ const App = () => {
                               label="Number of Stripes"
                             />
                           ) : (
-                            !['Single', 'Border', 'Checkered', 'Sunburst', 'Quadrants', 'Saltire', 'Cross'].includes(selectedPattern) && (
+                            !['Single', 'Border', 'Checkered', 'Seychelles', 'Sunburst', 'Quadrants', 'Saltire', 'Cross'].includes(selectedPattern) && (
                               <Tooltip text="Select the particular style of your pattern.">
                                 <div className="Shape-container">
                                   <label htmlFor="amountSelector" className="shape-label">Format</label>
@@ -1580,6 +1694,9 @@ const App = () => {
                     sunburstStripeCount={sunburstStripeCount}
                     borderWidth={borderWidth}
                     stripeWidth={stripeWidth}
+                    seychellesStripeCount={seychellesStripeCount}
+                    crossHorizontalOffset={crossHorizontalOffset}
+                    crossVerticalOffset={crossVerticalOffset}
                   />
                 </div>
               ) : ( 

@@ -7,7 +7,7 @@ import './styles/DownloadButton.css';
 import { overlaySymbols } from './components/OverlaySymbols';
 import Tooltip from './components/Tooltip';
 
-const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth }) => {
+const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, seychellesStripeCount, crossVerticalOffset, crossHorizontalOffset }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
   const canDownloadSvg = !customImage && !backgroundImage;
 
@@ -297,6 +297,9 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
       case 'Single':
         createSolidBackground(parent, backColours[0]);
         break;
+      case 'Seychelles':
+        createSeychellesBackground(parent);
+        break;
       case 'Checkered':
         createCheckeredBackground(parent, checkerSize);
         break;
@@ -376,6 +379,36 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     }
   };
 
+  const createSeychellesBackground = (parent) => {
+    const width = 600;
+    const height = 400;
+    const angleStep = 90 / seychellesStripeCount;
+  
+    for (let i = 0; i < seychellesStripeCount; i++) {
+      const startAngle = i * angleStep;
+      const endAngle = (i + 1) * angleStep;
+      const color = backColours[i % backColours.length];
+  
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", getSeychellesPath(startAngle, endAngle, width, height));
+      path.setAttribute("fill", color);
+      parent.appendChild(path);
+    }
+  };
+  
+  const getSeychellesPath = (startAngle, endAngle, width, height) => {
+    const startX = width * Math.tan(startAngle * Math.PI / 180);
+    const endX = width * Math.tan(endAngle * Math.PI / 180);
+  
+    return `
+      M 0 ${height}
+      L ${startX} 0
+      L ${endX} 0
+      L 0 ${height}
+      Z
+    `;
+  };
+
   const createVerticalStripes = (parent) => {
     const stripeWidth = 600 / stripeCount;
     for (let i = 0; i < stripeCount; i++) {
@@ -422,18 +455,22 @@ const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgrou
     parent.appendChild(border);
   };
   
-  const createCrossBackground = (parent) => {
-    // Background
-    createSolidBackground(parent, backColours[1]);
-    
-    // Cross
-    const crossWidth = 600 * (crossSaltireSize / 100);
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", `M0,200 H600 M300,0 V400`);
-    path.setAttribute("stroke", backColours[0]);
-    path.setAttribute("stroke-width", crossWidth);
-    parent.appendChild(path);
+    const createCrossBackground = (parent) => {
+      // Background
+      createSolidBackground(parent, backColours[1]);
+      
+      // Cross
+      const crossWidth = 600 * (crossSaltireSize / 100);
+      const horizontalOffset = 300 * (crossHorizontalOffset / 100) * 2.5;
+      const verticalOffset = 200 * (crossVerticalOffset / 100) * 1.5;
+
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", `M0,${200 - verticalOffset} H600 M${300 - horizontalOffset},0 V400`);
+      path.setAttribute("stroke", backColours[0]);
+      path.setAttribute("stroke-width", crossWidth);
+      parent.appendChild(path);
   };
+
   
   const createSaltireBackground = (parent) => {
     // Background

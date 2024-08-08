@@ -63,6 +63,7 @@ export const patternOptions = [
   'Saltire',
   'Sunburst',
   'Border',
+  'Seychelles'
 ];
 
 export const patternIcons = {
@@ -76,6 +77,7 @@ export const patternIcons = {
   'Saltire': 'X',
   'Sunburst': '☀',
   'Border': '⬚',
+  'Seychelles': '🗧',
 };
 
 export const amountOptions = {
@@ -88,6 +90,7 @@ export const amountOptions = {
   'Cross': [],
   'Single': [],
   'Sunburst': [],
+  'Seychelles': [],
 };
 
 export const amountIcons = {

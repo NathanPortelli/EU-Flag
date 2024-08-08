@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import Notification from './Notification';
+import Tooltip from './Tooltip';
 
 const ImageUpload = ({ onImageUpload, onImageRemove, hasImage }) => {
   const [notification, setNotification] = useState(null);
@@ -42,9 +43,11 @@ const ImageUpload = ({ onImageUpload, onImageRemove, hasImage }) => {
         {hasImage ? 'Change Image' : 'Upload Image'}
       </button>
       {hasImage && (
-        <button onClick={handleRemove} className="remove-image">
-          <i className="fas fa-trash"></i>
-        </button>
+        <Tooltip text="Delete the image.">
+          <button onClick={handleRemove} className="remove-image">
+            <i className="fas fa-trash"></i>
+          </button>
+        </Tooltip>
       )}
       {notification && (
         <Notification message={notification} onClose={clearNotification} />

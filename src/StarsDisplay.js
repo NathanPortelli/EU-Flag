@@ -3,7 +3,7 @@ import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, circleSpacing, gridSpacing, updateOverlayPosition, customSvgPath }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, circleSpacing, gridSpacing, updateOverlayPosition, customSvgPath, seychellesStripeCount, crossHorizontalOffset, crossVerticalOffset }) => {
   const [draggedOverlay, setDraggedOverlay] = useState(null);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
   const initialOverlayPosRef = useRef({ x: 0, y: 0 });
@@ -81,7 +81,31 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         cursor: 'move',
       };
   
-      if (overlay.type === 'text') {
+      if (overlay.type === 'image') {
+        return (
+          <div
+            key={`overlay-${index}`}
+            style={{
+              ...commonStyle,
+              width: `${overlay.size}px`,
+              height: `${overlay.size}px`,
+            }}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index, overlay)}
+            onDragEnd={handleDragEnd}
+          >
+            <img 
+              src={overlay.imageData} 
+              alt="Overlay" 
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              }}
+            />
+          </div>
+        );
+      } else if (overlay.type === 'text') {
         const id = `curve-${index}`;
         const width = overlay.width;
         const height = overlay.size * 4;
@@ -166,6 +190,42 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
     const shapes = [];
     const shapePathToUse = shape === 'Custom' ? customSvgPath : shapePaths[shape];
   
+    if (count === 1) {
+      return (
+        <svg
+          className="shape"
+          viewBox="0 0 100 100"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: `translate(-50%, -50%) rotate(${starRotation}deg)`,
+            width: `${size}px`,
+            height: `${size}px`,
+            overflow: 'visible',
+          }}
+        >
+          {customImage ? (
+            <image
+              href={customImage}
+              x="0"
+              y="0"
+              width="100"
+              height="100"
+              preserveAspectRatio="xMidYMid meet"
+            />
+          ) : (
+            <path
+              d={shapePaths[shape]}
+              fill={outlineOnly ? 'none' : starColour}
+              stroke={starColour}
+              strokeWidth={outlineOnly ? outlineWeight : '0'}
+            />
+          )}
+        </svg>
+      );
+    }
+
     if (shapeConfiguration === 'square') {
       let rows = Math.ceil(Math.sqrt(count));
       let cols = Math.floor(count / rows);
@@ -326,6 +386,18 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         case 'Single':
           backgroundStyle = { background: backColours[0] };
           break;
+        case 'Seychelles':
+            const seychellesAngle = 90 / seychellesStripeCount;
+            const seychellesStops = backColours.slice(0, seychellesStripeCount).map((color, index) => {
+                const startAngle = index * seychellesAngle;
+                const endAngle = (index + 1) * seychellesAngle;
+                return `${color} ${startAngle}deg ${endAngle}deg`;
+            }).join(', ');
+
+            backgroundStyle = {
+                background: `conic-gradient(from 0deg at 0% 100%, ${seychellesStops})`
+            };
+            break;
         case 'Checkered':
           const checkerSizePercentage = 200 / checkerSize
           backgroundStyle = {
@@ -454,8 +526,8 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
           const crossWidth = `${crossSaltireSize}%`;
           backgroundStyle = {
             background: `
-              linear-gradient(to right, transparent calc(50% - ${crossWidth}/2.5), ${backColours[0]} calc(50% - ${crossWidth}/2.5), ${backColours[0]} calc(50% + ${crossWidth}/2.5), transparent calc(50% + ${crossWidth}/2.5)),
-              linear-gradient(to bottom, transparent calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% - ${crossWidth}/2), ${backColours[0]} calc(50% + ${crossWidth}/2), transparent calc(50% + ${crossWidth}/2)),
+              linear-gradient(to right, transparent calc(50% - ${crossWidth}/2.5 + ${crossVerticalOffset}%), ${backColours[0]} calc(50% - ${crossWidth}/2.5 + ${crossVerticalOffset}%), ${backColours[0]} calc(50% + ${crossWidth}/2.5 + ${crossVerticalOffset}%), transparent calc(50% + ${crossWidth}/2.5 + ${crossVerticalOffset}%)),
+              linear-gradient(to bottom, transparent calc(50% - ${crossWidth}/2 + ${crossHorizontalOffset}%), ${backColours[0]} calc(50% - ${crossWidth}/2 + ${crossHorizontalOffset}%), ${backColours[0]} calc(50% + ${crossWidth}/2 + ${crossHorizontalOffset}%), transparent calc(50% + ${crossWidth}/2 + ${crossHorizontalOffset}%)),
               ${backColours[1]}
             `
           };
@@ -510,67 +582,6 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         return {};
     }
   };  
-
-  if (count === 1) {
-    return (
-      <div 
-        id="stars-container" 
-        className={`stars-container ${containerFormat}`}
-        style={{
-          ...generateBackgroundStyle(),
-          ...getContainerStyle(),
-        }}
-        data-has-background-image={!!backgroundImage}
-        onDragOver={(e) => e.preventDefault()}
-      >
-        <div 
-          id="stars-only-container" 
-          className="stars-only-container"
-          style={{
-            position: 'absolute',
-            top: '0',
-            left: '0',
-            right: '0',
-            bottom: '0',
-            zIndex: starsOnTop ? 10 : 1,
-          }}
-        >
-          <svg
-            className="shape"
-            viewBox="0 0 100 100"
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: `translate(-50%, -50%) rotate(${starRotation}deg)`,
-              width: `${size}px`,
-              height: `${size}px`,
-              overflow: 'visible',
-            }}
-          >
-            {customImage ? (
-              <image
-                href={customImage}
-                x="0"
-                y="0"
-                width="100"
-                height="100"
-                preserveAspectRatio="xMidYMid meet"
-              />
-            ) : (
-              <path
-                d={shapePaths[shape]}
-                fill={outlineOnly ? 'none' : starColour}
-                stroke={starColour}
-                strokeWidth={outlineOnly ? outlineWeight : '0'}
-              />
-            )}
-          </svg>
-        </div>
-        {renderOverlays()}
-      </div>
-    );
-  }
 
   const circleConfigurations = [
     { circleIndex: 1, countRatio: { 1: 1, 2: 2/3, 3: 4/9 }, radiusFactor: 2 * (circleSpacing / 100) },

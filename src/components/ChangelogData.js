@@ -1,5 +1,16 @@
 export const changelogData = [
   {
+    version: "v.0.3.0",
+    date: "10/08/2024",
+    changes : [
+      "Added User Images as Overlay",
+      "Added Seychelles-style Pattern Background",
+      "Added Movement of Cross Background Lines",
+      "Fixed Text Fonts Defaulting",
+      "Fixed Issue with Over/Under Layering of Shapes",
+    ]
+  },
+  {
     version: "v.0.2.15",
     date: "05/08/2024",
     changes: [
@@ -365,6 +376,7 @@ export const changelogData = [
 
 export const upcomingFeatures = [
   { feature: "Wavy Horizontal/Vertical Pattern Background", difficulty: "Difficult" },
+  { feature: "Pall Pattern Background", difficulty: "Difficult" },
   { feature: "Fit Circle/Flag in Small Screen", difficulty: "Difficult" },
   { feature: "Colour Picker with Gradient and Transparency Features", difficulty: "Difficult" },
   { feature: "Basic Colour Theory on Non-Overlay Flag Randomiser", difficulty: "Not Difficult" },

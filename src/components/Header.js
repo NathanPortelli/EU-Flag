@@ -46,7 +46,7 @@ const Header = ({ handleShare, handleRefresh, toggleQuizMode, isQuizMode, undo, 
         </div>
         <button onClick={toggleQuizMode} className="quiz-mode-button">
           <FontAwesomeIcon icon={isQuizMode ? faPencilAlt : faQuestionCircle} className="quiz-header-icon" />
-          {isQuizMode ? 'Exit Quiz' : 'Quiz Mode'}
+          {isQuizMode ? 'Exit Quiz' : 'Quiz'}
         </button>
         <button className="dropdown-toggle" onClick={toggleDropdown} style={{ marginLeft: 'auto' }}>
           <FontAwesomeIcon icon={faBars} />
