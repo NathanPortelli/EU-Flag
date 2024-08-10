@@ -26,6 +26,7 @@ import { fonts } from './components/OverlayFonts';
 import ChangelogPopup from './components/ChangelogPopup';
 import Popup from './components/Popup';
 import QuizMode from './components//QuizMode';
+import FlagMode from './components/FlagMode';
 import SaveMenu from './components/SaveMenu';
 
 const App = () => {
@@ -75,6 +76,7 @@ const App = () => {
   const [crossVerticalOffset, setCrossVerticalOffset] = useState(0);
 
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+  const [isFlagMode, setIsFlagMode] = useState(false);
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
   const [urlHistory, setUrlHistory] = useState([window.location.href]);
@@ -243,7 +245,6 @@ const App = () => {
     updateURL();
   };
 
-  
   const handleStripeWidthChange = (value) => {
     setStripeWidth(value);
     updateURL();
@@ -924,6 +925,8 @@ const App = () => {
         redo={redo}
         canUndo={currentUrlIndex > 0}
         canRedo={currentUrlIndex < urlHistory.length - 1}
+        toggleFlagMode={() => setIsFlagMode(!isFlagMode)}
+        isFlagMode={isFlagMode}
       />
       <main className="App-main">
         {isSaveMenuOpen && (
@@ -931,7 +934,9 @@ const App = () => {
             <SaveMenu currentUrl={window.location.href} onClose={toggleSaveMenu} />
           </Popup>
         )}
-        {isQuizMode ? (
+        {isFlagMode ? (
+          <FlagMode onExit={() => setIsFlagMode(false)} />
+        ) : isQuizMode ? (
           <QuizMode onExit={() => setIsQuizMode(false)} />
         ) : (
           <div className="App-content">
@@ -1559,7 +1564,7 @@ const App = () => {
                                 min={-50}
                                 max={50}
                                 label="Horizontal Offset"
-                                icon={faLeftRight}
+                                icon={faUpDown}
                               />
                               <Slider
                                 value={crossVerticalOffset}
@@ -1567,7 +1572,7 @@ const App = () => {
                                 min={-50}
                                 max={50}
                                 label="Vertical Offset"
-                                icon={faUpDown}
+                                icon={faLeftRight}
                               />
                               <Slider
                                 value={crossSaltireSize}

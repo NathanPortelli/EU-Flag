@@ -66,7 +66,7 @@ const QuizMode = ({ onExit }) => {
       entries.overlays = entries.overlays.split(';;').map(overlay => {
         const [type, ...rest] = overlay.split('|');
         if (type === 'text') {
-          const [text, font, size, width, offsetX, offsetY, rotation, color] = rest;
+          const [text, font, size, width, offsetX, offsetY, rotation, color, textCurve] = rest;
           return {
             type: 'text',
             text: decodeURIComponent(text),
@@ -76,7 +76,8 @@ const QuizMode = ({ onExit }) => {
             offsetX: parseFloat(offsetX),
             offsetY: parseFloat(offsetY),
             rotation: parseFloat(rotation),
-            color: decodeURIComponent(color)
+            color: decodeURIComponent(color),
+            textCurve: parseFloat(textCurve) || 0
           };
         } else {
           const [shape, size, offsetX, offsetY, rotation, color] = rest;
@@ -231,6 +232,10 @@ const QuizMode = ({ onExit }) => {
               stripeWidth={parseInt(flagParams.stripeWidth) || 10}
               circleSpacing={parseInt(flagParams.circleSpacing) || 100}
               gridSpacing={parseInt(flagParams.gridSpacing) || 100}
+              crossHorizontalOffset={flagParams.crossHorizontalOffset || 0}
+              crossVerticalOffset={flagParams.crossVerticalOffset || 0}
+              customSvgPath={flagParams.customSvgPath || ''}
+              seychellesStripeCount={parseInt(flagParams.seychellesStripeCount) || 4}
               containerFormat="flag"
               overlays={flagParams.overlays}
               updateOverlayPosition={() => {}}

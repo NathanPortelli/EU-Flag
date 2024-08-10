@@ -1,13 +1,15 @@
 export const changelogData = [
   {
-    version: "v.0.3.0",
+    version: "v.0.2.16",
     date: "10/08/2024",
     changes : [
+      "Added Flag Mode for Better Management of Flag Samples",
       "Added User Images as Overlay",
       "Added Seychelles-style Pattern Background",
       "Added Movement of Cross Background Lines",
       "Fixed Text Fonts Defaulting",
       "Fixed Issue with Over/Under Layering of Shapes",
+      "Fixed Issues with Flags in Quiz Mode Not Displaying Properly",
     ]
   },
   {
@@ -383,5 +385,4 @@ export const upcomingFeatures = [
   { feature: "Public Sharing of Flag URLs", difficulty: "Difficult" },
   { feature: "Gradient Backgrounds", difficulty: "Difficult" },
   { feature: "Symmetry Options (Mirroring, Radial)", difficulty: "Not Difficult" },
-  { feature: "Better Management of Flag Samples", difficulty: "Not Difficult" }
 ];
