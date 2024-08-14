@@ -175,6 +175,8 @@ export const overlaySymbols = [
     { value: 'saturn', label: '♄', unicode: '♄', displayName: 'Saturn' },
     { value: 'uranus', label: '♅', unicode: '♅', displayName: 'Uranus' },
     { value: 'neptune', label: '♆', unicode: '♆', displayName: 'Neptune' },
+    { value: 'castle', label: '⛫', unicode: '⛫', displayName: 'Castle' },
+    { value: 'eucastle', label: '🏰', unicode: '🏰', displayName: 'European Castle' },
     { value: 'tridentEmblem', label: '🔱', unicode: '🔱', displayName: 'Trident Emblem' },
     { value: 'fleurDeLis', label: '⚜', unicode: '⚜', displayName: 'Fleur-De-Lis' },
     { value: 'whiteChessKing', label: '♔', unicode: '♔', displayName: 'Outlined Chess King' },

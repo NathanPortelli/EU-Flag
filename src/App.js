@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Slider from './components/Slider';
-import StarsDisplay from './StarsDisplay';
-import DownloadButton from './DownloadButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { faLayerGroup, faImage, faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign } from '@fortawesome/free-solid-svg-icons';
-import './styles/App.css';
 import { random } from 'lodash';
+import { inject } from '@vercel/analytics';
 
+import StarsDisplay from './StarsDisplay';
+import DownloadButton from './DownloadButton';
+
+import './styles/App.css';
+import Slider from './components/Slider';
 import { shapePaths, shapeOptions, patternOptions, amountOptions, patternIcons, amountIcons } from './components/ItemLists';
 import Header from './components/Header';
 import ImageUpload from './components/ImageUpload';
@@ -28,6 +30,8 @@ import Popup from './components/Popup';
 import QuizMode from './components//QuizMode';
 import FlagMode from './components/FlagMode';
 import SaveMenu from './components/SaveMenu';
+
+inject();
 
 const App = () => {
   const [notification, setNotification] = useState(null);
@@ -533,7 +537,7 @@ const App = () => {
       const parsedOverlays = overlayData.split(';;').map(overlayString => {
         const [type, ...rest] = overlayString.split('|');
         if (type === 'text') {
-          const [text, font, size, width, offsetX, offsetY, rotation, color] = rest;
+          const [text, font, size, width, offsetX, offsetY, rotation, color, textCurve] = rest;
           return {
             type: 'text',
             text: decodeURIComponent(text),
@@ -543,7 +547,8 @@ const App = () => {
             offsetX: parseFloat(offsetX),
             offsetY: parseFloat(offsetY),
             rotation: parseFloat(rotation),
-            color: decodeURIComponent(color)
+            color: decodeURIComponent(color),
+            textCurve: parseFloat(textCurve) || 0
           };
         } else {
           const [shape, size, offsetX, offsetY, rotation, color] = rest;
@@ -1461,7 +1466,7 @@ const App = () => {
                                 value={overlay.width}
                                 onChange={(value) => updateOverlayProperty(index, 'width', value)}
                                 min={50}
-                                max={800}
+                                max={999}
                                 label="Text Width"
                                 icon={faLeftRight}
                               />

@@ -1,5 +1,13 @@
 export const changelogData = [
   {
+    version: "v.0.3.0",
+    date: "15/08/2024",
+    changes : [
+      "Added Filters/Sorting to Flag Samples",
+      "Vercel Analytics Integration",
+    ]
+  },
+  {
     version: "v.0.2.16",
     date: "10/08/2024",
     changes : [

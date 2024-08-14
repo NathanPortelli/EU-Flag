@@ -6,15 +6,30 @@ const FlagMode = ({ onExit }) => {
     const [displayedFlags, setDisplayedFlags] = useState([]);
     const [filteredFlags, setFilteredFlags] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortOrder, setSortOrder] = useState('asc');
+    const [selectedLetter, setSelectedLetter] = useState(null);
     const flagsPerPage = 21;
 
     useEffect(() => {
-        const filtered = CountryList.filter(country => 
+        let filtered = CountryList.filter(country => 
             country.label.toLowerCase().includes(searchTerm.toLowerCase())
         );
+
+        if (selectedLetter && selectedLetter !== 'All') {
+            filtered = filtered.filter(country => country.label[0].toUpperCase() === selectedLetter);
+        }
+
+        filtered.sort((a, b) => {
+            if (sortOrder === 'asc') {
+                return a.label.localeCompare(b.label);
+            } else {
+                return b.label.localeCompare(a.label);
+            }
+        });
+
         setFilteredFlags(filtered);
         setDisplayedFlags(filtered.slice(0, flagsPerPage));
-    }, [searchTerm]);
+    }, [searchTerm, sortOrder, selectedLetter]);
 
     const loadMoreFlags = () => {
         const currentLength = displayedFlags.length;
@@ -26,43 +41,51 @@ const FlagMode = ({ onExit }) => {
         setSearchTerm(event.target.value);
     };
 
+    const handleSortChange = (order) => {
+        setSortOrder(order);
+    };
+
+    const handleLetterFilter = (letter) => {
+        setSelectedLetter(letter);
+    };
+
     const parseURLParams = (url) => {
         const parsedUrl = new URL(url);
         const params = new URLSearchParams(parsedUrl.search);
         const entries = Object.fromEntries(params.entries());
 
         if (entries.overlays) {
-        entries.overlays = entries.overlays.split(';;').map(overlay => {
-            const [type, ...rest] = overlay.split('|');
-            if (type === 'text') {
-            const [text, font, size, width, offsetX, offsetY, rotation, color, textCurve] = rest;
-            return {
-                type: 'text',
-                text: decodeURIComponent(text),
-                font: decodeURIComponent(font),
-                size: parseFloat(size),
-                width: parseFloat(width),
-                offsetX: parseFloat(offsetX),
-                offsetY: parseFloat(offsetY),
-                rotation: parseFloat(rotation),
-                color: decodeURIComponent(color),
-                textCurve: parseFloat(textCurve) || 0
-            };
-            } else {
-            const [shape, size, offsetX, offsetY, rotation, color] = rest;
-            return {
-                type: 'shape',
-                shape,
-                size: parseFloat(size),
-                offsetX: parseFloat(offsetX),
-                offsetY: parseFloat(offsetY),
-                rotation: parseFloat(rotation),
-                color: decodeURIComponent(color)
-            };
-            }
-        });
+            entries.overlays = entries.overlays.split(';;').map(overlay => {
+                const [type, ...rest] = overlay.split('|');
+                if (type === 'text') {
+                    const [text, font, size, width, offsetX, offsetY, rotation, color, textCurve] = rest;
+                    return {
+                        type: 'text',
+                        text: decodeURIComponent(text),
+                        font: decodeURIComponent(font),
+                        size: parseFloat(size),
+                        width: parseFloat(width),
+                        offsetX: parseFloat(offsetX),
+                        offsetY: parseFloat(offsetY),
+                        rotation: parseFloat(rotation),
+                        color: decodeURIComponent(color),
+                        textCurve: parseFloat(textCurve) || 0
+                    };
+                } else {
+                    const [shape, size, offsetX, offsetY, rotation, color] = rest;
+                    return {
+                        type: 'shape',
+                        shape,
+                        size: parseFloat(size),
+                        offsetX: parseFloat(offsetX),
+                        offsetY: parseFloat(offsetY),
+                        rotation: parseFloat(rotation),
+                        color: decodeURIComponent(color)
+                    };
+                }
+            });
         } else {
-        entries.overlays = [];
+            entries.overlays = [];
         }
 
         return entries;
@@ -73,9 +96,9 @@ const FlagMode = ({ onExit }) => {
             <div className='flag-mode-top'>
                 <div className='flag-mode-header'>
                     <h1 className='flag-mode-title'>Flags of the World</h1>
-                    <button className='exit-flag-btn' onClick={onExit}>Exit List</button>
+                    {/* <button className='exit-flag-btn' onClick={onExit}>Exit List</button> */}
                 </div>
-                <p className='flag-mode-subtitle'>(Approximate) Flags from the current era and random historical moments of countries, cities, provinces, and groups</p>
+                <p className='flag-mode-subtitle'>(Approximate) current and historical flags of countries, cities, provinces, and groups</p>
                 
                 <div className="search-bar">
                     <input
@@ -84,6 +107,35 @@ const FlagMode = ({ onExit }) => {
                         value={searchTerm}
                         onChange={handleSearchChange}
                     />
+                </div>
+
+                <div className="sort-buttons">
+                    <button 
+                        className={sortOrder === 'asc' ? 'selected' : ''}
+                        onClick={() => handleSortChange('asc')}
+                    >
+                        Ascending
+                    </button>
+                    <button 
+                        className={sortOrder === 'desc' ? 'selected' : ''}
+                        onClick={() => handleSortChange('desc')}
+                    >
+                        Descending
+                    </button>
+                </div>
+                <div className="letter-buttons">
+                    {['All', ...Array(26).keys()].map(i => {
+                        const letter = i === 'All' ? 'All' : String.fromCharCode(65 + i); // A-Z
+                        return (
+                            <button 
+                                key={letter} 
+                                className={selectedLetter === letter ? 'selected' : ''}
+                                onClick={() => handleLetterFilter(letter)}
+                            >
+                                {letter}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 

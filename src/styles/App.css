@@ -1574,3 +1574,62 @@ input[type='color']::-webkit-color-swatch {
   color: #FFDD00;
   opacity: 0.6;
 }
+
+.sort-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.sort-buttons button {
+  background: #003399;
+  color: #FFDD00;
+  border: 2px solid #FFDD00;
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 0 10px;
+  border-radius: 10px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sort-buttons button.selected {
+  background: #FFDD00;
+  color: #003399;
+}
+
+.sort-buttons button:hover {
+  background: #FFDD00;
+  color: #003399;
+}
+
+.letter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.letter-buttons button {
+  background: #003399;
+  color: #FFDD00;
+  border: 2px solid #FFDD00;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 5px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.letter-buttons button.selected {
+  background: #FFDD00;
+  color: #003399;
+}
+
+.letter-buttons button:hover {
+  background: #FFDD00;
+  color: #003399;
+}
