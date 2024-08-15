@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faQuestionCircle, faFloppyDisk, faArrowsRotate, faUndo, faRedo, faBars, faFlag } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faQuestionCircle, faFloppyDisk, faArrowsRotate, faUndo, faRedo, faBars, faFlag, faShare, faGlobe } from '@fortawesome/free-solid-svg-icons';
 
 const Header = ({ 
   handleShare, 
@@ -9,21 +9,32 @@ const Header = ({
   isQuizMode, 
   toggleFlagMode, 
   isFlagMode, 
+  togglePublicShareMode,
+  isPublicShareMode,
   undo, 
   redo, 
   canUndo, 
   canRedo 
 }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const [isModesDropdownOpen, setIsModesDropdownOpen] = useState(false);
+  const [isActionsDropdownOpen, setIsActionsDropdownOpen] = useState(false);
+  const modesDropdownRef = useRef(null);
+  const actionsDropdownRef = useRef(null);
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+  const toggleModesDropdown = () => {
+    setIsModesDropdownOpen(!isModesDropdownOpen);
+  };
+
+  const toggleActionsDropdown = () => {
+    setIsActionsDropdownOpen(!isActionsDropdownOpen);
   };
 
   const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setIsDropdownOpen(false);
+    if (modesDropdownRef.current && !modesDropdownRef.current.contains(event.target)) {
+      setIsModesDropdownOpen(false);
+    }
+    if (actionsDropdownRef.current && !actionsDropdownRef.current.contains(event.target)) {
+      setIsActionsDropdownOpen(false);
     }
   };
 
@@ -35,8 +46,10 @@ const Header = ({
   }, []);
 
   const handleQuizModeClick = () => {
+    if (isPublicShareMode) {
+      togglePublicShareMode(); // Turn off quiz mode if it's on
+    }
     if (isFlagMode) {
-      console.log('Turning off Flag Mode');
       toggleFlagMode(); // Turn off flag mode if it's on
     }
     toggleQuizMode();
@@ -44,17 +57,42 @@ const Header = ({
   
   const handleFlagModeClick = () => {
     if (isQuizMode) {
-      console.log('Turning off Quiz Mode');
       toggleQuizMode(); // Turn off quiz mode if it's on
+    }
+    if (isPublicShareMode) {
+      togglePublicShareMode(); // Turn off flag mode if it's on
     }
     toggleFlagMode();
   };
 
+  const handlePublicShareModeClick = () => {
+    if (isQuizMode) {
+      toggleQuizMode(); // Turn off quiz mode if it's on
+    }
+    if (isFlagMode) {
+      toggleFlagMode(); // Turn off flag mode if it's on
+    }
+    togglePublicShareMode();
+  };
+
+  const handleTitleClick = () => {
+    // Turn off all modes when the title is clicked
+    if (isQuizMode) {
+      toggleQuizMode();
+    }
+    if (isFlagMode) {
+      toggleFlagMode();
+    }
+    if (isPublicShareMode) {
+      togglePublicShareMode();
+    }
+  };
+
   return (
     <header className="App-header">
-      <h1>EU Flag Maker</h1>
+      <h1 className="header-title" onClick={handleTitleClick}>EU Flag Maker</h1>
       <div className="header-buttons">
-        <div ref={dropdownRef} className={`dropdown-menu ${isDropdownOpen ? 'show' : ''}`}>
+        <div ref={actionsDropdownRef} className={`dropdown-menu actions-dropdown ${isActionsDropdownOpen ? 'show' : ''}`}>
           <button className="header-button" onClick={undo} disabled={!canUndo}>
             <FontAwesomeIcon icon={faUndo} className="header-icon" />
           </button>
@@ -71,15 +109,27 @@ const Header = ({
             <i className="fab fa-github"></i>
           </a>
         </div>
-        <button onClick={handleQuizModeClick} className="quiz-mode-button">
-          <FontAwesomeIcon icon={isQuizMode ? faPencilAlt : faQuestionCircle} className="quiz-header-icon" />
-          {isQuizMode ? 'Exit Quiz' : 'Quiz'}
+
+        <div ref={modesDropdownRef} className={`dropdown-menu modes-dropdown ${isModesDropdownOpen ? 'show' : ''}`}>
+          <button onClick={handleQuizModeClick} className="quiz-mode-button">
+            <FontAwesomeIcon icon={isQuizMode ? faPencilAlt : faQuestionCircle} className="dropdown-icon" />
+            {isQuizMode ? 'Exit Quiz' : 'Quiz'}
+          </button>
+          <button onClick={handleFlagModeClick} className="quiz-mode-button">
+            <FontAwesomeIcon icon={faFlag} className="dropdown-icon" />
+            {isFlagMode ? 'Exit List' : 'Flag List'}
+          </button>
+          <button onClick={handlePublicShareModeClick} className="quiz-mode-button">
+            <FontAwesomeIcon icon={faGlobe} className="dropdown-icon" />
+            {isPublicShareMode ? 'Exit List' : 'Online'}
+          </button>
+        </div>
+
+        <button className="dropdown-toggle dropdown-modes" onClick={toggleModesDropdown}>
+          Modes
         </button>
-        <button onClick={handleFlagModeClick} className="quiz-mode-button">
-          <FontAwesomeIcon icon={isFlagMode ? faFlag : faFlag} className="quiz-header-icon" />
-          {isFlagMode ? 'Exit List' : 'Flag List'}
-        </button>
-        <button className="dropdown-toggle" onClick={toggleDropdown} style={{ marginLeft: 'auto' }}>
+
+        <button className="dropdown-toggle" onClick={toggleActionsDropdown}>
           <FontAwesomeIcon icon={faBars} />
         </button>
       </div>

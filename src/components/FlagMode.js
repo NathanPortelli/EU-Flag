@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CountryList } from './CountryURLList';
+import { CountryList, totalFlagsCount } from './CountryURLList';
 import StarsDisplay from './../StarsDisplay';
 
 const FlagMode = ({ onExit }) => {
@@ -136,6 +136,9 @@ const FlagMode = ({ onExit }) => {
                             </button>
                         );
                     })}
+                </div>
+                <div className="flag-counts">
+                    <p>Showing {filteredFlags.length} of {totalFlagsCount} flags</p>
                 </div>
             </div>
 

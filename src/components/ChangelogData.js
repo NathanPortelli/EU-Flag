@@ -1,10 +1,17 @@
 export const changelogData = [
   {
     version: "v.0.3.0",
-    date: "15/08/2024",
+    date: "16/08/2024",
     changes : [
+      "Added Online Sharing Mode",
       "Added Filters/Sorting to Flag Samples",
+      "Added Flag List Totals",
       "Vercel Analytics Integration",
+      "Google Firebase Integration",
+      "Fixed Header",
+      "Fixed Overlay Dragging",
+      "Fixed All Flags with Reverse Overlay",
+      "UI Fixes"
     ]
   },
   {

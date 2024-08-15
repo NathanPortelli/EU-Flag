@@ -21,24 +21,24 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
       y: overlay.offsetY
     };
   };
-  
+
   const handleDragEnd = (e) => {
     if (draggedOverlay !== null) {
       const container = document.getElementById('stars-container');
       const rect = container.getBoundingClientRect();
       const endX = e.clientX - rect.left;
       const endY = e.clientY - rect.top;
-  
+
       const deltaX = endX - dragStartPosRef.current.x;
       const deltaY = endY - dragStartPosRef.current.y;
-  
+
       const newX = initialOverlayPosRef.current.x + deltaX;
       const newY = initialOverlayPosRef.current.y + deltaY;
-  
+
       updateOverlayPosition(draggedOverlay, newX, newY);
     }
     setDraggedOverlay(null);
-  };   
+  };
 
   const wrapText = (text, fontSize, maxWidth) => {
     const words = text.split(' ');
@@ -72,7 +72,8 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   };
 
   const renderOverlays = () => {
-    return overlays.slice().reverse().map((overlay, index) => {
+    // return overlays.slice().reverse().map((overlay, index) => {
+    return overlays.map((overlay, index) => {
       const commonStyle = {
         position: 'absolute',
         top: '50%',
@@ -85,11 +86,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         return (
           <div
             key={`overlay-${index}`}
-            style={{
-              ...commonStyle,
-              width: `${overlay.size}px`,
-              height: `${overlay.size}px`,
-            }}
+            style={commonStyle}
             draggable
             onDragStart={(e) => handleDragStart(e, index, overlay)}
             onDragEnd={handleDragEnd}
@@ -118,11 +115,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
         return (
           <div
             key={`overlay-${index}`}
-            style={{
-              ...commonStyle,
-              width: `${width}px`,
-              height: `${height}px`,
-            }}
+            style={commonStyle}
             draggable
             onDragStart={(e) => handleDragStart(e, index, overlay)}
             onDragEnd={handleDragEnd}

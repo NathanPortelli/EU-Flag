@@ -38,7 +38,6 @@ const SaveMenu = ({ currentUrl, onClose }) => {
                 setNotification("Current URL copied to clipboard!");
             })
             .catch(err => {
-                console.error('Failed to copy: ', err);
                 setNotification("Failed to copy URL. Please try again.");
             });
     };

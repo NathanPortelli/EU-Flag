@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faLayerGroup, faImage, faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowUp, faTurnDown, faTurnUp, faLayerGroup, faImage, faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { random } from 'lodash';
 import { inject } from '@vercel/analytics';
 
@@ -29,7 +29,9 @@ import ChangelogPopup from './components/ChangelogPopup';
 import Popup from './components/Popup';
 import QuizMode from './components//QuizMode';
 import FlagMode from './components/FlagMode';
+import SharedFlags from './components/SharedFlags';
 import SaveMenu from './components/SaveMenu';
+import ShareFlagForm from './components/ShareFlagForm';
 
 inject();
 
@@ -81,10 +83,16 @@ const App = () => {
 
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [isFlagMode, setIsFlagMode] = useState(false);
+  const [isPublicShareMode, setIsPublicShareMode] = useState(false);
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
   const [urlHistory, setUrlHistory] = useState([window.location.href]);
   const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
+  const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
+
+  const handleShareFlag = () => {
+    setIsSharePopupOpen(true);
+  };
 
   const toggleSaveMenu = () => {
     setIsSaveMenuOpen(!isSaveMenuOpen);
@@ -187,10 +195,24 @@ const App = () => {
   
   const moveOverlay = (index, direction) => {
     const newOverlays = [...overlays];
-    if (direction === 'up' && index > 0) {
-      [newOverlays[index - 1], newOverlays[index]] = [newOverlays[index], newOverlays[index - 1]];
-    } else if (direction === 'down' && index < newOverlays.length - 1) {
-      [newOverlays[index], newOverlays[index + 1]] = [newOverlays[index + 1], newOverlays[index]];
+    if (direction === 'up') {
+      if (index === 0) {
+        // Move from top to bottom
+        const [firstOverlay] = newOverlays.splice(0, 1);
+        newOverlays.push(firstOverlay);
+      } else {
+        // Regular swap
+        [newOverlays[index - 1], newOverlays[index]] = [newOverlays[index], newOverlays[index - 1]];
+      }
+    } else if (direction === 'down') {
+      if (index === newOverlays.length - 1) {
+        // Move from bottom to top
+        const [lastOverlay] = newOverlays.splice(-1);
+        newOverlays.unshift(lastOverlay);
+      } else {
+        // Regular swap
+        [newOverlays[index], newOverlays[index + 1]] = [newOverlays[index + 1], newOverlays[index]];
+      }
     }
     setOverlays(newOverlays);
     updateURL();
@@ -237,7 +259,7 @@ const App = () => {
       };
       return newOverlays;
     });
-  };  
+  }; 
   
   const handleCheckerSizeChange = (value) => {
     setCheckerSize(value);
@@ -282,6 +304,7 @@ const App = () => {
     setGridSpacingAndURL(random(20, 200));
     setCrossHorizontalOffsetAndURL(random(-50, 50));
     setCrossVerticalOffsetAndURL(random(-50, 50));  
+    setStarRadius(window.innerWidth < 1000 ? 80 : 90);
   
     const newBackColours = Array(16).fill().map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`);
     setBackColours(newBackColours);
@@ -423,6 +446,7 @@ const App = () => {
     setSunburstStripeCount(parseInt(params.get('sunburstStripeCount') || '8'));
     setBorderWidth(parseInt(params.get('borderWidth') || '10'));
     setStripeCount(parseInt(params.get('stripeCount') || '2'));
+    setStripeWidth(parseInt(params.get('stripeWidth') || '10'));
     setSeychellesStripeCount(parseInt(params.get('seychellesStripeCount') || '3'));
     setCircleSpacing(parseInt(params.get('circleSpacing') || '100'));
     setGridSpacing(parseInt(params.get('gridSpacing') || '100'));
@@ -682,6 +706,7 @@ const App = () => {
     addParamIfDifferent('starsOnTop', starsOnTop);
     addParamIfDifferent('checkerSize', checkerSize);
     addParamIfDifferent('sunburstStripeCount', sunburstStripeCount);
+    addParamIfDifferent('stripeWidth', stripeWidth);
     addParamIfDifferent('borderWidth', borderWidth);
     addParamIfDifferent('circleSpacing', circleSpacing);
     addParamIfDifferent('gridSpacing', gridSpacing);
@@ -910,11 +935,14 @@ const App = () => {
     window.location.reload();
   };
 
-  const updateOverlayPosition = (index, offsetX, offsetY) => {
+  const updateOverlayPosition = (index, newX, newY) => {
     setOverlays(prevOverlays => {
       const newOverlays = [...prevOverlays];
-      newOverlays[index].offsetX = offsetX;
-      newOverlays[index].offsetY = offsetY;
+      newOverlays[index] = {
+        ...newOverlays[index],
+        offsetX: newX,
+        offsetY: newY
+      };
       return newOverlays;
     });
   };
@@ -932,6 +960,8 @@ const App = () => {
         canRedo={currentUrlIndex < urlHistory.length - 1}
         toggleFlagMode={() => setIsFlagMode(!isFlagMode)}
         isFlagMode={isFlagMode}
+        togglePublicShareMode={() => setIsPublicShareMode(!isPublicShareMode)}
+        isPublicShareMode={isPublicShareMode}
       />
       <main className="App-main">
         {isSaveMenuOpen && (
@@ -939,10 +969,20 @@ const App = () => {
             <SaveMenu currentUrl={window.location.href} onClose={toggleSaveMenu} />
           </Popup>
         )}
+        {isSharePopupOpen && (
+          <Popup onClose={() => setIsSharePopupOpen(false)}>
+            <ShareFlagForm
+              flagURL={window.location.href}
+              onClose={() => setIsSharePopupOpen(false)}
+            />
+          </Popup>
+        )}
         {isFlagMode ? (
           <FlagMode onExit={() => setIsFlagMode(false)} />
         ) : isQuizMode ? (
           <QuizMode onExit={() => setIsQuizMode(false)} />
+        ) : isPublicShareMode ? (
+          <SharedFlags onExit={() => setIsPublicShareMode(false)} />
         ) : (
           <div className="App-content">
             <div className="Stars-content">
@@ -987,28 +1027,27 @@ const App = () => {
                   </div>
                   <div className="Shape-selector Under-Stars-Display">
                     <div className="Shape-selector">
-                          <Tooltip text="Select the flag format or aspect ratio.">
-                            <div className="Shape-container">
-                              <label htmlFor="patternSelector" className="shape-label">Format</label>
-                              <select 
-                                id="formatDropdown" 
-                                className="shape-dropdown"
-                                value={containerFormat}
-                                onChange={(e) => setContainerFormat(e.target.value)}
-                              >
-                                <option value="circle">Circle</option>
-                                <option value="flag">Flag 2:3</option>
-                                <option value="flag-1-2">Flag 1:2</option>
-                                <option value="square-flag">Square</option>
-                                <option value="guidon">Guidon</option>
-                                <option value="ohio">Ohio</option>
-                                <option value="shield">Shield</option>
-                                <option value="pennant">Pennant</option>
-                              </select>
-                            </div>
-                          </Tooltip>
+                      <Tooltip text="Select the flag format or aspect ratio.">
+                        <div className="Shape-container">
+                          <label htmlFor="patternSelector" className="shape-label">Format</label>
+                          <select 
+                            id="formatDropdown" 
+                            className="shape-dropdown"
+                            value={containerFormat}
+                            onChange={(e) => setContainerFormat(e.target.value)}
+                          >
+                            <option value="circle">Circle</option>
+                            <option value="flag">Flag 2:3</option>
+                            <option value="flag-1-2">Flag 1:2</option>
+                            <option value="square-flag">Square</option>
+                            <option value="guidon">Guidon</option>
+                            <option value="ohio">Ohio</option>
+                            <option value="shield">Shield</option>
+                            <option value="pennant">Pennant</option>
+                          </select>
                         </div>
-
+                      </Tooltip>
+                    </div>
                     <div className="Shape-container" id="country-selector">
                       <label htmlFor="countrySelector" className="shape-label">Samples</label>
                       <CountryFilterableSelect
@@ -1022,7 +1061,7 @@ const App = () => {
                     <div className="randomize-buttons-container">
                       <button onClick={() => randomizeAll(true)} className="random-button random-button-large">
                         <FontAwesomeIcon icon={faShuffle} className="random-icon" />
-                        Randomise All
+                        Randomise
                       </button>
                       <Tooltip text="Randomise all settings except for the overlays.">
                         <button onClick={() => randomizeAll(false)} className="random-button random-button-small">
@@ -1030,6 +1069,10 @@ const App = () => {
                         </button>
                       </Tooltip>
                     </div>
+                    <button onClick={handleShareFlag} className="share-online-btn">
+                      <FontAwesomeIcon icon={faGlobe} className="random-icon" />
+                      Share Online
+                    </button>
                   </div>
                 </div>
               ) : ( <> </> )}
@@ -1308,22 +1351,20 @@ const App = () => {
                               onDragOver={(e) => e.preventDefault()}
                             >
                               <div className="overlay-first-line">
-                                <div className="overlay-arrows">
-                                  <button 
-                                    className="arrow-button"
-                                    onClick={() => moveOverlay(index, 'up')}
-                                    disabled={index === 0}
-                                  >
-                                    <i className="fas fa-arrow-up"></i>
-                                  </button>
-                                  <button 
-                                    className="arrow-button"
-                                    onClick={() => moveOverlay(index, 'down')}
-                                    disabled={index === overlays.length - 1}
-                                  >
-                                    <i className="fas fa-arrow-down"></i>
-                                  </button>
-                                </div>
+                              <div className="overlay-arrows">
+                                <button 
+                                  className="arrow-button"
+                                  onClick={() => moveOverlay(index, 'up')}
+                                >
+                                  <FontAwesomeIcon icon={index === 0 ? faTurnDown : faArrowUp} />
+                                </button>
+                                <button 
+                                  className="arrow-button"
+                                  onClick={() => moveOverlay(index, 'down')}
+                                >
+                                  <FontAwesomeIcon icon={index === overlays.length - 1 ? faTurnUp : faArrowDown} />
+                                </button>
+                              </div>
                                 <div className="overlay-sliders">
                                   <div className="overlay-content">
                                     {overlay.type === 'text' ? (

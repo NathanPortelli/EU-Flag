@@ -178,6 +178,7 @@ export const overlaySymbols = [
     { value: 'castle', label: '⛫', unicode: '⛫', displayName: 'Castle' },
     { value: 'eucastle', label: '🏰', unicode: '🏰', displayName: 'European Castle' },
     { value: 'tridentEmblem', label: '🔱', unicode: '🔱', displayName: 'Trident Emblem' },
+    { value: 'soyombo', label: '𑪠', unicode: '𑪠', displayName: 'Soyombo' },
     { value: 'fleurDeLis', label: '⚜', unicode: '⚜', displayName: 'Fleur-De-Lis' },
     { value: 'whiteChessKing', label: '♔', unicode: '♔', displayName: 'Outlined Chess King' },
     { value: 'whiteChessQueen', label: '♕', unicode: '♕', displayName: 'Outlined Chess Queen' },
