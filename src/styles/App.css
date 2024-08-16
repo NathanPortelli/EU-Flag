@@ -1731,3 +1731,92 @@ dropdown-menu.show {
   background: #FFDD00;
   color: #003399;
 }
+
+/* Online Share - Tags */
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+.tags-label {
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.tag-state {
+  background-color: var(--tag-background, #002080);
+  color: var(--tag-color, #FFDD00);
+  border: 2px solid var(--tag-border, #FFDD00);
+  border-radius: 20px;
+  padding: 10px 20px;
+  display: inline-block;
+  margin: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+}
+
+.tag-state-fixed {
+  background-color: var(--tag-background, #002080);
+  color: var(--tag-color, #FFDD00);
+  border: 2px solid var(--tag-border, #FFDD00);
+  border-radius: 20px;
+  padding: 10px 20px;
+  display: inline-block;
+  margin: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  text-align: center;
+  font-weight: bold;
+}
+
+.tag-state:hover {
+  background-color: var(--tag-hover-background, #FFDD00);
+  color: var(--tag-hover-color, #003399);
+}
+
+.tag-state.selected {
+  background-color: var(--tag-selected-background, #FFDD00);
+  color: var(--tag-selected-color, #003399);
+  font-weight: bold;
+}
+
+.tags-filter {
+  margin: 10px 0;
+  text-align: center;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+.clear-filter-btn {
+  background-color: #003399;
+  border: 2px solid #FFDD00;
+  color: #ffdd00;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.clear-filter-btn:hover {
+  background-color: #FF8C71;
+}

@@ -1,5 +1,13 @@
 export const changelogData = [
   {
+    version: "v.0.3.1",
+    date: "16/08/2024",
+    changes : [
+      "Added Tags to Online Sharing Mode",
+      "Redirect to Online Share List on Sharing",
+    ]
+  },
+  {
     version: "v.0.3.0",
     date: "16/08/2024",
     changes : [
@@ -397,7 +405,6 @@ export const upcomingFeatures = [
   { feature: "Fit Circle/Flag in Small Screen", difficulty: "Difficult" },
   { feature: "Colour Picker with Gradient and Transparency Features", difficulty: "Difficult" },
   { feature: "Basic Colour Theory on Non-Overlay Flag Randomiser", difficulty: "Not Difficult" },
-  { feature: "Public Sharing of Flag URLs", difficulty: "Difficult" },
   { feature: "Gradient Backgrounds", difficulty: "Difficult" },
   { feature: "Symmetry Options (Mirroring, Radial)", difficulty: "Not Difficult" },
 ];

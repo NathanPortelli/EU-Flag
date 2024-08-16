@@ -1,15 +1,108 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import Notification from './Notification';
-import { collection, addDoc, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShare } from '@fortawesome/free-solid-svg-icons';
+import Divider from './Divider';
 
-const ShareFlagForm = ({ flagURL, onClose }) => {
+const ShareFlagForm = ({ flagURL, onClose, togglePublicShareMode }) => {
     const [displayName, setDisplayName] = useState('');
     const [flagName, setFlagName] = useState('');
     const [obsceneWords, setObsceneWords] = useState([]);
     const [notification, setNotification] = useState(null);
+    const [selectedTags, setSelectedTags] = useState([]);
+
+    const tags = [
+        'OC', 
+        'Historical', 
+        'Redesign', 
+        'Current', 
+        'Fictional', 
+        'Random',
+        'Offensive',
+        'Other'
+    ];  
+
+    const setTagStyles = (tag) => {
+        const colors = {
+            'OC': { 
+                background: '#FF6F61',
+                color: '#FFF', 
+                border: '#FFF', 
+                hoverBackground: '#FF8C71',
+                hoverColor: '#003399', 
+                selectedBackground: '#FFDD00',
+                selectedColor: '#003399'
+            },
+            'Historical': { 
+                background: '#8C8C8C',
+                color: '#FFF', 
+                border: '#FFF', 
+                hoverBackground: '#A8A8A8',
+                hoverColor: '#003399', 
+                selectedBackground: '#FFDD00', 
+                selectedColor: '#003399'
+            },
+            'Redesign': { 
+                background: '#007BFF',
+                color: '#FFF', 
+                border: '#FFF', 
+                hoverBackground: '#0056b3',
+                hoverColor: '#003399', 
+                selectedBackground: '#FFDD00',
+                selectedColor: '#003399'
+            },
+            'Current': { 
+                background: '#0400ff',
+                color: '#FFF', 
+                border: '#FFF', 
+                hoverBackground: '#FFCC00',
+                hoverColor: '#003399', 
+                selectedBackground: '#FFDD00',
+                selectedColor: '#003399'
+            },
+            'Fictional': { 
+                background: '#9B59B6', 
+                color: '#FFF', 
+                border: '#FFF', 
+                hoverBackground: '#8E44AD',
+                hoverColor: '#003399', 
+                selectedBackground: '#FFDD00',
+                selectedColor: '#003399'
+            },
+            'Offensive': { 
+                background: '#ff0000', 
+                color: '#FFF', 
+                border: '#FFF', 
+                hoverBackground: '#27AE60',
+                hoverColor: '#003399', 
+                selectedBackground: '#FFDD00', 
+                selectedColor: '#003399'
+            },
+            'Random': { 
+                background: '#2ECC71', 
+                color: '#FFF', 
+                border: '#FFF', 
+                hoverBackground: '#27AE60',
+                hoverColor: '#003399', 
+                selectedBackground: '#FFDD00', 
+                selectedColor: '#003399'
+            },
+            'Other': { 
+                background: '#E67E22', 
+                color: '#FFF', 
+                border: '#FFF', 
+                hoverBackground: '#D35400',
+                hoverColor: '#003399', 
+                selectedBackground: '#FFDD00', 
+                selectedColor: '#003399'
+            }
+        };
+        
+        
+        return colors[tag] || { background: '#000000', color: '#FFF', border: '#FFF', hoverBackground: '#000000', hoverColor: '#FFF', selectedBackground: '#000000', selectedColor: '#FFF' };
+    };
 
     useEffect(() => {
         const fetchObsceneWords = async () => {
@@ -32,6 +125,12 @@ const ShareFlagForm = ({ flagURL, onClose }) => {
         return obsceneWords.some(word => lowerCaseText.includes(word));
     };
 
+    const handleTagSelection = (tag) => {
+        setSelectedTags(prevTags => 
+            prevTags.includes(tag) ? prevTags.filter(t => t !== tag) : [...prevTags, tag]
+        );
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
     
@@ -51,7 +150,7 @@ const ShareFlagForm = ({ flagURL, onClose }) => {
         const past24Hours = now - 24 * 60 * 60 * 1000;
         const recentSubmissions = submissionHistory.filter(timestamp => timestamp > past24Hours);
     
-        if (recentSubmissions.length >= 5) {
+        if (recentSubmissions.length >= 15) {
             setNotification('You have reached the maximum number of submissions in the past 24 hours.');
             return;
         }
@@ -62,6 +161,7 @@ const ShareFlagForm = ({ flagURL, onClose }) => {
                 displayName,
                 flagName,
                 flagURL,
+                tags: selectedTags,
                 createdAt: Timestamp.now(),
             });
     
@@ -70,12 +170,14 @@ const ShareFlagForm = ({ flagURL, onClose }) => {
             localStorage.setItem('submissionHistory', JSON.stringify(recentSubmissions));
     
             setNotification('Flag shared successfully!');
-            onClose();
+            togglePublicShareMode();
+            setTimeout(() => {
+                onClose();
+            }, 2000);
         } catch (error) {
             setNotification('Error sharing flag. Please try again.');
         }
     };
-    
 
     return (
         <div className="save-menu">
@@ -108,6 +210,35 @@ const ShareFlagForm = ({ flagURL, onClose }) => {
                         maxLength="60"
                     />
                 </div>
+                <Divider />
+                <div className="tags-container">
+                    <label className="tags-label">Select Tags</label>
+                    <div className="tags-list">
+                        {tags.map(tag => {
+                            const styles = setTagStyles(tag);
+                            return (
+                                <button
+                                    key={tag}
+                                    type="button"
+                                    className={`tag-state ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                                    onClick={() => handleTagSelection(tag)}
+                                    style={{
+                                        '--tag-background': styles.background,
+                                        '--tag-color': styles.color,
+                                        '--tag-border': styles.border,
+                                        '--tag-hover-background': styles.hoverBackground,
+                                        '--tag-hover-color': styles.hoverColor,
+                                        '--tag-selected-background': styles.selectedBackground,
+                                        '--tag-selected-color': styles.selectedColor
+                                    }}
+                                >
+                                    {tag}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+                <Divider />
                 <button type="submit" className='share-button'>
                     <FontAwesomeIcon icon={faShare} className="random-icon" />
                     Share

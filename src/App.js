@@ -102,6 +102,10 @@ const App = () => {
     setIsChangelogOpen(!isChangelogOpen);
   };
 
+  const togglePublicShareMode = () => {
+    setIsPublicShareMode(!isPublicShareMode);
+  };
+
   useEffect(() => {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content > div');
@@ -974,6 +978,7 @@ const App = () => {
             <ShareFlagForm
               flagURL={window.location.href}
               onClose={() => setIsSharePopupOpen(false)}
+              togglePublicShareMode={togglePublicShareMode}
             />
           </Popup>
         )}

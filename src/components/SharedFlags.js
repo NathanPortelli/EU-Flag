@@ -5,6 +5,17 @@ import StarsDisplay from '../StarsDisplay';
 import Notification from './Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
+import Divider from './Divider';
+
+const tagColors = {
+  'OC': { background: '#FF6F61', color: '#FFF', border: '#FFF', hoverBackground: '#FF8C71', hoverColor: '#FFF', selectedBackground: '#FFDD00', selectedColor: '#000000' },
+  'Historical': { background: '#8C8C8C', color: '#FFF', border: '#FFF', hoverBackground: '#A8A8A8', hoverColor: '#FFF', selectedBackground: '#FFDD00', selectedColor: '#000000' },
+  'Redesign': { background: '#007BFF', color: '#FFF', border: '#FFF', hoverBackground: '#0056b3', hoverColor: '#FFF', selectedBackground: '#FFDD00', selectedColor: '#000000' },
+  'Current': { background: '#ff2f00', color: '#FFF', border: '#FFF', hoverBackground: '#FFCC00', hoverColor: '#FFF', selectedBackground: '#FFDD00', selectedColor: '#000000' },
+  'Fictional': { background: '#9B59B6', color: '#FFF', border: '#FFF', hoverBackground: '#8E44AD', hoverColor: '#FFF', selectedBackground: '#FFDD00', selectedColor: '#000000' },
+  'Random': { background: '#2ECC71', color: '#FFF', border: '#FFF', hoverBackground: '#27AE60', hoverColor: '#FFF', selectedBackground: '#FFDD00', selectedColor: '#000000' },
+  'Other': { background: '#E67E22', color: '#FFF', border: '#FFF', hoverBackground: '#D35400', hoverColor: '#FFF', selectedBackground: '#FFDD00', selectedColor: '#000000' }
+};
 
 const SharedFlags = () => {
   const [sharedFlags, setSharedFlags] = useState([]);
@@ -12,6 +23,7 @@ const SharedFlags = () => {
   const [filteredFlags, setFilteredFlags] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
+  const [selectedTag, setSelectedTag] = useState(null);
   const [flagsPerPage] = useState(21);
   const [notification, setNotification] = useState(null);
 
@@ -36,6 +48,10 @@ const SharedFlags = () => {
       flag.flagName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    if (selectedTag) {
+      filtered = filtered.filter(flag => flag.tags && flag.tags.includes(selectedTag));
+    }
+
     filtered.sort((a, b) => {
       if (sortOrder === 'asc') {
         return a.flagName.localeCompare(b.flagName);
@@ -46,7 +62,7 @@ const SharedFlags = () => {
 
     setFilteredFlags(filtered);
     setDisplayedFlags(filtered.slice(0, flagsPerPage));
-  }, [searchTerm, sortOrder, sharedFlags]);
+  }, [searchTerm, sortOrder, selectedTag, sharedFlags]);
 
   const loadMoreFlags = () => {
     const currentLength = displayedFlags.length;
@@ -62,6 +78,14 @@ const SharedFlags = () => {
     setSortOrder(order);
   };
 
+  const handleTagClick = (tag) => {
+    setSelectedTag(tag);
+  };
+
+  const handleClearTagFilter = () => {
+    setSelectedTag(null);
+  };
+
   const handleShare = (url) => {
     console.log('Sharing URL:', url);
     navigator.clipboard.writeText(url).then(() => {
@@ -75,8 +99,7 @@ const SharedFlags = () => {
     const parsedUrl = new URL(url);
     const params = new URLSearchParams(parsedUrl.search);
     const entries = Object.fromEntries(params.entries());
-  
-    // Parse overlays
+
     if (entries.overlays) {
       entries.overlays = entries.overlays.split(';;').map(overlay => {
         const [type, ...rest] = overlay.split('|');
@@ -110,23 +133,32 @@ const SharedFlags = () => {
     } else {
       entries.overlays = [];
     }
-  
-    // Parse backColours
+
     if (entries.backColours) {
       entries.backColours = entries.backColours.split(',');
     }
-  
+
     return entries;
   };
 
-  // Function to format date
   const formatDate = (timestamp) => {
-    const date = new Date(timestamp.seconds * 1000); // Convert Firestore timestamp to JavaScript Date
+    const date = new Date(timestamp.seconds * 1000);
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
+
+  const getTagStyle = (tag) => {
+    const color = tagColors[tag] || tagColors['Other'];
+    return {
+      backgroundColor: color.background,
+      color: color.color,
+      borderColor: color.border
+    };
+  };
+
+  const allTags = [...new Set(sharedFlags.flatMap(flag => flag.tags || []))];
 
   return (
     <div className="shared-flags-container">
@@ -157,7 +189,25 @@ const SharedFlags = () => {
           Descending
         </button>
       </div>
-
+      <div className="tags-filter">
+        {selectedTag ? (
+          <button onClick={handleClearTagFilter} className="clear-filter-btn">Clear Filter</button>
+        ) : (
+          <div className="tags-list">
+            {allTags.map((tag, index) => (
+              <span 
+                key={index}
+                className="tag-state"
+                style={getTagStyle(tag)}
+                onClick={() => handleTagClick(tag)}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      <Divider />
       <div className="flags-grid">
         {displayedFlags.map((flag, index) => {
           const flagParams = parseURLParams(flag.flagURL);
@@ -166,6 +216,19 @@ const SharedFlags = () => {
               <h3 className="flag-label">{flag.flagName}</h3>
               <h4 className="flag-author">by {flag.displayName}</h4>
               <p className="report-para">Submitted on: {formatDate(flag.createdAt)}</p>
+              <div className="tags-container">
+                <div className="tags-list">
+                  {flag.tags && flag.tags.map((tag, idx) => (
+                    <span 
+                      key={idx}
+                      className="tag-state-fixed"
+                      style={getTagStyle(tag)}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
               <StarsDisplay
                 count={parseInt(flagParams.starCount) || 0}
                 size={parseInt(flagParams.starSize) || 55}
@@ -221,10 +284,10 @@ const SharedFlags = () => {
         </div>
       )}
       {notification && (
-          <Notification 
-              message={notification} 
-              onClose={() => setNotification(null)} 
-          />
+        <Notification 
+          message={notification} 
+          onClose={() => setNotification(null)} 
+        />
       )}
     </div>
   );
