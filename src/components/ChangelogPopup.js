@@ -72,7 +72,7 @@ const ChangelogPopup = () => {
               marginTop: '20px',
               borderTop: '1px solid rgba(255, 221, 0, 0.3)',
               paddingTop: '10px'
-            }}>For any suggestions/issues, contact me via <a href='https://x.com/NathPortelli'>Twitter/X</a> or <a href="mailto:portellinathan@yahoo.com">email</a></h4>
+            }}>For any suggestions/issues, contact me via <a href='https://x.com/NathPortelli' target="_blank" rel="noopener noreferrer">Twitter/X</a> or <a href="mailto:portellinathan@yahoo.com" target="_blank" rel="noopener noreferrer">email</a></h4>
           </div>
         )}
       </div>

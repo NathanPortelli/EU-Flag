@@ -22,14 +22,15 @@ const SharedFlags = () => {
   const [displayedFlags, setDisplayedFlags] = useState([]);
   const [filteredFlags, setFilteredFlags] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [sortOrder, setSortOrder] = useState('lastShared');
   const [selectedTag, setSelectedTag] = useState(null);
   const [flagsPerPage] = useState(21);
   const [notification, setNotification] = useState(null);
+  const [unblurredFlags, setUnblurredFlags] = useState(new Set());
 
   useEffect(() => {
     const fetchSharedFlags = async () => {
-      const q = query(collection(db, 'sharedFlags'), orderBy('flagName'));
+      const q = query(collection(db, 'sharedFlags'), orderBy('createdAt', 'desc')); // Fetch sorted by 'createdAt'
       const querySnapshot = await getDocs(q);
       const flags = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -55,8 +56,10 @@ const SharedFlags = () => {
     filtered.sort((a, b) => {
       if (sortOrder === 'asc') {
         return a.flagName.localeCompare(b.flagName);
-      } else {
+      } else if (sortOrder === 'desc') {
         return b.flagName.localeCompare(a.flagName);
+      } else if (sortOrder === 'lastShared') {
+        return b.createdAt.seconds - a.createdAt.seconds;
       }
     });
 
@@ -160,57 +163,85 @@ const SharedFlags = () => {
 
   const allTags = [...new Set(sharedFlags.flatMap(flag => flag.tags || []))];
 
+  const handleUnblur = (flagId) => {
+    setUnblurredFlags(prev => new Set(prev).add(flagId));
+  };
+
   return (
     <div className="shared-flags-container">
-      <h2 className='flag-mode-title'>Shared Flags</h2>
-      <p className='flag-mode-subtitle'>Explore shared flags created by others.</p>
-      <p className='report-para'>To add your own flag, click on the <b>"Share Online"</b> button under the flag in the Designer.</p>
-      <p className='report-para'>Please report any obscene material via <a href='https://x.com/NathPortelli'>Twitter/X</a> or <a href="mailto:portellinathan@yahoo.com">email</a></p>
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search flags..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-      </div>
+      <div className='shared-flags-top'>
+        <h2 className='flag-mode-title'>Shared Flags</h2>
+        <p className='flag-mode-subtitle'>Explore shared flags created by others.</p>
+        <p className='report-para'>To add your own flag, click on the <b>"Share Online"</b> button under the flag in the Designer.</p>
+        <p className='report-para'>Please report any obscene material via <a href='https://x.com/NathPortelli' target="_blank" rel="noopener noreferrer">Twitter/X</a> or <a href="mailto:portellinathan@yahoo.com" target="_blank" rel="noopener noreferrer">email</a></p>
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search flags..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
 
-      <div className="sort-buttons">
-        <button 
-          className={sortOrder === 'asc' ? 'selected' : ''}
-          onClick={() => handleSortChange('asc')}
-        >
-          Ascending
-        </button>
-        <button 
-          className={sortOrder === 'desc' ? 'selected' : ''}
-          onClick={() => handleSortChange('desc')}
-        >
-          Descending
-        </button>
+        <div className="sort-buttons">
+          <button
+            className={sortOrder === 'lastShared' ? 'selected' : ''}
+            onClick={() => handleSortChange('lastShared')}
+          >
+            Last Shared
+          </button>
+          <button
+            className={sortOrder === 'asc' ? 'selected' : ''}
+            onClick={() => handleSortChange('asc')}
+          >
+            Ascending
+          </button>
+          <button
+            className={sortOrder === 'desc' ? 'selected' : ''}
+            onClick={() => handleSortChange('desc')}
+          >
+            Descending
+          </button>
+        </div>
+        <Divider />
+        <div className="tags-filter">
+          {selectedTag ? (
+            <div>
+              <p className='tags-filter-title'>
+                Selected Tag:
+                <span 
+                  className="tag-state"
+                  style={getTagStyle(selectedTag)}
+                >
+                  {selectedTag}
+                </span>  
+              </p>
+              <button onClick={handleClearTagFilter} className="clear-filter-btn">Clear Filter</button>
+            </div>
+          ) : (
+            <div>
+              <p className='tags-filter-title'>Filter Tags</p>
+              <div className="tags-list">
+              {allTags.map((tag, index) => (
+                <span 
+                  key={index}
+                  className="tag-state"
+                  style={getTagStyle(tag)}
+                  onClick={() => handleTagClick(tag)}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            </div>
+          )}
+        </div>
+        <Divider />
       </div>
-      <div className="tags-filter">
-        {selectedTag ? (
-          <button onClick={handleClearTagFilter} className="clear-filter-btn">Clear Filter</button>
-        ) : (
-          <div className="tags-list">
-            {allTags.map((tag, index) => (
-              <span 
-                key={index}
-                className="tag-state"
-                style={getTagStyle(tag)}
-                onClick={() => handleTagClick(tag)}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-      <Divider />
       <div className="flags-grid">
         {displayedFlags.map((flag, index) => {
           const flagParams = parseURLParams(flag.flagURL);
+          const isBlurred = flag.tags && flag.tags.includes('Offensive') && !unblurredFlags.has(flag.id);
           return (
             <div key={index} className="flag-item">
               <h3 className="flag-label">{flag.flagName}</h3>
@@ -229,39 +260,47 @@ const SharedFlags = () => {
                   ))}
                 </div>
               </div>
-              <StarsDisplay
-                count={parseInt(flagParams.starCount) || 0}
-                size={parseInt(flagParams.starSize) || 55}
-                radius={parseInt(flagParams.starRadius) || 90}
-                circleCount={parseInt(flagParams.circleCount) || 1}
-                backColours={flagParams.backColours || []}
-                starColour={flagParams.starColour || '#FFDD00'}
-                rotationAngle={parseInt(flagParams.rotationAngle) || 0}
-                shape={flagParams.shape || 'Star'}
-                pointAway={flagParams.pointAway === 'true'}
-                outlineOnly={flagParams.outlineOnly === 'true'}
-                outlineWeight={parseInt(flagParams.outlineWeight) || 2}
-                pattern={flagParams.pattern || 'Single'}
-                amount={flagParams.amount || ''}
-                starRotation={parseInt(flagParams.starRotation) || 0}
-                shapeConfiguration={flagParams.shapeConfiguration || 'circle'}
-                crossSaltireSize={parseInt(flagParams.crossSaltireSize) || 11}
-                gridRotation={parseInt(flagParams.gridRotation) || 0}
-                starsOnTop={flagParams.starsOnTop === 'true'}
-                checkerSize={parseInt(flagParams.checkerSize) || 4}
-                sunburstStripeCount={parseInt(flagParams.sunburstStripeCount) || 8}
-                borderWidth={parseInt(flagParams.borderWidth) || 10}
-                stripeWidth={parseInt(flagParams.stripeWidth) || 10}
-                circleSpacing={parseInt(flagParams.circleSpacing) || 100}
-                gridSpacing={parseInt(flagParams.gridSpacing) || 100}
-                crossHorizontalOffset={parseFloat(flagParams.crossHorizontalOffset) || 0}
-                crossVerticalOffset={parseFloat(flagParams.crossVerticalOffset) || 0}
-                customSvgPath={flagParams.customSvgPath || ''}
-                seychellesStripeCount={parseInt(flagParams.seychellesStripeCount) || 4}
-                containerFormat="flag"
-                overlays={flagParams.overlays}
-                updateOverlayPosition={() => {}}
-              />
+              <div className={`stars-display-container ${isBlurred ? 'blurred' : ''}`}>
+                <StarsDisplay
+                  count={parseInt(flagParams.starCount) || 0}
+                  size={parseInt(flagParams.starSize) || 55}
+                  radius={parseInt(flagParams.starRadius) || 90}
+                  circleCount={parseInt(flagParams.circleCount) || 1}
+                  backColours={flagParams.backColours || []}
+                  starColour={flagParams.starColour || '#FFDD00'}
+                  rotationAngle={parseInt(flagParams.rotationAngle) || 0}
+                  shape={flagParams.shape || 'Star'}
+                  pointAway={flagParams.pointAway === 'true'}
+                  outlineOnly={flagParams.outlineOnly === 'true'}
+                  outlineWeight={parseInt(flagParams.outlineWeight) || 2}
+                  pattern={flagParams.pattern || 'Single'}
+                  amount={flagParams.amount || ''}
+                  starRotation={parseInt(flagParams.starRotation) || 0}
+                  shapeConfiguration={flagParams.shapeConfiguration || 'circle'}
+                  crossSaltireSize={parseInt(flagParams.crossSaltireSize) || 11}
+                  gridRotation={parseInt(flagParams.gridRotation) || 0}
+                  starsOnTop={flagParams.starsOnTop === 'true'}
+                  checkerSize={parseInt(flagParams.checkerSize) || 4}
+                  sunburstStripeCount={parseInt(flagParams.sunburstStripeCount) || 8}
+                  borderWidth={parseInt(flagParams.borderWidth) || 10}
+                  stripeWidth={parseInt(flagParams.stripeWidth) || 10}
+                  circleSpacing={parseInt(flagParams.circleSpacing) || 100}
+                  gridSpacing={parseInt(flagParams.gridSpacing) || 100}
+                  crossHorizontalOffset={parseFloat(flagParams.crossHorizontalOffset) || 0}
+                  crossVerticalOffset={parseFloat(flagParams.crossVerticalOffset) || 0}
+                  customSvgPath={flagParams.customSvgPath || ''}
+                  seychellesStripeCount={parseInt(flagParams.seychellesStripeCount) || 4}
+                  containerFormat="flag"
+                  overlays={flagParams.overlays}
+                  updateOverlayPosition={() => {}}
+                />
+              </div>
+              {isBlurred && (
+                <div className="flag-overlay">
+                  <p>This flag is tagged as "Offensive"</p>
+                  <button className="unblur-button" onClick={() => handleUnblur(flag.id)}>Unblur</button>
+                </div>
+              )}
               <div className="share-section" id="online-share-section">
                 <input
                   type="text"

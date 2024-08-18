@@ -229,4 +229,6 @@ export const overlaySymbols = [
     { value: 'droplet', label: '💧', unicode: '💧', displayName: 'Droplet' },
     { value: 'tree', label: '🌲', unicode: '🌲', displayName: 'Tree' },
     { value: 'wheelchairSymbol', label: '♿', unicode: '♿', displayName: 'Wheelchair Symbol' },
+    { value: 'skull', label: '💀', unicode: '💀', displayName: 'Skull' },
+    { value: 'bone', label: '🦴', unicode: '🦴', displayName: 'Bone' },
 ];

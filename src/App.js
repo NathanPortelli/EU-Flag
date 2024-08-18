@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faArrowDown, faArrowUp, faTurnDown, faTurnUp, faLayerGroup, faImage, faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowUp, faTurnDown, faTurnUp, faLayerGroup, faImage, faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign, faGlobe, faBookOpen } from '@fortawesome/free-solid-svg-icons';
 import { random } from 'lodash';
 import { inject } from '@vercel/analytics';
 
@@ -26,6 +26,7 @@ import Tooltip from './components/Tooltip';
 import { fonts } from './components/OverlayFonts';
 
 import ChangelogPopup from './components/ChangelogPopup';
+import UserGuide from './components/UserGuide';
 import Popup from './components/Popup';
 import QuizMode from './components//QuizMode';
 import FlagMode from './components/FlagMode';
@@ -81,6 +82,7 @@ const App = () => {
   const [crossHorizontalOffset, setCrossHorizontalOffset] = useState(0);
   const [crossVerticalOffset, setCrossVerticalOffset] = useState(0);
 
+  const [isUserGuideOpen, setIsUserGuideOpen] = useState(false);
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [isFlagMode, setIsFlagMode] = useState(false);
   const [isPublicShareMode, setIsPublicShareMode] = useState(false);
@@ -100,6 +102,10 @@ const App = () => {
 
   const toggleChangelog = () => {
     setIsChangelogOpen(!isChangelogOpen);
+  };
+
+  const toggleUserGuide = () => {
+    setIsUserGuideOpen(!isUserGuideOpen);
   };
 
   const togglePublicShareMode = () => {
@@ -1031,52 +1037,67 @@ const App = () => {
                     />
                   </div>
                   <div className="Shape-selector Under-Stars-Display">
-                    <div className="Shape-selector">
-                      <Tooltip text="Select the flag format or aspect ratio.">
-                        <div className="Shape-container">
-                          <label htmlFor="patternSelector" className="shape-label">Format</label>
-                          <select 
-                            id="formatDropdown" 
-                            className="shape-dropdown"
-                            value={containerFormat}
-                            onChange={(e) => setContainerFormat(e.target.value)}
-                          >
-                            <option value="circle">Circle</option>
-                            <option value="flag">Flag 2:3</option>
-                            <option value="flag-1-2">Flag 1:2</option>
-                            <option value="square-flag">Square</option>
-                            <option value="guidon">Guidon</option>
-                            <option value="ohio">Ohio</option>
-                            <option value="shield">Shield</option>
-                            <option value="pennant">Pennant</option>
-                          </select>
-                        </div>
-                      </Tooltip>
+                    <div className='Under-Stars-Left'> 
+                      <div className="Shape-selector">
+                        <Tooltip text="Select the flag format or aspect ratio.">
+                          <div className="Shape-container">
+                            <label htmlFor="patternSelector" className="shape-label">Format</label>
+                            <select 
+                              id="formatDropdown" 
+                              className="shape-dropdown"
+                              value={containerFormat}
+                              onChange={(e) => setContainerFormat(e.target.value)}
+                            >
+                              <option value="circle">Circle</option>
+                              <option value="flag">Flag 2:3</option>
+                              <option value="flag-1-2">Flag 1:2</option>
+                              <option value="square-flag">Square</option>
+                              <option value="guidon">Guidon</option>
+                              <option value="ohio">Ohio</option>
+                              <option value="shield">Shield</option>
+                              <option value="pennant">Pennant</option>
+                            </select>
+                          </div>
+                        </Tooltip>
+                      </div>
+                      <div className="Shape-selector">
+                        <Tooltip text="Change the above flag to one from our list of hundreds of flags.">
+                          <div className="Shape-container" id="country-selector">
+                            <label htmlFor="countrySelector" className="shape-label">Samples</label>
+                            <CountryFilterableSelect
+                              options={CountryList}
+                              value={selectedCountry}
+                              onChange={setSelectedCountry}
+                              placeholder="Select a Country"
+                              onUrlChange={handleUrlChange}
+                            />
+                          </div>
+                        </Tooltip>
+                      </div>
                     </div>
-                    <div className="Shape-container" id="country-selector">
-                      <label htmlFor="countrySelector" className="shape-label">Samples</label>
-                      <CountryFilterableSelect
-                        options={CountryList}
-                        value={selectedCountry}
-                        onChange={setSelectedCountry}
-                        placeholder="Select a Country"
-                        onUrlChange={handleUrlChange}
-                      />
-                    </div>
-                    <div className="randomize-buttons-container">
-                      <button onClick={() => randomizeAll(true)} className="random-button random-button-large">
-                        <FontAwesomeIcon icon={faShuffle} className="random-icon" />
-                        Randomise
-                      </button>
-                      <Tooltip text="Randomise all settings except for the overlays.">
-                        <button onClick={() => randomizeAll(false)} className="random-button random-button-small">
-                          <FontAwesomeIcon icon={faBan} />
+                    <div className='Under-Stars-Right'> 
+                      <div className="randomize-buttons-container">
+                        <button onClick={() => randomizeAll(true)} className="random-button random-button-large">
+                          <FontAwesomeIcon icon={faShuffle} className="random-icon" />
+                          Randomise
                         </button>
-                      </Tooltip>
+                        <Tooltip text="Randomise all settings except for the overlays.">
+                          <button onClick={() => randomizeAll(false)} className="random-button random-button-small">
+                            <FontAwesomeIcon icon={faBan} />
+                          </button>
+                        </Tooltip>
+                      </div>
+                      <button onClick={handleShareFlag} className="share-online-btn">
+                        <FontAwesomeIcon icon={faGlobe} className="random-icon" />
+                        Share Online
+                      </button>
                     </div>
-                    <button onClick={handleShareFlag} className="share-online-btn">
-                      <FontAwesomeIcon icon={faGlobe} className="random-icon" />
-                      Share Online
+                  </div>
+                  <div className="Shape-selector app-guide-container">
+                    <p className='app-guide-text'>Confused on how to start?</p>
+                    <button className='app-guide-btn' onClick={toggleUserGuide}>
+                      <FontAwesomeIcon icon={faBookOpen} className="random-icon" aria-label="Open User Guide"/>
+                      User Guide
                     </button>
                   </div>
                 </div>
@@ -1775,6 +1796,12 @@ const App = () => {
         {isChangelogOpen && (
           <Popup onClose={toggleChangelog}>
             <ChangelogPopup />
+          </Popup>
+        )}
+        {/* User Guide */}
+        {isUserGuideOpen && (
+          <Popup onClose={toggleUserGuide}>
+            <UserGuide />
           </Popup>
         )}
       </footer>

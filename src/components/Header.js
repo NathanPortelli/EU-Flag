@@ -117,11 +117,11 @@ const Header = ({
           </button>
           <button onClick={handleFlagModeClick} className="quiz-mode-button">
             <FontAwesomeIcon icon={faFlag} className="dropdown-icon" />
-            {isFlagMode ? 'Exit List' : 'Flag List'}
+            {isFlagMode ? 'Designer' : 'Flag List'}
           </button>
-          <button onClick={handlePublicShareModeClick} className="quiz-mode-button">
+          <button onClick={handlePublicShareModeClick} className="quiz-mode-button" id="online-mode-btn">
             <FontAwesomeIcon icon={faGlobe} className="dropdown-icon" />
-            {isPublicShareMode ? 'Exit List' : 'Online'}
+            {isPublicShareMode ? 'Designer' : 'Online'}
           </button>
         </div>
 

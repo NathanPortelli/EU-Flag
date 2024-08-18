@@ -1,10 +1,13 @@
 export const changelogData = [
   {
     version: "v.0.3.1",
-    date: "16/08/2024",
+    date: "18/08/2024",
     changes : [
+      "Added User Guide",
       "Added Tags to Online Sharing Mode",
+      "Added Blur on Offensive Tagged Flags",
       "Redirect to Online Share List on Sharing",
+      "Fixed Issue with Image Overlays",
     ]
   },
   {

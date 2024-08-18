@@ -9,7 +9,7 @@ import Tooltip from './components/Tooltip';
 
 const DownloadButton = ({ backColours, selectedPattern, selectedAmount, backgroundImage, customImage, overlays, stripeCount, crossSaltireSize, containerFormat, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, seychellesStripeCount, crossVerticalOffset, crossHorizontalOffset }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
-  const canDownloadSvg = !customImage && !backgroundImage;
+  const canDownloadSvg = !overlays.some(overlay => overlay.type === 'image') && !customImage && !backgroundImage;
 
   // PNG DOWNLOAD
 
