@@ -6,8 +6,10 @@ export const changelogData = [
       "Added User Guide",
       "Added Tags to Online Sharing Mode",
       "Added Blur on Offensive Tagged Flags",
+      "Added Images to User Guide",
       "Redirect to Online Share List on Sharing",
       "Fixed Issue with Image Overlays",
+      "UI Update to Header"
     ]
   },
   {

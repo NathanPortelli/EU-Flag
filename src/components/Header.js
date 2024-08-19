@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faQuestionCircle, faFloppyDisk, faArrowsRotate, faUndo, faRedo, faBars, faFlag, faShare, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faQuestionCircle, faFloppyDisk, faArrowsRotate, faUndo, faRedo, faBars, faFlag, faGlobe } from '@fortawesome/free-solid-svg-icons';
 
 const Header = ({ 
   handleShare, 
@@ -47,36 +47,35 @@ const Header = ({
 
   const handleQuizModeClick = () => {
     if (isPublicShareMode) {
-      togglePublicShareMode(); // Turn off quiz mode if it's on
+      togglePublicShareMode();
     }
     if (isFlagMode) {
-      toggleFlagMode(); // Turn off flag mode if it's on
+      toggleFlagMode();
     }
     toggleQuizMode();
   };
   
   const handleFlagModeClick = () => {
     if (isQuizMode) {
-      toggleQuizMode(); // Turn off quiz mode if it's on
+      toggleQuizMode();
     }
     if (isPublicShareMode) {
-      togglePublicShareMode(); // Turn off flag mode if it's on
+      togglePublicShareMode();
     }
     toggleFlagMode();
   };
 
   const handlePublicShareModeClick = () => {
     if (isQuizMode) {
-      toggleQuizMode(); // Turn off quiz mode if it's on
+      toggleQuizMode();
     }
     if (isFlagMode) {
-      toggleFlagMode(); // Turn off flag mode if it's on
+      toggleFlagMode();
     }
     togglePublicShareMode();
   };
 
   const handleTitleClick = () => {
-    // Turn off all modes when the title is clicked
     if (isQuizMode) {
       toggleQuizMode();
     }
@@ -88,27 +87,32 @@ const Header = ({
     }
   };
 
+  const shouldShowActionsDropdown = !(isQuizMode || isFlagMode || isPublicShareMode);
+  const shouldShowActionsButton = !isQuizMode && !isFlagMode && !isPublicShareMode;
+
   return (
     <header className="App-header">
       <h1 className="header-title" onClick={handleTitleClick}>EU Flag Maker</h1>
       <div className="header-buttons">
-        <div ref={actionsDropdownRef} className={`dropdown-menu actions-dropdown ${isActionsDropdownOpen ? 'show' : ''}`}>
-          <button className="header-button" onClick={undo} disabled={!canUndo}>
-            <FontAwesomeIcon icon={faUndo} className="header-icon" />
-          </button>
-          <button className="header-button" onClick={redo} disabled={!canRedo}>
-            <FontAwesomeIcon icon={faRedo} className="header-icon" />
-          </button>
-          <button className="header-button" onClick={handleShare}>
-            <FontAwesomeIcon icon={faFloppyDisk} className="header-icon" />
-          </button>
-          <button className="header-button" onClick={handleRefresh}>
-            <FontAwesomeIcon icon={faArrowsRotate} className="header-icon" />
-          </button>
-          <a href="https://github.com/NathanPortelli/EU-Flag" className="header-button" target="_blank" rel="noopener noreferrer">
-            <i className="fab fa-github"></i>
-          </a>
-        </div>
+        {shouldShowActionsDropdown && (
+          <div ref={actionsDropdownRef} className={`dropdown-menu actions-dropdown ${isActionsDropdownOpen ? 'show' : ''}`}>
+            <button className="header-button" onClick={undo} disabled={!canUndo}>
+              <FontAwesomeIcon icon={faUndo} className="header-icon" />
+            </button>
+            <button className="header-button" onClick={redo} disabled={!canRedo}>
+              <FontAwesomeIcon icon={faRedo} className="header-icon" />
+            </button>
+            <button className="header-button" onClick={handleShare}>
+              <FontAwesomeIcon icon={faFloppyDisk} className="header-icon" />
+            </button>
+            <button className="header-button" onClick={handleRefresh}>
+              <FontAwesomeIcon icon={faArrowsRotate} className="header-icon" />
+            </button>
+            <a href="https://github.com/NathanPortelli/EU-Flag" className="header-button" target="_blank" rel="noopener noreferrer">
+              <i className="fab fa-github"></i>
+            </a>
+          </div>
+        )}
 
         <div ref={modesDropdownRef} className={`dropdown-menu modes-dropdown ${isModesDropdownOpen ? 'show' : ''}`}>
           <button onClick={handleQuizModeClick} className="quiz-mode-button">
@@ -129,9 +133,11 @@ const Header = ({
           Modes
         </button>
 
-        <button className="dropdown-toggle" onClick={toggleActionsDropdown}>
-          <FontAwesomeIcon icon={faBars} />
-        </button>
+        {shouldShowActionsButton && (
+          <button className="dropdown-toggle" onClick={toggleActionsDropdown}>
+            <FontAwesomeIcon icon={faBars} />
+          </button>
+        )}
       </div>
     </header>
   );

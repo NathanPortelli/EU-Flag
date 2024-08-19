@@ -2089,6 +2089,7 @@ dropdown-menu.show {
   flex-direction: column;
   background-color: #032f85;
   border-top: 1px solid #FFDD00;
+  border-bottom: 1px solid #FFDD00;
 }
 
 .submenu-btn {
@@ -2224,4 +2225,20 @@ dropdown-menu.show {
 .content a {
   padding: 0;
   text-decoration: underline;
+}
+
+.user-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+  border-radius: 10px;
+  border: 2.5px solid #FFDD00;
+}
+
+.guide-subtitle {
+  font-size: 18px !important;
+  color: #FFDD00;
+  padding-bottom: 10px;
+  max-width: 100%;
 }
