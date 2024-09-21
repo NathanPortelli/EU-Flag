@@ -1,5 +1,12 @@
 export const changelogData = [
   {
+    version: "v.0.3.2",
+    date: "22/09/2024",
+    changes : [
+      "Added Ripple Effect Mode"
+    ]
+  },
+  {
     version: "v.0.3.1",
     date: "18/08/2024",
     changes : [
@@ -412,4 +419,7 @@ export const upcomingFeatures = [
   { feature: "Basic Colour Theory on Non-Overlay Flag Randomiser", difficulty: "Not Difficult" },
   { feature: "Gradient Backgrounds", difficulty: "Difficult" },
   { feature: "Symmetry Options (Mirroring, Radial)", difficulty: "Not Difficult" },
+  { feature: "Waving Flag Animation", difficulty: "Difficult" },
+  { feature: "Description for Shared Flags", difficulty: "Not Difficult" },
+  { feature: "Additional Quiz Modes", difficulty: "Not Difficult" },
 ];

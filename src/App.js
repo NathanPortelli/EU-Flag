@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faArrowDown, faArrowUp, faTurnDown, faTurnUp, faLayerGroup, faImage, faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign, faGlobe, faBookOpen } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowUp, faTurnDown, faTurnUp, faLayerGroup, faImage, faArrowRight, faClipboardList, faBorderStyle, faBan, faArrowsAltH, faFont, faChessBoard, faMaximize, faRotate, faUpDown, faLeftRight, faPlus, faShuffle, faBorderTopLeft, faPaintRoller, faManatSign, faGlobe, faBookOpen, faFlag } from '@fortawesome/free-solid-svg-icons';
 import { random } from 'lodash';
 import { inject } from '@vercel/analytics';
 
@@ -82,6 +82,7 @@ const App = () => {
   const [crossHorizontalOffset, setCrossHorizontalOffset] = useState(0);
   const [crossVerticalOffset, setCrossVerticalOffset] = useState(0);
 
+  const [rippleEffect, setRippleEffect] = useState(true);
   const [isUserGuideOpen, setIsUserGuideOpen] = useState(false);
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [isFlagMode, setIsFlagMode] = useState(false);
@@ -91,6 +92,10 @@ const App = () => {
   const [urlHistory, setUrlHistory] = useState([window.location.href]);
   const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
+
+  const toggleRippleEffect = () => {
+    setRippleEffect(!rippleEffect);
+  };
 
   const handleShareFlag = () => {
     setIsSharePopupOpen(true);
@@ -1034,6 +1039,7 @@ const App = () => {
                       seychellesStripeCount={seychellesStripeCount}
                       crossHorizontalOffset={crossHorizontalOffset}
                       crossVerticalOffset={crossVerticalOffset}
+                      rippleEffect={rippleEffect}
                     />
                   </div>
                   <div className="Shape-selector Under-Stars-Display">
@@ -1087,6 +1093,10 @@ const App = () => {
                           </button>
                         </Tooltip>
                       </div>
+                      <button onClick={toggleRippleEffect} className="ripple-btn">
+                        <FontAwesomeIcon icon={faFlag} className="random-icon" />
+                        {rippleEffect ? 'Remove Ripple Effect' : 'Ripple Effect'}
+                      </button>
                       <button onClick={handleShareFlag} className="share-online-btn">
                         <FontAwesomeIcon icon={faGlobe} className="random-icon" />
                         Share Online

@@ -3,7 +3,7 @@ import './styles/StarsDisplay.css';
 import { shapePaths } from './components/ItemLists';
 import { overlaySymbols } from './components/OverlaySymbols';
 
-const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, circleSpacing, gridSpacing, updateOverlayPosition, customSvgPath, seychellesStripeCount, crossHorizontalOffset, crossVerticalOffset }) => {
+const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColour, rotationAngle, shape, pointAway, outlineOnly, outlineWeight, pattern, amount, starRotation, customImage, backgroundImage, shapeConfiguration, overlays, containerFormat, crossSaltireSize, gridRotation, starsOnTop, checkerSize, sunburstStripeCount, borderWidth, stripeWidth, circleSpacing, gridSpacing, updateOverlayPosition, customSvgPath, seychellesStripeCount, crossHorizontalOffset, crossVerticalOffset, rippleEffect }) => {
   const [draggedOverlay, setDraggedOverlay] = useState(null);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
   const initialOverlayPosRef = useRef({ x: 0, y: 0 });
@@ -613,7 +613,7 @@ const StarsDisplay = ({ count, size, radius, circleCount, backColours, starColou
   return (
     <div 
       id="stars-container" 
-      className={`stars-container ${containerFormat}`}
+      className={`stars-container ${containerFormat} ${rippleEffect ? 'ripple-active' : ''}`}
       style={{
         ...generateBackgroundStyle(),
         ...getContainerStyle(),
