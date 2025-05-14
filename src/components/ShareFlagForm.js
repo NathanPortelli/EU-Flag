@@ -181,8 +181,8 @@ const ShareFlagForm = ({ flagURL, onClose, togglePublicShareMode }) => {
 
     return (
         <div className="save-menu">
-            <h2 className='share-menu-title'>Share Online</h2>
-            <p className='report-para'>When sharing, you will be posting the currently created flag onto the <b>'Online'</b> section of this site with other user-generated flags.</p>
+            <h2 className='share-menu-title'>Share your Flag with the Community</h2>
+            <p className='report-para'>When sharing, you will be posting the currently created flag onto the <b>'Community'</b> section of this site with other user-generated flags.</p>
             <form className='share-online-form' onSubmit={handleSubmit}>
                 <div className="Text-container">
                     <label htmlFor="displayName" className="shape-label">Your Name</label>

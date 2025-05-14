@@ -172,7 +172,7 @@ const SharedFlags = () => {
       <div className='shared-flags-top'>
         <h2 className='flag-mode-title'>Shared Flags</h2>
         <p className='flag-mode-subtitle'>Explore shared flags created by others.</p>
-        <p className='report-para'>To add your own flag, click on the <b>"Share Online"</b> button under the flag in the Designer.</p>
+        <p className='report-para'>To add your own flag, click on the <b>"Share Flag in the Community"</b> button under the flag in the Designer.</p>
         <p className='report-para'>Please report any obscene material via <a href='https://x.com/NathPortelli' target="_blank" rel="noopener noreferrer">Twitter/X</a> or <a href="mailto:portellinathan@yahoo.com" target="_blank" rel="noopener noreferrer">email</a></p>
         <div className="search-bar">
           <input

@@ -39,10 +39,27 @@ body {
   background-color: #002080;
   border-bottom: 3px solid #FFDD00;
   padding: 20px;
+  height: 80px;
   text-align: center;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  height: 32px;
+  width: 32px;
+}
+
+.header-title {
+  margin: 0;
+  cursor: pointer;
 }
 
 .App-main {
@@ -91,23 +108,22 @@ body {
   align-items: center; 
 }
 
-.Under-Stars-Left,
-.Under-Stars-Right {
-  flex: 1;
-  margin: 0 10px; 
+.shape-selector-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
-@media (min-width: 1200px) {
-  .Under-Stars-Display {
-    display: flex !important;
-    justify-content: space-between !important;
-    flex-direction: row !important;
-    align-items: center !important;
+@media (min-width: 800px) {
+  .shape-selector-group {
+    flex-direction: row;
+    justify-content: center;
   }
 
-  .Under-Stars-Left,
-  .Under-Stars-Right {
-    flex: 1;
+  .Shape-selector {
+    width: auto;
+    flex: 0 1 auto;
   }
 }
 
@@ -980,10 +996,44 @@ dropdown-menu.show {
   color: #FFDD00;
 }
 
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 50px;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 800px) {
+  .button-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .randomize-buttons-container {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .random-button,
+  .app-guide-btn,
+  .share-online-btn {
+    width: 100%;
+  }
+}
+
 /* Randomiser */
 
 .random-button {
-  background: linear-gradient(in hsl longer hue 45deg, blue 0 0);
+  background: linear-gradient(90deg, 
+    #ff0000, 
+    #ff9900, 
+    #ffff00, 
+    #33cc33, 
+    #0099ff, 
+    #6633ff, 
+    #cc00cc);
   color: #003399;
   border: none;
   padding: 10px 20px;
@@ -996,7 +1046,6 @@ dropdown-menu.show {
   transition: background-color 0.3s ease;
   border-radius: 100px;
   margin-bottom: 20px;
-  
   width: 250px;
 }
 
@@ -1512,7 +1561,6 @@ dropdown-menu.show {
   font-weight: bold;
   width: 250px;
   height: 60px;
-  margin-bottom: 20px;
   font-size: 18px;
   background: #002080;
   border: 2px solid #FFDD00;
@@ -2022,19 +2070,6 @@ dropdown-menu.show {
 
 /* User Guide */
 
-.app-guide-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  margin-bottom: 20px;
-  margin-top: 20px;
-  padding: 20px;
-  border: 1px solid #FFDD00;
-  border-radius: 10px;
-}
-
 .user-guide-popup {
   display: flex;
   width: 100%;
@@ -2160,7 +2195,6 @@ dropdown-menu.show {
   padding: 20px;
   margin-bottom: 20px;
   margin-top: 20px;
-  padding: 20px;
   border: 1px solid #FFDD00;
   border-radius: 10px;
 }
@@ -2175,7 +2209,6 @@ dropdown-menu.show {
 
 .app-guide-btn {
   padding: 0.6em 2em;
-  margin-top: 20px;
   border: none;
   outline: none;
   font-weight: bold;
@@ -2184,7 +2217,6 @@ dropdown-menu.show {
   background: #ffdd00;
   cursor: pointer;
   position: relative;
-  z-index: 0;
   border-radius: 10px;
   user-select: none;
   -webkit-user-select: none;

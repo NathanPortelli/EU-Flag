@@ -491,7 +491,7 @@ const UserGuide = () => {
           <br />
           <img src="https://i.imgur.com/avmJawY.png" className="user-center" alt="Randomise Ø" />
           <Divider />
-          <p className="guide-subtitle"><b>Share Online</b></p>
+          <p className="guide-subtitle"><b>Share Flag in the Community</b></p>
           <p>This button allows you to add your own creation to the <b>Online</b> section of the site. Clicking on this button will open a popup where you can enter your name/nickname, the name of the flag, and select tags relevant to your flag.</p>
           <br />
           <p>Refer to the <b>Online</b> section of this guide for more information.</p>
@@ -583,7 +583,7 @@ const UserGuide = () => {
           <br />
           <img src="https://i.imgur.com/7oeOgMC.png" className="user-center" alt="Online" />
           <br />
-          <p>By clicking the <b>Share Online</b> button, you can add your own creation to this list!</p>
+          <p>By clicking the <b>Share Flag in the Community</b> button, you can add your own creation to this list!</p>
           <br />
           <img src="https://i.imgur.com/ENRKIGX.png" className="user-center" alt="Share Online Button" />
           <br />
@@ -599,7 +599,7 @@ const UserGuide = () => {
         {activeTab === 'online-upload' && <div>
           <h1>Upload your Flag</h1>
           <Divider />
-          <p>Click on the <b>Share Online</b> button underneath the flag canvas to share your flag design to the <b>Online</b> section of the site.</p>
+          <p>Click on the <b>Share Flag in the Community</b> button underneath the flag canvas to share your flag design to the <b>Online</b> section of the site.</p>
           <br />
           <img src="https://i.imgur.com/ENRKIGX.png" className="user-center" alt="Share Online Button" />
           <br />

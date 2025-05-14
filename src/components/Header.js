@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt, faQuestionCircle, faFloppyDisk, faArrowsRotate, faUndo, faRedo, faBars, faFlag, faGlobe } from '@fortawesome/free-solid-svg-icons';
 
@@ -92,7 +92,10 @@ const Header = ({
 
   return (
     <header className="App-header">
-      <h1 className="header-title" onClick={handleTitleClick}>EU Flag Maker</h1>
+      <div className="title-container">
+        <img src="/favicon.ico" alt="EU Flag Maker Logo" className="header-logo" />
+        <h1 className="header-title" onClick={handleTitleClick}>EU Flag Maker</h1>
+      </div>
       <div className="header-buttons">
         {shouldShowActionsDropdown && (
           <div ref={actionsDropdownRef} className={`dropdown-menu actions-dropdown ${isActionsDropdownOpen ? 'show' : ''}`}>
@@ -117,15 +120,15 @@ const Header = ({
         <div ref={modesDropdownRef} className={`dropdown-menu modes-dropdown ${isModesDropdownOpen ? 'show' : ''}`}>
           <button onClick={handleQuizModeClick} className="quiz-mode-button">
             <FontAwesomeIcon icon={isQuizMode ? faPencilAlt : faQuestionCircle} className="dropdown-icon" />
-            {isQuizMode ? 'Exit Quiz' : 'Quiz'}
+            {isQuizMode ? 'Designer' : 'Quiz'}
           </button>
           <button onClick={handleFlagModeClick} className="quiz-mode-button">
             <FontAwesomeIcon icon={faFlag} className="dropdown-icon" />
-            {isFlagMode ? 'Designer' : 'Flag List'}
+            {isFlagMode ? 'Designer' : 'Gallery'}
           </button>
           <button onClick={handlePublicShareModeClick} className="quiz-mode-button" id="online-mode-btn">
             <FontAwesomeIcon icon={faGlobe} className="dropdown-icon" />
-            {isPublicShareMode ? 'Designer' : 'Online'}
+            {isPublicShareMode ? 'Designer' : 'Community'}
           </button>
         </div>
 

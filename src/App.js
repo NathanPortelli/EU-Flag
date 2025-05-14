@@ -1043,7 +1043,7 @@ const App = () => {
                     />
                   </div>
                   <div className="Shape-selector Under-Stars-Display">
-                    <div className='Under-Stars-Left'> 
+                    <div className="shape-selector-group">
                       <div className="Shape-selector">
                         <Tooltip text="Select the flag format or aspect ratio.">
                           <div className="Shape-container">
@@ -1066,6 +1066,7 @@ const App = () => {
                           </div>
                         </Tooltip>
                       </div>
+
                       <div className="Shape-selector">
                         <Tooltip text="Change the above flag to one from our list of hundreds of flags.">
                           <div className="Shape-container" id="country-selector">
@@ -1081,7 +1082,9 @@ const App = () => {
                         </Tooltip>
                       </div>
                     </div>
-                    <div className='Under-Stars-Right'> 
+                  </div>
+                  <div className="Shape-selector app-guide-container">
+                    <div className="button-group">
                       <div className="randomize-buttons-container">
                         <button onClick={() => randomizeAll(true)} className="random-button random-button-large">
                           <FontAwesomeIcon icon={faShuffle} className="random-icon" />
@@ -1093,22 +1096,21 @@ const App = () => {
                           </button>
                         </Tooltip>
                       </div>
+                      <button onClick={handleShareFlag} className="share-online-btn">
+                        <FontAwesomeIcon icon={faGlobe} className="random-icon" />
+                        Share Flag in Community
+                      </button>
+                    </div>
+                    <div className="button-group">
                       <button onClick={toggleRippleEffect} className="ripple-btn">
                         <FontAwesomeIcon icon={faFlag} className="random-icon" />
                         {rippleEffect ? 'Remove Ripple Effect' : 'Ripple Effect'}
                       </button>
-                      <button onClick={handleShareFlag} className="share-online-btn">
-                        <FontAwesomeIcon icon={faGlobe} className="random-icon" />
-                        Share Online
+                      <button className='app-guide-btn' onClick={toggleUserGuide}>
+                        <FontAwesomeIcon icon={faBookOpen} className="random-icon" aria-label="Open User Guide"/>
+                        User Guide
                       </button>
                     </div>
-                  </div>
-                  <div className="Shape-selector app-guide-container">
-                    <p className='app-guide-text'>Confused on how to start?</p>
-                    <button className='app-guide-btn' onClick={toggleUserGuide}>
-                      <FontAwesomeIcon icon={faBookOpen} className="random-icon" aria-label="Open User Guide"/>
-                      User Guide
-                    </button>
                   </div>
                 </div>
               ) : ( <> </> )}
@@ -1157,7 +1159,6 @@ const App = () => {
                               <option value="circle">EU Format</option>
                               <option value="square">USA Format</option>
                             </select>
-                        
                           </div>
                         </Tooltip>
                       </div>
